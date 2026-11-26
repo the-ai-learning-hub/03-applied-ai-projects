@@ -1,0 +1,54 @@
+[project]
+name = "applied-ai-projects"
+version = "0.1.0"
+description = "Lesson 03 of The AI Learning Hub: applied AI on unstructured data (Text Mining, Computer Vision, embeddings and RAG)."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "ipykernel>=6.29",
+    "ipywidgets>=8.1",
+    "matplotlib>=3.8",
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "pillow>=10.0",
+    "requests>=2.31",
+    "scikit-learn>=1.5",
+    "seaborn>=0.13",
+    "tqdm>=4.66",
+    # Text Mining
+    "vaderSentiment>=3.3",
+    "wordcloud>=1.9",
+    "xgboost>=2.1",
+    "transformers>=4.46",
+    "accelerate>=1.0",
+    "sentence-transformers>=3.2",
+    # Audio (multimodal block)
+    "librosa>=0.10",
+    "soundfile>=0.12",
+    # Computer Vision
+    "torch>=2.5",
+    "torchvision>=0.20",
+    # Object detection challenge (YOLO, AGPL-3.0)
+    "ultralytics>=8.3",
+]
+
+[dependency-groups]
+dev = [
+    "nbclient>=0.10",
+    "nbconvert>=7.16",
+    "nbformat>=5.10",
+    "pytest>=8.0",
+]
+
+# PyTorch CPU by default (small download on every OS). For an NVIDIA GPU see README -> "GPU (optional)".
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform != 'darwin'" }]
+torchvision = [{ index = "pytorch-cpu", marker = "sys_platform != 'darwin'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+pythonpath = ["."]

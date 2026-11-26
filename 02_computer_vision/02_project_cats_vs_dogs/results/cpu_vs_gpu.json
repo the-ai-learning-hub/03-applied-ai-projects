@@ -1,0 +1,85 @@
+{
+  "hardware": {
+    "cpu": "AMD Ryzen 7 7735HS with Radeon Graphics",
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "cpu_threads": 8,
+    "torch": "2.11.0+cu128",
+    "python": "3.12.15",
+    "os": "Windows-11-10.0.26300-SP0"
+  },
+  "training": [
+    {
+      "device": "cpu",
+      "device_name": "AMD Ryzen 7 7735HS with Radeon Graphics",
+      "seconds": 7.66534479999973,
+      "n_images": 2000,
+      "images_per_second": 260.91455142371035,
+      "batch_size": 32,
+      "model": "SmallCNN (16-32-64-128-256, GAP), 128 px, 2000 images, 1 epoch"
+    },
+    {
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "seconds": 0.5195901000006415,
+      "n_images": 2000,
+      "images_per_second": 3849.1880426465605,
+      "batch_size": 32,
+      "model": "SmallCNN (16-32-64-128-256, GAP), 128 px, 2000 images, 1 epoch"
+    },
+    {
+      "device": "cpu",
+      "device_name": "AMD Ryzen 7 7735HS with Radeon Graphics",
+      "seconds": 8.49620209999921,
+      "n_images": 2000,
+      "images_per_second": 235.39929682230442,
+      "batch_size": 64,
+      "model": "SmallCNN (16-32-64-128-256, GAP), 128 px, 2000 images, 1 epoch"
+    },
+    {
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "seconds": 0.5420940000003611,
+      "n_images": 2000,
+      "images_per_second": 3689.397041838994,
+      "batch_size": 64,
+      "model": "SmallCNN (16-32-64-128-256, GAP), 128 px, 2000 images, 1 epoch"
+    },
+    {
+      "device": "cpu",
+      "device_name": "AMD Ryzen 7 7735HS with Radeon Graphics",
+      "seconds": 7.785068799999863,
+      "n_images": 2000,
+      "images_per_second": 256.9020327733051,
+      "batch_size": 128,
+      "model": "SmallCNN (16-32-64-128-256, GAP), 128 px, 2000 images, 1 epoch"
+    },
+    {
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "seconds": 0.5359472999989521,
+      "n_images": 2000,
+      "images_per_second": 3731.710188676966,
+      "batch_size": 128,
+      "model": "SmallCNN (16-32-64-128-256, GAP), 128 px, 2000 images, 1 epoch"
+    }
+  ],
+  "inference": [
+    {
+      "device": "cpu",
+      "device_name": "AMD Ryzen 7 7735HS with Radeon Graphics",
+      "seconds": 4.886349099999279,
+      "n_images": 512,
+      "images_per_second": 104.78170706224726,
+      "model": "MobileNetV3-Large features, 224 px, 512 images"
+    },
+    {
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "seconds": 0.27362150000044494,
+      "n_images": 512,
+      "images_per_second": 1871.1979869972479,
+      "model": "MobileNetV3-Large features, 224 px, 512 images"
+    }
+  ],
+  "note": "Measured once on the teacher's laptop with fixed seeds: same model, same initial weights, same batches in the same order, data already on the device, 5 warm-up batches not counted, synchronize before reading the clock; best of 2-3 runs."
+}

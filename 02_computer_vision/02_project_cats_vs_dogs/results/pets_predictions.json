@@ -1,0 +1,121 @@
+[
+ {
+  "file": "cat10000.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 0.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9001.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 1e-06,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9002.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 5e-06,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9003.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 7e-06,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9004.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 4.1e-05,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9005.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 3.7e-05,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9009.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 0.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9010.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 0.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9013.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 3e-05,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "cat9014.jpg",
+  "true": "cat",
+  "pred": "cat",
+  "p_dog": 0.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9006.jpg",
+  "true": "dog",
+  "pred": "cat",
+  "p_dog": 0.023579,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9007.jpg",
+  "true": "dog",
+  "pred": "dog",
+  "p_dog": 0.982974,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9008.jpg",
+  "true": "dog",
+  "pred": "dog",
+  "p_dog": 0.999952,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9011.jpg",
+  "true": "dog",
+  "pred": "dog",
+  "p_dog": 0.999993,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9012.jpg",
+  "true": "dog",
+  "pred": "dog",
+  "p_dog": 1.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9015.jpg",
+  "true": "dog",
+  "pred": "dog",
+  "p_dog": 1.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ },
+ {
+  "file": "dog9016AI.jpg",
+  "true": "dog",
+  "pred": "dog",
+  "p_dog": 1.0,
+  "model": "mobilenet_v3_large + logistic head (cats_and_dogs, 2000 photos)"
+ }
+]
