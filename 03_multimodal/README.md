@@ -2,10 +2,10 @@
 
 Text, images and sound all become vectors — and similar meaning means nearby points. One idea that powers semantic search, CLIP and speech-to-text. 🏠 [Lesson 03](../README.md) · 📖 [Slides](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#multimodal)
 
-| Notebook | Question | Time | Open |
-|---|---|---|---|
-| [05 · Everything is a vector](01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb) | Can one idea connect words, photos and voices? | 60 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb) |
-| [🎮 Challenge 3 · CLIP Pictionary](02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb) | Can you describe a photo so CLIP finds it first? | 15 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb) |
+| Notebook | Question | Open |
+|---|---|---|
+| [05 · Everything is a vector](01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb) | Can one idea connect words, photos and voices? | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb)  |
+| [🎮 Challenge 3 · CLIP Pictionary](02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb) | Can you describe a photo so CLIP finds it first? | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb)  |
 
 ## 🎯 Objectives
 
