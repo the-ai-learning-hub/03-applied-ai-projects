@@ -142,30 +142,6 @@ def test_flip_game_widget_updates_live():
     assert ui["text"].value == "i hate this"
 
 
-def test_hunt_score():
-    detections = {"a.jpg": ["cup", "laptop", "person"], "b.jpg": ["cup", "cat"]}
-    res = ch.hunt_score(detections, hunt_list=["cup", "laptop", "book"],
-                        fooled={"b.jpg": "cat", "a.jpg": "giraffe"})
-    assert res["found"] == ["cat", "cup", "laptop", "person"]
-    assert res["breakdown"] == {"distinct objects": 4, "hunt-list items": 6, "Fool YOLO": 5}
-    assert res["total"] == 15
-    assert res["hunt_missing"] == ["book"]
-    assert res["fools_invalid"] == [("a.jpg", "giraffe")]
-
-
-def test_hunt_score_accepts_pairs_and_dedupes():
-    det = {"s.jpg": ["cat", "bed"]}
-    res = ch.hunt_score(det, hunt_list=[], fooled=[("s.jpg", "cat"), ("s.jpg", "bed"), ("s.jpg", "cat")])
-    assert res["fools_valid"] == [("s.jpg", "cat"), ("s.jpg", "bed")]
-    assert res["breakdown"]["Fool YOLO"] == 10
-
-
-def test_hunt_score_caps_fools():
-    det = {f"{i}.jpg": ["cat"] for i in range(5)}
-    res = ch.hunt_score(det, hunt_list=[], fooled={f"{i}.jpg": "cat" for i in range(5)})
-    assert len(res["fools_valid"]) == ch.CH2_RULES["max_fools"]
-
-
 def test_word_tools():
     assert ch.word_count("an orange cat, by the door!") == 6
     assert ch.forbidden_used("A fluffy Kitten next to a DOG") == ["kitten", "dog"]
@@ -185,81 +161,9 @@ def test_rank_and_points():
 
 def test_plot_scorecard_returns_figure():
     import matplotlib.pyplot as plt
-    fig = ch.plot_scorecard(27, {"a": 20, "b": 7, "c": 0}, ch.LEVELS["yolo_hunt"], "Test", subtitle="x")
+    fig = ch.plot_scorecard(27, {"a": 20, "b": 7, "c": 0}, ch.LEVELS["clip_pictionary"], "Test", subtitle="x")
     assert fig.axes
     plt.close(fig)
-
-
-def test_tracker_needs_consecutive_frames():
-    tr = ch.HuntTracker(hunt_list=["cup", "book"], min_conf=0.4, min_frames=3)
-    assert tr.update([("cup", 0.9)], 0.0) == []
-    assert tr.update([("cup", 0.9)], 0.1) == []
-    assert tr.update([], 0.2) == []                      # flicker: the streak starts again
-    assert tr.update([("cup", 0.9), ("cat", 0.3)], 0.3) == []
-    tr.update([("cup", 0.9)], 0.4)
-    assert tr.update([("cup", 0.9)], 0.5) == ["cup"]
-    assert tr.update([("cup", 0.9)], 0.6) == []          # confirmed only once
-    assert tr.seen == ["cup"] and tr.hunt_found == ["cup"] and not tr.done
-    assert tr.confirmed["cup"]["t"] == 0.5
-    assert list(tr.table().columns) == ["object", "on hunt list", "found in", "time (s)"]
-
-
-def test_tracker_resets_between_photos():
-    tr = ch.HuntTracker(hunt_list=["cup"], min_frames=2)
-    tr.update([("cup", 0.9)], 0, "a.jpg")
-    assert tr.update([("cup", 0.9)], 0, "b.jpg") == []
-    assert tr.update([("cup", 0.9)], 0, "b.jpg") == ["cup"]
-    assert tr.detections_by_source() == {"b.jpg": {"cup"}} and tr.done
-    tr.update([("cup", 0.9)], 0, "c.jpg"); tr.update([("cup", 0.9)], 0, "c.jpg")
-    assert tr.detections_by_source() == {"b.jpg": {"cup"}, "c.jpg": {"cup"}}
-    assert tr.confirmed["cup"]["source"] == "b.jpg"
-
-
-def _fake_frames(n, closed):
-    try:
-        for _ in range(n):
-            yield np.zeros((120, 160, 3), np.uint8), "webcam"
-    finally:
-        closed.append(True)
-
-
-def test_run_hunt_with_fake_camera_and_detector():
-    closed = []
-    def detect(frame):
-        return [("cup", 0.8, (10, 10, 60, 80)), ("person", 0.9, (0, 0, 160, 120))]
-    tr = ch.HuntTracker(hunt_list=["cup", "book"], min_frames=3)
-    shown = []
-    def display(img):
-        shown.append(img.shape)
-        return len(shown) < 5                             # "press Q" after 5 frames
-    out = ch.run_hunt(detect, _fake_frames(100, closed), tr, time_limit=60, display=display)
-    assert closed == [True]                                # camera released
-    assert out["frames"] == 5 and shown[0] == (120, 160, 3)
-    assert set(out["snapshots"]) == {"cup", "person"} and out["snapshots"]["cup"].ndim == 3
-    assert set(tr.seen) == {"cup", "person"}
-
-
-def test_run_hunt_stops_when_all_found_and_on_errors():
-    closed = []
-    tr = ch.HuntTracker(hunt_list=["cup"], min_frames=1)
-    out = ch.run_hunt(lambda f: [("cup", 0.9, (0, 0, 5, 5))], _fake_frames(50, closed), tr)
-    assert out["frames"] == 1 and closed == [True]
-    closed2 = []
-    def boom(frame):
-        raise KeyError("model crashed")
-    with pytest.raises(KeyError):
-        ch.run_hunt(boom, _fake_frames(5, closed2), ch.HuntTracker())
-    assert closed2 == [True]
-
-
-def test_photo_frames_and_crop(tmp_path):
-    from PIL import Image
-    path = tmp_path / "p.jpg"
-    Image.new("RGB", (40, 30), (255, 0, 0)).save(path)
-    frames = list(ch.photo_frames([path], repeats=2))
-    assert len(frames) == 2 and frames[0][1] == "p.jpg" and frames[0][0][0, 0, 2] > 200   # BGR: red last
-    crop = ch.crop_box(frames[0][0], (10, 10, 20, 20), margin=0.5)
-    assert crop.shape == (20, 20, 3)
 
 
 def test_tries_and_grid_figures(tmp_path):
@@ -277,10 +181,161 @@ def test_tries_and_grid_figures(tmp_path):
     plt.close(ch.plot_numbered_grid(paths, ncols=4, highlight=2))
 
 
-def test_run_hunt_with_a_camera_that_sends_nothing():
+def test_clean_entries_all_blank_gives_empty_round():
+    assert ch.clean_entries(["", "   ", "\n"], 3) == []
+    assert ch.clean_entries([("  ", "pos")], 8, key=lambda e: e[0]) == []
+
+
+def test_best_try_and_first_words():
+    assert ch.best_try([]) is None
+    tries = [{"total": 5, "rank": 3}, {"total": 5, "rank": 2}, {"total": 0, "rank": 9}]
+    assert ch.best_try(tries) == {"total": 5, "rank": 2}
+    assert ch.first_words("a b c d", 2) == "a b"
+    assert ch.first_words("a b", 5) == "a b"
+    long_text = " ".join(["word"] * 100)
+    assert ch.word_count(ch.first_words(long_text)) == ch.MAX_DESCRIPTION_WORDS
+
+
+def test_flip_html_styles_have_no_double_quotes_inside():
+    # a double quote inside style="…" would end the attribute and silently drop the whole style
+    assert '"' not in ch._FONT and '"' not in ch._MONO
+
+
+# ---- Challenge 2 · YOLO Live (no model: a fake detector stands in for YOLO) ----
+
+def test_count_classes_and_text():
+    dets = [("car", 0.9, (0, 0, 1, 1)), ("person", 0.8, (0, 0, 1, 1)), ("car", 0.5, (0, 0, 1, 1)),
+            ("bus", 0.2, (0, 0, 1, 1))]
+    assert ch.count_classes(dets) == {"car": 2, "bus": 1, "person": 1}
+    assert list(ch.count_classes(dets, 0.3)) == ["car", "person"]
+    assert ch.counts_text({"car": 2, "person": 1}) == "2 car  |  1 person"
+    assert ch.counts_text({"a": 1, "b": 1, "c": 1}, max_items=2).endswith("+1 more")
+    assert ch.counts_text({}) == "nothing found"
+
+
+def test_box_iou():
+    assert ch.box_iou((0, 0, 10, 10), (0, 0, 10, 10)) == 1.0
+    assert ch.box_iou((0, 0, 10, 10), (20, 20, 30, 30)) == 0.0
+    assert ch.box_iou((0, 0, 10, 10), (5, 0, 15, 10)) == pytest.approx(50 / 150)
+    assert ch.box_iou((0, 0, 0, 0), (0, 0, 0, 0)) == 0.0
+
+
+def test_simple_tracker_keeps_ids_and_trails():
+    tr = ch.SimpleTracker(iou_min=0.3, max_missed=2, trail=3)
+    ids = []
+    for k in range(5):                                       # a car moving right, a person standing still
+        out = tr.update([("car", 0.9, (10 + 4 * k, 10, 40 + 4 * k, 30)), ("person", 0.8, (100, 0, 120, 60))])
+        ids.append({cls: tid for tid, cls, _, _ in out})
+    assert all(i == ids[0] for i in ids) and len(set(ids[0].values())) == 2
+    car = tr.tracks[ids[0]["car"]]
+    assert len(car["trail"]) == 3 and car["trail"][-1] == (41.0, 20.0)   # last 3 centres only
+    assert tr.unique_counts(min_hits=5) == {"car": 1, "person": 1}
+    assert tr.unique_counts(min_hits=6) == {}
+
+
+def test_simple_tracker_never_mixes_classes_and_closes_lost_tracks():
+    tr = ch.SimpleTracker(iou_min=0.3, max_missed=1)
+    (a,) = tr.update([("car", 0.9, (0, 0, 10, 10))])
+    (b,) = tr.update([("truck", 0.9, (0, 0, 10, 10))])       # same place, other class: a new ID
+    assert a[0] != b[0]
+    tr.update([])
+    tr.update([])                                            # missed twice > max_missed: closed
+    assert tr.tracks == {}
+    (c,) = tr.update([("car", 0.9, (0, 0, 10, 10))])
+    assert c[0] not in (a[0], b[0]) and len(tr.history) == 3
+
+
+def test_heatmap_accumulates_at_box_centres():
+    heat = np.zeros((100, 200), np.float32)
+    ch.add_to_heatmap(heat, [(80, 40, 120, 60)])
+    ch.add_to_heatmap(heat, [(80, 40, 120, 60), (500, 500, 600, 600)])   # a box outside the frame is ignored
+    assert heat[50, 100] == 2 and heat[0, 0] == 0 and heat.sum() > 0
+    frame = np.full((100, 200, 3), 200, np.uint8)
+    over = ch.heatmap_overlay(frame, heat)
+    assert over.shape == frame.shape and over.dtype == np.uint8 and over[0, 0, 0] < 200   # background darkened
+    assert (ch.heatmap_overlay(frame, np.zeros((100, 200), np.float32)) == frame).all()
+
+
+def test_count_timeline():
+    df = ch.count_timeline([{"car": 2}, {}, {"car": 1, "person": 3}], [0.0, 0.04, 0.08])
+    assert list(df.columns) == ["car", "person"] and df.index.name == "time (s)"
+    assert df.loc[0.04].tolist() == [0, 0] and df["person"].sum() == 3
+    assert ch.count_timeline([], []).empty
+
+
+def test_class_colors_are_stable():
+    colors = ch.ClassColors()
+    first = colors["car"]
+    assert colors["person"] != first and colors["car"] == first
+    assert ch.hex_to_bgr("#E69F00") == (0, 159, 230) and colors.bgr("car") == ch.hex_to_bgr(first)
+
+
+def test_draw_detections_and_tracks():
+    frame = np.zeros((120, 160, 3), np.uint8)
+    dets = [("cup", 0.9, (10, 40, 60, 100)), ("book", 0.1, (70, 40, 150, 110))]
+    img = ch.draw_detections(frame, dets, min_conf=0.5)
+    assert img.shape == frame.shape and frame.sum() == 0 and img.sum() > 0      # a new image, input untouched
+    assert img[100, 10].any() and not img[110, 150].any()                       # below threshold: not drawn
+    tr = ch.SimpleTracker()
+    tracks = tr.update(dets)
+    assert ch.draw_tracks(frame, tracks, tr, ch.ClassColors()).shape == frame.shape
+
+
+def test_detections_from_result_with_a_fake_result():
+    class _T(list):
+        def tolist(self):
+            return list(self)
+
+    class _Boxes:
+        cls, conf, xyxy = _T([2.0, 0.0]), _T([0.8, 0.6]), _T([[1, 2, 3, 4], [5, 6, 7, 8]])
+
+    class _Result:
+        names, boxes = {0: "person", 2: "car"}, _Boxes()
+
+    assert ch.detections_from_result(_Result()) == [("car", 0.8, (1.0, 2.0, 3.0, 4.0)),
+                                                    ("person", 0.6, (5.0, 6.0, 7.0, 8.0))]
+
+
+def _fake_stream(n, closed, size=(120, 160)):
+    try:
+        for k in range(n):
+            yield np.zeros((*size, 3), np.uint8), k / 10
+    finally:
+        closed.append(True)
+
+
+def _moving_car(frame):
+    return [("car", 0.9, (10, 10, 50, 40)), ("ghost", 0.1, (0, 0, 5, 5))]   # the ghost is below min_conf
+
+
+def test_run_stream_collects_everything_and_closes_the_source():
     closed = []
-    out = ch.run_hunt(lambda f: [], _fake_frames(0, closed), ch.HuntTracker(), time_limit=60)
-    assert out["frames"] == 0 and out["fps"] is None and closed == [True]
+    out = ch.run_stream(_moving_car, _fake_stream(10, closed), min_conf=0.3, keep_every=3, keep_width=80)
+    assert closed == [True] and out["frames"] == 10
+    assert len(out["kept"]) == 4 and out["kept"][0].shape == (60, 80, 3)        # frames 0, 3, 6, 9, resized
+    assert list(out["timeline"].columns) == ["car"] and len(out["timeline"]) == 10
+    assert out["unique"] == {"car": 1} and out["discovered"] == {"car": 0.0}
+    assert out["heat"].shape == (120, 160) and len(out["latency_ms"]) == 10 and out["fps"] > 0
+
+
+def test_run_stream_stops_on_display_time_limit_and_errors():
+    closed = []
+    shown = []
+    out = ch.run_stream(_moving_car, _fake_stream(50, closed), display=lambda img: shown.append(1) or len(shown) < 4)
+    assert out["frames"] == 4 and closed == [True]                                # "press Q" after 4 frames
+    closed2 = []
+    out = ch.run_stream(_moving_car, _fake_stream(50, closed2), time_limit=0.25)
+    assert out["frames"] == 3 and closed2 == [True]                               # t = 0.0, 0.1, 0.2
+    closed3 = []
+
+    def boom(frame):
+        raise KeyError("model crashed")
+
+    with pytest.raises(KeyError):
+        ch.run_stream(boom, _fake_stream(5, closed3))
+    assert closed3 == [True]
+    out = ch.run_stream(_moving_car, _fake_stream(0, []))
+    assert out["frames"] == 0 and out["fps"] is None and out["heat"] is None
 
 
 class _BlindCapture:
@@ -307,25 +362,51 @@ def test_webcam_frames_raises_when_camera_sends_no_image(monkeypatch):
     import cv2
     monkeypatch.setattr(cv2, "VideoCapture", _BlindCapture)
     with pytest.raises(RuntimeError, match="no image"):
-        ch.run_hunt(lambda f: [], ch.webcam_frames(0), ch.HuntTracker(), time_limit=60)
+        ch.run_stream(_moving_car, ch.webcam_frames(0), time_limit=60)
     assert _BlindCapture.released
 
 
-def test_clean_entries_all_blank_gives_empty_round():
-    assert ch.clean_entries(["", "   ", "\n"], 3) == []
-    assert ch.clean_entries([("  ", "pos")], 8, key=lambda e: e[0]) == []
+def test_video_frames_and_info_on_a_tiny_video(tmp_path):
+    import cv2
+    path = tmp_path / "tiny.avi"
+    writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"MJPG"), 10.0, (64, 48))
+    for k in range(12):
+        writer.write(np.full((48, 64, 3), k * 20, np.uint8))
+    writer.release()
+    info = ch.video_info(path)
+    assert info["width"] == 64 and info["height"] == 48 and info["fps"] == 10.0
+    frames = list(ch.video_frames(path, width=32, max_seconds=0.5))
+    assert len(frames) == 6 and frames[0][0].shape == (24, 32, 3) and frames[-1][1] == pytest.approx(0.5)
+    with pytest.raises(RuntimeError):
+        list(ch.video_frames(tmp_path / "missing.mp4"))
 
 
-def test_best_try_and_first_words():
-    assert ch.best_try([]) is None
-    tries = [{"total": 5, "rank": 3}, {"total": 5, "rank": 2}, {"total": 0, "rank": 9}]
-    assert ch.best_try(tries) == {"total": 5, "rank": 2}
-    assert ch.first_words("a b c d", 2) == "a b"
-    assert ch.first_words("a b", 5) == "a b"
-    long_text = " ".join(["word"] * 100)
-    assert ch.word_count(ch.first_words(long_text)) == ch.MAX_DESCRIPTION_WORDS
+def test_list_media(tmp_path):
+    for name in ("b.JPG", "a.png", "clip.mp4", "notes.txt", ".hidden.jpg", "README.md"):
+        (tmp_path / name).write_bytes(b"x")
+    images, videos = ch.list_media(tmp_path)
+    assert [p.name for p in images] == ["a.png", "b.JPG"] and [p.name for p in videos] == ["clip.mp4"]
+    assert ch.list_media(tmp_path / "nope") == ([], [])
 
 
-def test_flip_html_styles_have_no_double_quotes_inside():
-    # a double quote inside style="…" would end the attribute and silently drop the whole style
-    assert '"' not in ch._FONT and '"' not in ch._MONO
+def test_yolo_tables_are_well_formed():
+    assert [r["size"] for r in ch.YOLO26_SIZES] == ["nano", "small", "medium", "large", "extra-large"]
+    maps = [r["mAP 50-95"] for r in ch.YOLO26_SIZES]
+    assert maps == sorted(maps)                               # bigger = more accurate ...
+    cpu = [r["CPU ms"] for r in ch.YOLO26_SIZES]
+    assert cpu == sorted(cpu)                                 # ... and slower
+    assert {t["task"] for t in ch.YOLO_TASKS} == {"detect", "segment", "pose", "obb", "classify"}
+
+
+def test_challenge2_figures_and_clip(tmp_path):
+    import matplotlib.pyplot as plt
+    frame = np.full((90, 160, 3), 120, np.uint8)
+    dets = [("car", 0.9, (10, 10, 60, 50)), ("car", 0.2, (70, 10, 100, 40)), ("person", 0.6, (100, 20, 130, 80))]
+    plt.close(ch.plot_detection_dashboard(frame, dets, 0.3, title="t"))
+    plt.close(ch.plot_threshold_strip(frame, dets))
+    out = ch.run_stream(_moving_car, _fake_stream(8, []), keep_every=1)
+    plt.close(ch.plot_video_report(out, title="t"))
+    assert ch.fig_to_jpeg(plt.figure())[:2] == b"\xff\xd8"
+    html = ch.clip_html(out["kept"], 10, tmp_path)
+    assert html.startswith("<video") or html.startswith("<img")
+    assert ch.threshold_explorer(frame, dets).children[1].value[:2] == b"\xff\xd8"

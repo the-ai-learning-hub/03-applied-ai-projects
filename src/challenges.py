@@ -1,13 +1,14 @@
-"""Scoring rules and the scorecard figure for the three Lesson 03 class challenges.
+"""Scoring rules, figures and interactive helpers for the three Lesson 03 class challenges.
 
 * Challenge 1 · Flip It!                 (``01_text_mining/03_challenge_flip_it``)
-* Challenge 2 · YOLO Scavenger Hunt       (``02_computer_vision/03_challenge_yolo``)
+* Challenge 2 · YOLO Live                 (``02_computer_vision/03_challenge_yolo``)
 * Challenge 3 · CLIP Pictionary           (``03_multimodal/02_challenge_clip_pictionary``)
 
 Everything here is plain Python + NumPy/pandas/Matplotlib: no model is loaded, so the tests run in
 a second. The notebooks call the models and pass the *answers* (labels, probabilities, detected
 classes, ranks) to these functions. Challenge 1 also gets its interactive game here
-(:class:`FlipGame`, ``ipywidgets`` + HTML), so the notebook stays short. Every rule lives in one
+(:class:`FlipGame`, ``ipywidgets`` + HTML), and Challenge 2 its drawing, tracking, video and webcam
+machinery (OpenCV), so the notebooks stay short. Every rule lives in one
 constant, so the notebook, the README and the slides can quote the exact same numbers.
 """
 
@@ -29,7 +30,6 @@ from src.text import clean_tweet
 #: Minimum points for each medal, per challenge (below Bronze you are a "Rookie").
 LEVELS = {
     "flip_it": {"Bronze": 5, "Silver": 9, "Gold": 13},          # stars (3 per level, 5 levels)
-    "yolo_hunt": {"Bronze": 10, "Silver": 25, "Gold": 40},
     "clip_pictionary": {"Bronze": 12, "Silver": 24, "Gold": 35},
 }
 MEDAL_EMOJI = {"Rookie": "🎯", "Bronze": "🥉", "Silver": "🥈", "Gold": "🥇"}
@@ -595,55 +595,6 @@ class FlipGame:
 
 
 # --------------------------------------------------------------------------------------------------
-# Challenge 2 · YOLO Scavenger Hunt
-# --------------------------------------------------------------------------------------------------
-
-#: Points of Challenge 2.
-CH2_RULES = {
-    "per_distinct_class": 1,   # every different COCO class YOLO confirmed during your game (once)
-    "per_hunt_item": 3,        # every item of the hunt list confirmed (once, on top of the +1)
-    "per_fool": 5,             # "Fool YOLO": a confirmed detection of something that is not really there
-    "max_fools": 3,            # at most 3 Fool-YOLO claims count
-    "min_confidence": 0.35,    # detections below this confidence do not count
-    "min_frames": 3,           # ... and a class must be seen in 3 frames in a row to be confirmed
-    "time_limit": 60,          # webcam game: 60 seconds
-}
-
-#: Default hunt list: COCO class names (YOLO only knows the 80 COCO classes).
-HUNT_LIST = ["cup", "bottle", "cell phone", "book", "scissors", "keyboard", "mouse", "laptop",
-             "backpack", "potted plant"]
-
-
-def hunt_score(detections: Mapping[str, Iterable[str]], hunt_list: Sequence[str] = HUNT_LIST,
-               fooled: Mapping[str, str] | Iterable[tuple[str, str]] | None = None,
-               rules: Mapping = CH2_RULES) -> dict:
-    """Score a scavenger hunt.
-
-    ``detections`` maps each photo name to the classes YOLO found in it (already filtered by
-    confidence). ``fooled`` lists ``(photo name, class)`` claims (or a ``{photo: class}`` dict): a class
-    YOLO "saw" that is not really there. A claim counts only if YOLO really detected that class in that
-    photo, each claim once, at most ``rules["max_fools"]`` claims.
-    Returns the points per rule, the found/missing hunt items and the valid/invalid fool claims.
-    """
-    found = sorted({c for classes in detections.values() for c in classes})
-    hunt_found = [h for h in hunt_list if h in found]
-    hunt_missing = [h for h in hunt_list if h not in found]
-    valid, invalid = [], []
-    claims = fooled.items() if isinstance(fooled, Mapping) else (fooled or [])
-    for photo, cls in dict.fromkeys(tuple(c) for c in claims):
-        ok = cls in set(detections.get(photo, ())) and len(valid) < rules["max_fools"]
-        (valid if ok else invalid).append((photo, cls))
-    breakdown = {
-        "distinct objects": rules["per_distinct_class"] * len(found),
-        "hunt-list items": rules["per_hunt_item"] * len(hunt_found),
-        "Fool YOLO": rules["per_fool"] * len(valid),
-    }
-    return {"breakdown": breakdown, "total": int(sum(breakdown.values())), "found": found,
-            "hunt_found": hunt_found, "hunt_missing": hunt_missing, "fools_valid": valid,
-            "fools_invalid": invalid}
-
-
-# --------------------------------------------------------------------------------------------------
 # Challenge 3 · CLIP Pictionary
 # --------------------------------------------------------------------------------------------------
 
@@ -776,183 +727,369 @@ def plot_scorecard(total: float, breakdown: Mapping[str, float], thresholds: Map
     return fig
 
 
-class HuntTracker:
-    """Keeps the state of a scavenger hunt, frame after frame (no model inside: easy to test).
+# --------------------------------------------------------------------------------------------------
+# Challenge 2 · YOLO Live: images, video, webcam
+# --------------------------------------------------------------------------------------------------
+# The notebook loads the model and passes a ``detect(frame_bgr) -> [(class, confidence, (x1, y1, x2, y2)), ...]``
+# function to these helpers, so everything below runs (and is tested) without downloading a model.
 
-    A class is **confirmed** the first time it is detected with confidence ≥ ``min_conf`` in
-    ``min_frames`` consecutive frames of the same source (a webcam flickers: one lucky frame
-    does not count). For each confirmed class we remember when (seconds since the start) and where
-    (``"webcam"`` or a photo name) it was found.
+#: The five sizes of YOLO26 (detection, COCO val2017, 640 px), from https://docs.ultralytics.com/models/yolo26/
+#: (CPU = ONNX on an Intel Xeon in the Ultralytics benchmark, T4 = NVIDIA T4 GPU with TensorRT).
+YOLO26_SIZES = [
+    {"model": "yolo26n.pt", "size": "nano", "params (M)": 2.4, "mAP 50-95": 40.9, "CPU ms": 38.9, "T4 GPU ms": 1.7},
+    {"model": "yolo26s.pt", "size": "small", "params (M)": 9.5, "mAP 50-95": 48.6, "CPU ms": 87.2, "T4 GPU ms": 2.5},
+    {"model": "yolo26m.pt", "size": "medium", "params (M)": 20.4, "mAP 50-95": 53.1, "CPU ms": 220.0, "T4 GPU ms": 4.7},
+    {"model": "yolo26l.pt", "size": "large", "params (M)": 24.8, "mAP 50-95": 55.0, "CPU ms": 286.2, "T4 GPU ms": 6.2},
+    {"model": "yolo26x.pt", "size": "extra-large", "params (M)": 55.7, "mAP 50-95": 57.5, "CPU ms": 525.8,
+     "T4 GPU ms": 11.8},
+]
+
+#: The tasks of the same family: same backbone, a different "head" and a different output.
+YOLO_TASKS = [
+    {"task": "detect", "weights": "yolo26n.pt", "output": "boxes + class + confidence"},
+    {"task": "segment", "weights": "yolo26n-seg.pt", "output": "boxes + a pixel mask per object"},
+    {"task": "pose", "weights": "yolo26n-pose.pt", "output": "people + 17 body keypoints (skeleton)"},
+    {"task": "obb", "weights": "yolo26n-obb.pt", "output": "rotated boxes (aerial photos: ships, planes)"},
+    {"task": "classify", "weights": "yolo26n-cls.pt", "output": "one label for the whole image (like notebook 04)"},
+]
+
+IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
+VIDEO_SUFFIXES = (".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v")
+
+#: Box colours (Okabe–Ito, colour-blind safe), given to the classes in the order they first appear.
+OVERLAY_COLORS = ["#56B4E9", "#E69F00", "#009E73", "#F0E442", "#CC79A7", "#D55E00", "#0072B2", "#FFFFFF"]
+#: Lines on a white chart: the two overlay colours that are too light on white get a darker twin.
+_LINE_ON_WHITE = {"#F0E442": "#B5A600", "#FFFFFF": "#6B7A90"}
+_INK = (24, 16, 8)            # BGR of the dark text on the label chips
+_PANEL = (46, 26, 14)         # BGR of the navy HUD panels
+
+
+def list_media(folder) -> tuple[list, list]:
+    """``(images, videos)`` directly inside ``folder`` (sorted by name; hidden files and README skipped)."""
+    from pathlib import Path
+
+    folder = Path(folder)
+    if not folder.is_dir():
+        return [], []
+    files = sorted(p for p in folder.iterdir() if p.is_file() and not p.name.startswith("."))
+    return ([p for p in files if p.suffix.lower() in IMAGE_SUFFIXES],
+            [p for p in files if p.suffix.lower() in VIDEO_SUFFIXES])
+
+
+def hex_to_bgr(color: str) -> tuple[int, int, int]:
+    """``"#E69F00"`` → ``(0, 159, 230)`` (OpenCV uses blue-green-red order)."""
+    c = color.lstrip("#")
+    return int(c[4:6], 16), int(c[2:4], 16), int(c[0:2], 16)
+
+
+class ClassColors(dict):
+    """``{class: "#hex"}`` that gives the next colour to each new class (the same class keeps its colour)."""
+
+    def __missing__(self, cls):
+        self[cls] = OVERLAY_COLORS[len(self) % len(OVERLAY_COLORS)]
+        return self[cls]
+
+    def bgr(self, cls) -> tuple[int, int, int]:
+        return hex_to_bgr(self[cls])
+
+
+def detections_from_result(result) -> list[tuple[str, float, tuple[float, float, float, float]]]:
+    """An Ultralytics ``Results`` object → ``[(class, confidence, (x1, y1, x2, y2)), ...]`` (plain Python)."""
+    boxes = result.boxes
+    return [(result.names[int(c)], float(p), tuple(float(v) for v in b))
+            for c, p, b in zip(boxes.cls.tolist(), boxes.conf.tolist(), boxes.xyxy.tolist())]
+
+
+def count_classes(detections, min_conf: float = 0.0) -> dict[str, int]:
+    """``{class: how many boxes}`` above ``min_conf``, most frequent first (ties: alphabetical)."""
+    counts: dict[str, int] = {}
+    for cls, conf, _ in detections:
+        if conf >= min_conf:
+            counts[cls] = counts.get(cls, 0) + 1
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
+def counts_text(counts: Mapping[str, int], max_items: int = 4) -> str:
+    """``{"car": 3, "person": 1}`` → ``"3 car · 1 person"`` (ASCII ``|`` separator for OpenCV)."""
+    items = [f"{n} {c}" for c, n in list(counts.items())[:max_items]]
+    rest = len(counts) - max_items
+    return "  |  ".join(items + ([f"+{rest} more"] if rest > 0 else [])) or "nothing found"
+
+
+def box_iou(a: Sequence[float], b: Sequence[float]) -> float:
+    """Intersection over union of two ``(x1, y1, x2, y2)`` boxes: 0 = no overlap, 1 = the same box."""
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return float(inter / union) if union > 0 else 0.0
+
+
+class SimpleTracker:
+    """A tiny multi-object tracker: it links the boxes of one frame to the boxes of the previous frames.
+
+    Rule (greedy IoU matching): a new box continues the track of the **same class** whose last box overlaps it
+    most (IoU ≥ ``iou_min``); boxes that match nothing start a new track with a new ID; a track that is not
+    seen for ``max_missed`` frames is closed. Every track keeps the last ``trail`` centres of its box
+    (the motion trail). Real trackers (ByteTrack, BoT-SORT in ``model.track``) add a motion model on top.
     """
 
-    def __init__(self, hunt_list: Sequence[str] = HUNT_LIST, min_conf: float = CH2_RULES["min_confidence"],
-                 min_frames: int = CH2_RULES["min_frames"]):
-        self.hunt_list, self.min_conf, self.min_frames = list(hunt_list), float(min_conf), int(min_frames)
-        self.streak: dict[str, int] = {}
-        self.confirmed: dict[str, dict] = {}          # first confirmation of each class
-        self.found_in: dict[str, set[str]] = {}       # every (source, class) confirmed, for Fool-YOLO claims
-        self._last_source = None
+    def __init__(self, iou_min: float = 0.25, max_missed: int = 12, trail: int = 40):
+        self.iou_min, self.max_missed, self.trail = float(iou_min), int(max_missed), int(trail)
+        self.tracks: dict[int, dict] = {}
+        self.history: dict[int, dict] = {}   # every track ever opened: class and how many frames it was seen
+        self._next = 1
 
-    def update(self, detections: Iterable[tuple[str, float]], t: float, source: str = "webcam") -> list[str]:
-        """Feed the ``(class, confidence)`` pairs of one frame; returns the classes confirmed just now."""
-        if source != self._last_source:          # a new photo: streaks start again
-            self.streak, self._last_source = {}, source
-        present = {cls for cls, conf in detections if conf >= self.min_conf}
-        self.streak = {cls: self.streak.get(cls, 0) + 1 for cls in present}
-        for cls, n in self.streak.items():
-            if n >= self.min_frames:
-                self.found_in.setdefault(source, set()).add(cls)
-        new = sorted(c for c, n in self.streak.items() if n >= self.min_frames and c not in self.confirmed)
-        for cls in new:
-            self.confirmed[cls] = {"t": float(t), "source": source}
-        return new
+    def update(self, detections) -> list[tuple[int, str, float, tuple]]:
+        """Feed one frame's ``[(class, confidence, box), ...]``; returns ``[(track id, class, confidence, box)]``."""
+        pairs = sorted(((box_iou(t["box"], d[2]), tid, j) for tid, t in self.tracks.items()
+                        for j, d in enumerate(detections) if t["cls"] == d[0]), reverse=True)
+        used_t, used_d, out = set(), set(), []
+        for iou, tid, j in pairs:
+            if iou < self.iou_min:
+                break
+            if tid in used_t or j in used_d:
+                continue
+            used_t.add(tid); used_d.add(j)
+            self._step(tid, detections[j])
+            out.append((tid, *detections[j]))
+        for j, det in enumerate(detections):
+            if j not in used_d:
+                tid, self._next = self._next, self._next + 1
+                self.tracks[tid] = {"cls": det[0], "trail": [], "missed": 0}
+                self.history[tid] = {"cls": det[0], "hits": 0}
+                self._step(tid, det)
+                used_t.add(tid)
+                out.append((tid, *det))
+        for tid in list(self.tracks):
+            if tid not in used_t:
+                self.tracks[tid]["missed"] += 1
+                if self.tracks[tid]["missed"] > self.max_missed:
+                    del self.tracks[tid]
+        return out
 
-    @property
-    def seen(self) -> list[str]:
-        """Confirmed classes, in the order they were found."""
-        return list(self.confirmed)
+    def _step(self, tid: int, det) -> None:
+        cls, conf, box = det
+        t = self.tracks[tid]
+        t.update(box=tuple(box), conf=float(conf), missed=0)
+        t["trail"] = (t["trail"] + [((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)])[-self.trail:]
+        self.history[tid]["hits"] += 1
 
-    @property
-    def hunt_found(self) -> list[str]:
-        """Hunt-list items confirmed so far, in the order they were found."""
-        return [c for c in self.confirmed if c in self.hunt_list]
-
-    @property
-    def done(self) -> bool:
-        """True when every item of the hunt list has been found."""
-        return all(h in self.confirmed for h in self.hunt_list)
-
-    def detections_by_source(self) -> dict[str, set[str]]:
-        """``{source: classes confirmed in that source}``, ready for :func:`hunt_score`."""
-        return {src: set(classes) for src, classes in self.found_in.items()}
-
-    def table(self) -> pd.DataFrame:
-        """One row per confirmed class: where and when it was found, and whether it was on the list."""
-        rows = [{"object": c, "on hunt list": c in self.hunt_list, "found in": i["source"],
-                 "time (s)": round(i["t"], 1)} for c, i in self.confirmed.items()]
-        return pd.DataFrame(rows, columns=["object", "on hunt list", "found in", "time (s)"])
-
-
-# Colours for the video overlay (OpenCV uses BGR order): Okabe–Ito orange / sky blue, navy ink.
-_BGR_HUNT, _BGR_OTHER, _BGR_INK, _BGR_FOUND = (0, 159, 230), (233, 180, 86), (46, 26, 14), (115, 158, 0)
+    def unique_counts(self, min_hits: int = 5) -> dict[str, int]:
+        """How many **different** objects of each class were tracked for at least ``min_hits`` frames."""
+        counts: dict[str, int] = {}
+        for h in self.history.values():
+            if h["hits"] >= min_hits:
+                counts[h["cls"]] = counts.get(h["cls"], 0) + 1
+        return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
-def draw_hud(frame: np.ndarray, detections: Sequence[tuple[str, float, Sequence[float]]], tracker: HuntTracker,
-             fps: float | None = None, time_left: float | None = None, checklist: bool = True) -> np.ndarray:
-    """Draw boxes, the hunt checklist, the timer and the FPS on a BGR frame (returns a new array).
+def add_to_heatmap(heat: np.ndarray, boxes, weight: float = 1.0) -> np.ndarray:
+    """Add one "visit" per box to ``heat`` (an ``H × W`` float array), as a disc at the box centre.
 
-    Hunt-list objects get orange boxes, everything else sky-blue boxes; found items are ticked
-    ``[x]`` with the second they were found. ASCII text only (OpenCV fonts have no emoji).
+    Summed over a video, it shows **where** objects spend their time (lanes, sidewalks…). Returns ``heat``.
     """
     import cv2
 
-    img = np.ascontiguousarray(frame).copy()
+    h, w = heat.shape[:2]
+    for x1, y1, x2, y2 in boxes:
+        cx, cy = int(round((x1 + x2) / 2)), int(round((y1 + y2) / 2))
+        r = max(2, int(0.25 * min(x2 - x1, y2 - y1)))
+        if 0 <= cx < w and 0 <= cy < h:
+            stamp = np.zeros_like(heat)
+            cv2.circle(stamp, (cx, cy), r, weight, -1)
+            heat += stamp
+    return heat
+
+
+def heatmap_overlay(frame_bgr: np.ndarray, heat: np.ndarray, alpha: float = 0.6) -> np.ndarray:
+    """The heatmap (blurred, log scale, "inferno" colours) blended over a darkened frame (BGR)."""
+    import cv2
+
+    if heat.max() <= 0:
+        return frame_bgr.copy()
+    k = max(3, (min(heat.shape) // 20) | 1)
+    smooth = cv2.GaussianBlur(heat.astype(np.float32), (k, k), 0)
+    norm = np.log1p(smooth) / np.log1p(smooth.max())
+    colour = cv2.applyColorMap((norm * 255).astype(np.uint8), cv2.COLORMAP_INFERNO)
+    base = (frame_bgr * 0.45).astype(np.uint8)
+    a = (alpha * np.clip(norm * 1.6, 0, 1))[..., None]
+    return (base * (1 - a) + colour * a).astype(np.uint8)
+
+
+def count_timeline(rows: Sequence[Mapping[str, int]], times: Sequence[float]) -> pd.DataFrame:
+    """One row per processed frame (index = time in seconds), one column per class, 0 when absent."""
+    df = pd.DataFrame(list(rows), index=pd.Index(list(times), name="time (s)")).fillna(0).astype(int)
+    order = df.sum().sort_values(ascending=False).index if len(df.columns) else []
+    return df[list(order)]
+
+
+# ---- drawing (OpenCV, BGR) ----
+
+def _text(img, text, org, scale, colour, thick=1):
+    import cv2
+
+    cv2.putText(img, text, org, cv2.FONT_HERSHEY_SIMPLEX, scale, colour, thick, cv2.LINE_AA)
+
+
+def _panel(img, x1, y1, x2, y2, alpha=0.72, colour=_PANEL):
+    import cv2
+
     h, w = img.shape[:2]
-    s = max(0.5, max(w, h) / 640)                  # text scale: same look on a 640 px webcam and a 1024 px photo
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    for cls, conf, box in detections:
-        if conf < tracker.min_conf:
-            continue
-        x1, y1, x2, y2 = (int(v) for v in box)
-        colour = _BGR_HUNT if cls in tracker.hunt_list else _BGR_OTHER
-        cv2.rectangle(img, (x1, y1), (x2, y2), colour, max(2, int(3 * s)))
-        label = f"{cls} {conf:.2f}"
-        (tw, th), _ = cv2.getTextSize(label, font, 0.7 * s, max(1, int(2 * s)))
-        ty = max(th + 8, y1)
-        cv2.rectangle(img, (x1, ty - th - 8), (x1 + tw + 8, ty), colour, -1)
-        cv2.putText(img, label, (x1 + 4, ty - 5), font, 0.7 * s, _BGR_INK, max(1, int(2 * s)), cv2.LINE_AA)
-    if not checklist:
-        return img
-    # checklist panel, semi-transparent, top-left
-    line = int(24 * s)
-    panel_w, panel_h = int(230 * s), line * (len(tracker.hunt_list) + 1) + int(14 * s)
-    overlay = img.copy()
-    cv2.rectangle(overlay, (0, 0), (min(panel_w, w - 1), min(panel_h, h - 1)), (255, 255, 255), -1)
-    img = cv2.addWeighted(overlay, 0.75, img, 0.25, 0)
-    cv2.putText(img, f"HUNT {len(tracker.hunt_found)}/{len(tracker.hunt_list)}", (int(10 * s), line),
-                font, 0.75 * s, _BGR_INK, max(1, int(2 * s)), cv2.LINE_AA)
-    for k, item in enumerate(tracker.hunt_list, start=2):
-        info = tracker.confirmed.get(item)
-        text = f"[x] {item} {info['t']:.0f}s" if info else f"[ ] {item}"
-        cv2.putText(img, text, (int(10 * s), line * k), font, 0.6 * s, _BGR_FOUND if info else _BGR_INK,
-                    max(1, int((2 if info else 1) * s)), cv2.LINE_AA)
-    corner = []
-    if time_left is not None:
-        corner.append(f"{max(0, int(np.ceil(time_left)))} s left")
-    if fps:
-        corner.append(f"{fps:.1f} FPS")
-    for k, text in enumerate(corner):
-        (tw, th), _ = cv2.getTextSize(text, font, 0.8 * s, max(1, int(2 * s)))
-        y = int(12 * s) + (k + 1) * (th + int(16 * s))
-        cv2.rectangle(img, (w - tw - int(24 * s), y - th - int(8 * s)), (w - 4, y + int(8 * s)), (255, 255, 255), -1)
-        cv2.putText(img, text, (w - tw - int(14 * s), y), font, 0.8 * s, _BGR_INK, max(1, int(2 * s)), cv2.LINE_AA)
+    x1, y1, x2, y2 = max(0, x1), max(0, y1), min(w, x2), min(h, y2)
+    if x2 > x1 and y2 > y1:
+        roi = img[y1:y2, x1:x2]
+        img[y1:y2, x1:x2] = cv2.addWeighted(roi, 1 - alpha, np.full_like(roi, colour), alpha, 0)
+
+
+def draw_box(img: np.ndarray, box, label: str, colour, conf: float | None = None, scale: float = 1.0) -> None:
+    """One stylish box, in place: thin frame, thick corner brackets, a label chip and a confidence bar."""
+    import cv2
+
+    x1, y1, x2, y2 = (int(round(v)) for v in box)
+    t = max(1, int(round(1.5 * scale)))
+    cv2.rectangle(img, (x1, y1), (x2, y2), colour, t, cv2.LINE_AA)
+    arm = max(6, int(min(x2 - x1, y2 - y1) * 0.22))
+    for (cx, cy), (dx, dy) in (((x1, y1), (1, 1)), ((x2, y1), (-1, 1)), ((x1, y2), (1, -1)), ((x2, y2), (-1, -1))):
+        cv2.line(img, (cx, cy), (cx + dx * arm, cy), colour, 3 * t, cv2.LINE_AA)
+        cv2.line(img, (cx, cy), (cx, cy + dy * arm), colour, 3 * t, cv2.LINE_AA)
+    fs = 0.5 * scale
+    (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, fs, max(1, t))
+    pad = int(4 * scale)
+    bar = int(4 * scale) if conf is not None else 0
+    top = y1 - th - 2 * pad - bar
+    if top < 0:                                  # no room above the box: put the chip inside it
+        top = y1
+    cv2.rectangle(img, (x1, top), (x1 + tw + 2 * pad, top + th + 2 * pad + bar), colour, -1)
+    _text(img, label, (x1 + pad, top + th + pad), fs, _INK, max(1, t))
+    if conf is not None:                         # confidence bar: dark track, white fill
+        yb = top + th + 2 * pad
+        cv2.rectangle(img, (x1, yb), (x1 + tw + 2 * pad, yb + bar), _INK, -1)
+        cv2.rectangle(img, (x1, yb), (x1 + int((tw + 2 * pad) * max(0.0, min(1.0, conf))), yb + bar),
+                      (255, 255, 255), -1)
+
+
+def draw_trail(img: np.ndarray, points, colour, scale: float = 1.0) -> None:
+    """A motion trail, in place: older points thinner, the newest a dot."""
+    import cv2
+
+    pts = [(int(x), int(y)) for x, y in points]
+    n = len(pts)
+    for k in range(1, n):
+        cv2.line(img, pts[k - 1], pts[k], colour, max(1, int(round(scale * (1 + 3 * k / n)))), cv2.LINE_AA)
+    if pts:
+        cv2.circle(img, pts[-1], max(2, int(4 * scale)), colour, -1, cv2.LINE_AA)
+
+
+def draw_hud(img: np.ndarray, title: str, lines: Sequence[str] = (), fps: float | None = None,
+             latency_ms: float | None = None, scale: float = 1.0) -> None:
+    """The heads-up display, in place: a navy panel top-left (title + lines) and an FPS meter top-right."""
+    import cv2
+
+    h, w = img.shape[:2]
+    lh, pad = int(22 * scale), int(10 * scale)
+    width = max([cv2.getTextSize(s, cv2.FONT_HERSHEY_SIMPLEX, 0.5 * scale, 1)[0][0] for s in lines] +
+                [cv2.getTextSize(title, cv2.FONT_HERSHEY_SIMPLEX, 0.6 * scale, 2)[0][0]]) + 2 * pad
+    _panel(img, 0, 0, width, pad + lh * (1 + len(lines)) + pad // 2)
+    _text(img, title, (pad, pad + int(16 * scale)), 0.6 * scale, hex_to_bgr("#F0E442"), max(1, int(2 * scale)))
+    for k, s in enumerate(lines, start=1):
+        _text(img, s, (pad, pad + int(16 * scale) + k * lh), 0.5 * scale, (245, 245, 245), 1)
+    if fps is not None:
+        txt = f"{fps:4.1f} FPS" + (f"  {latency_ms:3.0f} ms" if latency_ms is not None else "")
+        (tw, th), _ = cv2.getTextSize(txt, cv2.FONT_HERSHEY_SIMPLEX, 0.6 * scale, max(1, int(2 * scale)))
+        _panel(img, w - tw - 2 * pad, 0, w, th + 2 * pad + int(8 * scale))
+        _text(img, txt, (w - tw - pad, th + pad), 0.6 * scale, (255, 255, 255), max(1, int(2 * scale)))
+        # speed bar: full at 30 FPS; green ≥ 15, orange ≥ 8, red below
+        frac = max(0.0, min(1.0, fps / 30))
+        col = hex_to_bgr("#009E73" if fps >= 15 else "#E69F00" if fps >= 8 else "#D55E00")
+        y = th + pad + int(4 * scale)
+        cv2.rectangle(img, (w - tw - pad, y), (w - pad, y + int(4 * scale)), (90, 90, 90), -1)
+        cv2.rectangle(img, (w - tw - pad, y), (w - tw - pad + int(tw * frac), y + int(4 * scale)), col, -1)
+
+
+def draw_detections(frame_bgr: np.ndarray, detections, min_conf: float = 0.25, colors: ClassColors | None = None,
+                    title: str | None = None, show_conf: bool = True) -> np.ndarray:
+    """Every box above ``min_conf`` (stylish), plus a HUD with the object count per class. Returns a new BGR image."""
+    img = np.ascontiguousarray(frame_bgr).copy()
+    colors = ClassColors() if colors is None else colors
+    s = max(0.6, max(img.shape[:2]) / 900)
+    kept = sorted((d for d in detections if d[1] >= min_conf), key=lambda d: d[1])   # most confident drawn last
+    for cls, conf, box in kept:
+        draw_box(img, box, f"{cls} {conf:.2f}" if show_conf else cls, colors.bgr(cls),
+                 conf if show_conf else None, s)
+    counts = count_classes(kept)
+    draw_hud(img, title or f"{len(kept)} objects  (confidence >= {min_conf:.2f})",
+             [f"{n:>3}  {c}" for c, n in list(counts.items())[:6]], scale=s)
     return img
 
 
-def crop_box(frame: np.ndarray, box: Sequence[float], margin: float = 0.15) -> np.ndarray:
-    """Cut a box out of a frame, with a small margin around it (clipped to the image)."""
-    h, w = frame.shape[:2]
-    x1, y1, x2, y2 = box
-    dx, dy = (x2 - x1) * margin, (y2 - y1) * margin
-    x1, y1 = int(max(0, x1 - dx)), int(max(0, y1 - dy))
-    x2, y2 = int(min(w, x2 + dx)), int(min(h, y2 + dy))
-    return frame[y1:max(y2, y1 + 1), x1:max(x2, x1 + 1)].copy()
+def draw_tracks(frame_bgr: np.ndarray, tracks, tracker: SimpleTracker, colors: ClassColors) -> np.ndarray:
+    """Boxes with their track ID (``car #12``) and the motion trail of each track. Returns a new BGR image."""
+    img = np.ascontiguousarray(frame_bgr).copy()
+    s = max(0.6, max(img.shape[:2]) / 900)
+    for tid, cls, conf, box in tracks:
+        if tid in tracker.tracks:
+            draw_trail(img, tracker.tracks[tid]["trail"], colors.bgr(cls), s)
+    for tid, cls, conf, box in tracks:
+        draw_box(img, box, f"{cls} #{tid}", colors.bgr(cls), conf, s)
+    return img
 
 
-def run_hunt(detect, frames: Iterable[tuple[np.ndarray, str]], tracker: HuntTracker,
-             time_limit: float | None = None, display=None, stop_when_done: bool = True) -> dict:
-    """The game loop, for a webcam or for photos: detect → update the tracker → snapshot → draw → show.
+# ---- streams: a video file, a webcam, or anything that yields BGR frames ----
 
-    * ``detect(frame_bgr)`` returns ``[(class, confidence, (x1, y1, x2, y2)), ...]`` (e.g. YOLO);
-    * ``frames`` yields ``(frame_bgr, source)`` pairs (``source`` = ``"webcam"`` or a photo name);
-    * ``display(annotated_bgr)`` shows a frame and returns ``False`` to stop (e.g. key Q).
+def resize_frame(frame: np.ndarray, width: int | None) -> np.ndarray:
+    """Shrink a frame to ``width`` pixels (keeps the aspect ratio; never enlarges)."""
+    import cv2
 
-    The frame generator is always closed at the end, even after an error or Ctrl+C: that is what
-    releases the camera. Returns ``snapshots`` (``{class: RGB crop}``, taken when each class is
-    confirmed), ``last_frames`` (``{source: annotated RGB frame}``), the smoothed ``fps`` and the
-    number of ``frames`` processed.
-    """
-    import time
+    if not width or frame.shape[1] <= width:
+        return frame
+    return cv2.resize(frame, (width, round(frame.shape[0] * width / frame.shape[1])), interpolation=cv2.INTER_AREA)
 
-    snapshots, last_frames, n, fps, start = {}, {}, 0, None, None
+
+def video_frames(path, width: int | None = 960, max_seconds: float | None = None):
+    """Yield ``(frame_bgr, t_seconds)`` from a video file (resized to ``width``); the file is closed at the end."""
+    import cv2
+
+    cap = cv2.VideoCapture(str(path))
     try:
-        for frame, source in frames:
-            if start is None:                      # the clock starts with the first frame (cameras take a while to open)
-                start = prev = time.perf_counter()
-            t = time.perf_counter() - start
-            if time_limit is not None and t > time_limit:
+        if not cap.isOpened():
+            raise RuntimeError(f"Cannot open the video {path}.")
+        fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+        k = 0
+        while True:
+            ok, frame = cap.read()
+            if not ok or frame is None:
                 break
-            dets = detect(frame)
-            new = tracker.update([(c, p) for c, p, _ in dets], t, source)
-            for cls in new:
-                best = max((d for d in dets if d[0] == cls), key=lambda d: d[1])
-                snapshots[cls] = crop_box(frame, best[2])[..., ::-1]
-            now = time.perf_counter()
-            inst = 1.0 / max(now - prev, 1e-6)
-            fps = inst if fps is None else 0.85 * fps + 0.15 * inst      # smoothed: easier to read
-            prev = now
-            n += 1
-            left = None if time_limit is None else time_limit - t
-            live = time_limit is not None          # photos: boxes only (no checklist, timer or FPS)
-            hud = draw_hud(frame, dets, tracker, fps=fps if live else None, time_left=left, checklist=live)
-            last_frames[source] = hud[..., ::-1]
-            if display is not None and display(hud) is False:
+            t = k / fps
+            if max_seconds is not None and t > max_seconds:
                 break
-            if stop_when_done and tracker.done:
-                break
+            yield resize_frame(frame, width), t
+            k += 1
     finally:
-        close = getattr(frames, "close", None)
-        if close is not None:
-            close()
-    return {"snapshots": snapshots, "last_frames": last_frames, "fps": fps, "frames": n}
+        cap.release()
 
 
-def webcam_frames(index: int = 0, width: int = 640, height: int = 480):
-    """Yield ``(frame_bgr, "webcam")`` from a camera; the camera is released when the generator closes.
+def video_info(path) -> dict:
+    """Frames per second, number of frames, duration (s) and size of a video file."""
+    import cv2
 
-    Raises ``RuntimeError`` if no camera can be opened (the notebook then switches to photos).
+    cap = cv2.VideoCapture(str(path))
+    try:
+        fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+        n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        return {"fps": round(fps, 2), "frames": n, "seconds": round(n / fps, 1),
+                "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}
+    finally:
+        cap.release()
+
+
+def webcam_frames(index: int = 0, width: int = 640, height: int = 480, mirror: bool = True):
+    """Yield ``(frame_bgr, t_seconds)`` from a camera; the camera is released when the generator closes.
+
+    Raises ``RuntimeError`` if no camera can be opened or it sends no image (busy, blocked by privacy settings…).
     """
     import sys
+    import time
 
     import cv2
 
@@ -963,29 +1100,458 @@ def webcam_frames(index: int = 0, width: int = 640, height: int = 480):
             raise RuntimeError(f"No camera found at index {index}.")
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        n = 0
+        n, start = 0, time.perf_counter()
         while True:
             ok, frame = cap.read()
             if not ok or frame is None:
-                if n == 0:                               # opened but blind (busy, blocked by privacy settings…)
+                if n == 0:
                     raise RuntimeError(f"The camera at index {index} opened but sent no image.")
                 break
             n += 1
-            yield cv2.flip(frame, 1), "webcam"          # mirror image: easier to aim objects at the camera
+            yield (cv2.flip(frame, 1) if mirror else frame), time.perf_counter() - start
     finally:
         cap.release()
 
 
-def photo_frames(paths: Iterable, repeats: int = CH2_RULES["min_frames"]):
-    """Yield each photo ``repeats`` times as ``(frame_bgr, photo name)`` (a still photo = a video that never moves)."""
-    from PIL import Image, ImageOps
+def run_stream(detect, frames, min_conf: float = 0.3, title: str = "YOLO", display=None,
+               time_limit: float | None = None, keep_every: int = 2, keep_width: int = 640,
+               max_kept: int = 400, tracker: SimpleTracker | None = None) -> dict:
+    """Run a detector on a stream of frames: track, draw the HUD, show, and collect statistics.
 
-    for path in paths:
-        with Image.open(path) as im:
-            rgb = np.asarray(ImageOps.exif_transpose(im).convert("RGB"))
-        bgr = np.ascontiguousarray(rgb[..., ::-1])
-        for _ in range(repeats):
-            yield bgr, getattr(path, "name", str(path))
+    * ``detect(frame_bgr)`` returns ``[(class, confidence, (x1, y1, x2, y2)), ...]`` (e.g. YOLO);
+    * ``frames`` yields ``(frame_bgr, t_seconds)`` (:func:`video_frames`, :func:`webcam_frames`…);
+    * ``display(annotated_bgr)`` shows a frame and returns ``False`` to stop (e.g. key Q).
+
+    The frame generator is always closed at the end, even after an error or Ctrl+C: that is what releases the
+    camera. Returns the kept annotated frames (RGB, every ``keep_every``-th, for the replay), the count
+    timeline, the heatmap, the unique objects per class, the latency of each frame and the average FPS.
+    """
+    import time
+
+    tracker = tracker or SimpleTracker()
+    colors = ClassColors()
+    kept, rows, times, latencies, heat, first, discovered = [], [], [], [], None, None, {}
+    fps, n, prev, start = None, 0, None, time.perf_counter()
+    try:
+        for frame, t in frames:
+            if time_limit is not None and t > time_limit:
+                break
+            t0 = time.perf_counter()
+            dets = [d for d in detect(frame) if d[1] >= min_conf]
+            latency = (time.perf_counter() - t0) * 1000
+            tracks = tracker.update(dets)
+            if heat is None:
+                heat, first = np.zeros(frame.shape[:2], np.float32), frame.copy()
+            add_to_heatmap(heat, [d[2] for d in dets])
+            counts = count_classes(dets)
+            for cls in counts:
+                discovered.setdefault(cls, round(t, 1))
+            rows.append(counts); times.append(round(t, 3)); latencies.append(latency)
+            now = time.perf_counter()
+            if prev is not None:
+                inst = 1.0 / max(now - prev, 1e-6)
+                fps = inst if fps is None else 0.9 * fps + 0.1 * inst          # smoothed: easier to read
+            prev = now
+            img = draw_tracks(frame, tracks, tracker, colors)
+            unique = tracker.unique_counts()
+            lines = [f"now: {counts_text(counts, 3)}",
+                     f"seen so far: {sum(unique.values())} objects, {len(discovered)} classes",
+                     f"t = {t:4.1f} s" + (f" / {time_limit:.0f} s" if time_limit else "")]
+            draw_hud(img, title, lines, fps=fps, latency_ms=latency, scale=max(0.6, max(img.shape[:2]) / 900))
+            if n % keep_every == 0 and len(kept) < max_kept:
+                kept.append(np.ascontiguousarray(resize_frame(img, keep_width)[..., ::-1]))
+            n += 1
+            if display is not None and display(img) is False:
+                break
+    finally:
+        close = getattr(frames, "close", None)
+        if close is not None:
+            close()
+    elapsed = time.perf_counter() - start
+    return {"frames": n, "kept": kept, "keep_every": keep_every, "timeline": count_timeline(rows, times),
+            "heat": heat, "first_frame": first, "unique": tracker.unique_counts(), "discovered": discovered,
+            "latency_ms": latencies, "fps": (n / elapsed) if n and elapsed > 0 else None, "colors": colors,
+            "tracker": tracker}
+
+
+def local_display(mode: str = "window", title: str = "YOLO live - press Q to stop"):
+    """``(show, close)`` for :func:`run_stream` on your own computer.
+
+    ``"window"``: an OpenCV window (smoothest; click it and press Q or Esc to stop). If no window can be opened
+    (e.g. a remote server), it falls back to ``"inline"``: the video plays inside the notebook in an
+    ``ipywidgets`` image (stop with the Interrupt button). ``close()`` always closes the window.
+    """
+    import cv2
+
+    if mode == "window":
+        try:
+            cv2.namedWindow(title, cv2.WINDOW_NORMAL)
+        except cv2.error:
+            print("OpenCV cannot open a window here: showing the video inside the notebook instead.")
+            mode = "inline"
+    if mode == "inline":
+        import ipywidgets as w
+        from IPython.display import display
+
+        screen = w.Image(format="jpeg", layout=w.Layout(max_width="800px"))
+        display(screen)
+
+        def show(img):
+            screen.value = bgr_to_jpeg(img, 70)
+            return True
+
+        return show, lambda: None
+
+    def show(img):
+        cv2.imshow(title, img)
+        return (cv2.waitKey(1) & 0xFF) not in (ord("q"), ord("Q"), 27)
+
+    def close():
+        try:
+            cv2.destroyWindow(title)
+            cv2.waitKey(1)
+        except cv2.error:
+            pass
+
+    return show, close
+
+
+# ---- showing results in the notebook ----
+
+def bgr_to_jpeg(img_bgr: np.ndarray, quality: int = 82) -> bytes:
+    """Encode a BGR image as JPEG bytes (small outputs keep the notebook light)."""
+    import cv2
+
+    return cv2.imencode(".jpg", img_bgr, [cv2.IMWRITE_JPEG_QUALITY, quality])[1].tobytes()
+
+
+def show_bgr(img_bgr: np.ndarray, width: int | None = 960, quality: int = 82):
+    """Display a BGR image inline as a JPEG."""
+    from IPython.display import Image, display
+
+    display(Image(bgr_to_jpeg(resize_frame(img_bgr, width), quality)))
+
+
+def fig_to_jpeg(fig, dpi: int = 90, quality: int = 82) -> bytes:
+    """A Matplotlib figure as JPEG bytes (closes the figure)."""
+    import io
+
+    import matplotlib.pyplot as plt
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="jpg", dpi=dpi, facecolor="white", pil_kwargs={"quality": quality})
+    plt.close(fig)
+    return buf.getvalue()
+
+
+def show_fig(fig, dpi: int = 90, quality: int = 82):
+    """Display a figure full of photos as a JPEG (much lighter than a PNG)."""
+    from IPython.display import Image, display
+
+    display(Image(fig_to_jpeg(fig, dpi, quality)))
+
+
+def encode_clip(frames_rgb: Sequence[np.ndarray], fps: float, folder, crf: int = 48) -> list[tuple]:
+    """Write the frames as a small web video; returns ``[(path, mime type)]`` (empty if no encoder works).
+
+    WebM/VP9 first (it plays in VS Code, Chrome, Edge, Firefox and recent Safari; ``crf`` = quality, higher =
+    smaller file): with the ``ffmpeg`` program if there is one (e.g. Colab), else with OpenCV's own writer.
+    Last resort: MP4/H.264 with OpenCV (plays in browsers, but not inside VS Code).
+    """
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    import cv2
+
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    if not len(frames_rgb):
+        return []
+    h, w = frames_rgb[0].shape[:2]
+    h, w = h - h % 2, w - w % 2                       # codecs want even sizes
+    webm, mp4 = folder / "clip.webm", folder / "clip.mp4"
+    for old in (webm, mp4):
+        old.unlink(missing_ok=True)
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg:
+        raw = b"".join(np.ascontiguousarray(f[:h, :w]).tobytes() for f in frames_rgb)
+        cmd = [ffmpeg, "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{w}x{h}",
+               "-r", f"{fps:.3f}", "-i", "-", "-an", "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", str(crf),
+               "-deadline", "realtime", "-cpu-used", "8", "-pix_fmt", "yuv420p", str(webm)]
+        try:
+            subprocess.run(cmd, input=raw, check=True, capture_output=True)
+            if webm.exists() and webm.stat().st_size > 1000:
+                return [(webm, "video/webm")]
+        except (subprocess.CalledProcessError, OSError):
+            pass
+    crf_prop = getattr(cv2, "VIDEOWRITER_PROP_CRF", None)
+    attempts = [(webm, "video/webm", "VP90", cv2.CAP_FFMPEG, [crf_prop, crf] if crf_prop is not None else [])]
+    attempts += [(mp4, "video/mp4", "avc1", api, []) for api in
+                 ([cv2.CAP_FFMPEG] + ([cv2.CAP_MSMF] if hasattr(cv2, "CAP_MSMF") else []))]
+    for path, mime, fourcc, api, params in attempts:
+        try:
+            writer = cv2.VideoWriter(str(path), api, cv2.VideoWriter_fourcc(*fourcc), float(fps), (w, h), params)
+        except cv2.error:
+            continue
+        if not writer.isOpened():
+            writer.release()
+            continue
+        for f in frames_rgb:
+            writer.write(np.ascontiguousarray(f[:h, :w, ::-1]))
+        writer.release()
+        if path.exists() and path.stat().st_size > 1000:
+            return [(path, mime)]
+    return []
+
+
+def clip_html(frames_rgb: Sequence[np.ndarray], fps: float, folder, width: int = 720, webp_fps: float = 8) -> str:
+    """HTML that plays the frames inline: a ``<video>`` embedded as base64 (see :func:`encode_clip`).
+
+    Without any video encoder it falls back to an animated WebP image (no controls, but it plays everywhere).
+    """
+    import base64
+    import io
+
+    clips = encode_clip(frames_rgb, fps, folder)
+    if clips:
+        sources = "".join(
+            f'<source src="data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}" type="{mime}">'
+            for path, mime in clips)
+        return (f'<video width="{width}" controls autoplay loop muted playsinline '
+                f'style="max-width:100%;border-radius:10px">{sources}</video>')
+    from PIL import Image
+
+    step = max(1, round(fps / webp_fps))
+    imgs = [Image.fromarray(f) for f in frames_rgb[::step]]
+    buf = io.BytesIO()
+    imgs[0].save(buf, format="WEBP", save_all=True, append_images=imgs[1:], duration=int(1000 * step / fps),
+                 loop=0, quality=55, method=4)
+    return (f'<img width="{width}" style="max-width:100%;border-radius:10px" '
+            f'src="data:image/webp;base64,{base64.b64encode(buf.getvalue()).decode()}">')
+
+
+# ---- figures ----
+
+def plot_media_grid(images_bgr: Sequence[np.ndarray], titles: Sequence[str], ncols: int = 4, width: float = 16):
+    """A grid of (already annotated) BGR images with a title under each one. Returns the figure."""
+    import matplotlib.pyplot as plt
+
+    n = len(images_bgr)
+    nrows = int(np.ceil(n / ncols))
+    cell_h = width / ncols * 0.68
+    fig, axes = plt.subplots(nrows, ncols, figsize=(width, nrows * cell_h + 0.3), squeeze=False)
+    for ax in axes.ravel():
+        ax.axis("off")
+    for ax, img, title in zip(axes.ravel(), images_bgr, titles):
+        ax.imshow(img[..., ::-1])
+        ax.set_title(title, fontsize=10.5, loc="left", fontweight="normal", pad=3)
+    fig.tight_layout()
+    return fig
+
+
+def plot_detection_dashboard(frame_bgr: np.ndarray, detections, min_conf: float = 0.25, title: str = ""):
+    """The "count the objects" dashboard: annotated photo (left), how many of each class and every box's
+    confidence against the threshold (right). Returns the figure."""
+    import matplotlib.pyplot as plt
+
+    colors = ClassColors()
+    for cls, _, _ in sorted(detections, key=lambda d: -d[1]):
+        colors[cls]                                       # same colour order as the boxes
+    img = draw_detections(frame_bgr, detections, min_conf, colors)
+    fig = plt.figure(figsize=(15, 6.2))
+    grid = fig.add_gridspec(2, 2, width_ratios=[1.75, 1], height_ratios=[1, 1.15], wspace=0.08, hspace=0.42)
+    ax_img = fig.add_subplot(grid[:, 0])
+    ax_img.imshow(img[..., ::-1])
+    ax_img.axis("off")
+    counts = count_classes(detections, min_conf)
+    ax_c = fig.add_subplot(grid[0, 1])
+    names = list(counts)[:8][::-1]
+    ax_c.barh(names, [counts[c] for c in names], color=[colors[c] for c in names], height=0.6,
+              edgecolor="#0E1A2E", linewidth=0.6)
+    for k, c in enumerate(names):
+        ax_c.text(counts[c] + 0.1, k, str(counts[c]), va="center", fontsize=11, fontweight="bold", color="#0E1A2E")
+    ax_c.set_title(f"How many? {sum(counts.values())} objects", fontsize=12.5)
+    ax_c.grid(axis="y", visible=False)
+    ax_c.set_xlim(0, max(counts.values() or [1]) * 1.25)
+    ax_c.set_xlabel("boxes")
+    ax_p = fig.add_subplot(grid[1, 1])
+    dets = sorted(detections, key=lambda d: -d[1])[:40]
+    xs = np.arange(len(dets))
+    ax_p.bar(xs, [d[1] for d in dets], color=[colors[d[0]] if d[1] >= min_conf else "#D5DBE3" for d in dets],
+             edgecolor="#0E1A2E", linewidth=0.4, width=0.8)
+    ax_p.axhline(min_conf, color="#0E1A2E", lw=1.5, ls="--")
+    ax_p.text(len(dets) - 0.5, min_conf + 0.03, f"threshold {min_conf:.2f}", ha="right", fontsize=9.5)
+    ax_p.set_ylim(0, 1.05)
+    ax_p.set_xticks([])
+    ax_p.set_ylabel("confidence")
+    ax_p.set_title("Every box YOLO proposed (grey = below the threshold)", fontsize=11.5)
+    ax_p.grid(axis="x", visible=False)
+    if title:
+        fig.suptitle(title, x=0.01, ha="left", fontsize=14, fontweight="bold")
+    return fig
+
+
+def plot_threshold_strip(frame_bgr: np.ndarray, detections, thresholds=(0.1, 0.3, 0.6), width: float = 16):
+    """The same photo at several confidence thresholds, side by side (a static version of the slider)."""
+    colors = ClassColors()
+    for cls, _, _ in sorted(detections, key=lambda d: -d[1]):
+        colors[cls]
+    imgs = [draw_detections(frame_bgr, detections, th, colors) for th in thresholds]
+    titles = [f"threshold {th:.2f} → {sum(d[1] >= th for d in detections)} boxes" for th in thresholds]
+    return plot_media_grid(imgs, titles, ncols=len(thresholds), width=width)
+
+
+def threshold_explorer(frame_bgr: np.ndarray, detections, value: float = 0.25, width: int = 900):
+    """An interactive slider: move the confidence threshold and watch the boxes appear and disappear.
+
+    ``detections`` should come from one prediction at a **low** threshold (e.g. 0.05): the slider only filters
+    them, so it is instant (no new prediction). Returns the ``ipywidgets`` box to display.
+    """
+    import ipywidgets as w
+
+    colors = ClassColors()
+    for cls, _, _ in sorted(detections, key=lambda d: -d[1]):
+        colors[cls]
+    small = resize_frame(frame_bgr, width)
+    k = small.shape[1] / frame_bgr.shape[1]
+    dets = [(c, p, tuple(v * k for v in b)) for c, p, b in detections]
+    slider = w.FloatSlider(value=value, min=0.05, max=0.95, step=0.05, description="threshold",
+                           continuous_update=True, readout_format=".2f", layout=w.Layout(width="60%"))
+    image = w.Image(format="jpeg", layout=w.Layout(max_width=f"{width}px"))
+
+    def redraw(*_):
+        image.value = bgr_to_jpeg(draw_detections(small, dets, slider.value, colors))
+
+    slider.observe(redraw, names="value")
+    redraw()
+    return w.VBox([slider, image])
+
+
+def plot_video_report(result: Mapping, title: str = "", top: int = 5, smooth_s: float = 0.5):
+    """Left: the heatmap of where objects appeared. Right: objects per frame over time (top classes,
+    averaged over ``smooth_s`` seconds so the flicker of single frames does not hide the trend)."""
+    import matplotlib.pyplot as plt
+
+    colors = result["colors"]
+    fig, (ax_h, ax_t) = plt.subplots(1, 2, figsize=(15, 4.8), gridspec_kw={"width_ratios": [1.25, 1]})
+    if result["heat"] is not None:
+        ax_h.imshow(heatmap_overlay(result["first_frame"], result["heat"])[..., ::-1])
+    ax_h.axis("off")
+    ax_h.set_title("Where objects appeared (brighter = more often)", fontsize=12)
+    df = result["timeline"]
+    step = float(np.median(np.diff(df.index))) if len(df) > 1 else 1.0
+    smooth = df.rolling(max(1, round(smooth_s / max(step, 1e-6))), min_periods=1, center=True).mean()
+    classes = list(df.columns[:top])
+    for cls in classes:
+        ax_t.plot(smooth.index, smooth[cls], lw=2, color=_LINE_ON_WHITE.get(colors[cls], colors[cls]),
+                  label=f"{cls} ({result['unique'].get(cls, 0)} different)")
+    ax_t.set_xlabel("time in the video (s)")
+    ax_t.set_ylabel(f"objects in the frame ({smooth_s:g} s average)")
+    ax_t.set_title("How many objects in each frame", fontsize=12)
+    ax_t.legend(loc="upper left", bbox_to_anchor=(1.0, 1.0), fontsize=10)
+    ax_t.set_ylim(bottom=0)
+    if title:
+        fig.suptitle(title, x=0.01, ha="left", fontsize=14, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+# ---- Google Colab: the webcam lives in the browser, so JavaScript sends frames to Python ----
+
+_COLAB_JS = r"""
+var yoloDiv = null, yoloVideo = null, yoloImg = null, yoloStream = null, yoloCanvas = null, yoloStop = false;
+async function yoloStart(width) {
+  try {
+    yoloStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'user'}});
+  } catch (err) {
+    return 'ERROR:' + err.name;
+  }
+  yoloDiv = document.createElement('div');
+  const btn = document.createElement('button');
+  btn.textContent = 'Stop';
+  btn.onclick = () => { yoloStop = true; };
+  yoloVideo = document.createElement('video');
+  yoloVideo.style.display = 'none';
+  yoloVideo.setAttribute('playsinline', '');
+  yoloVideo.srcObject = yoloStream;
+  await yoloVideo.play();
+  yoloImg = document.createElement('img');
+  yoloImg.style.width = width + 'px';
+  yoloImg.style.borderRadius = '10px';
+  yoloDiv.appendChild(btn);
+  yoloDiv.appendChild(document.createElement('br'));
+  yoloDiv.appendChild(yoloImg);
+  document.body.appendChild(yoloDiv);
+  yoloCanvas = document.createElement('canvas');
+  yoloCanvas.width = width;
+  yoloCanvas.height = Math.round(width * yoloVideo.videoHeight / yoloVideo.videoWidth);
+  google.colab.output.setIframeHeight(document.documentElement.scrollHeight + yoloCanvas.height, true);
+  return 'OK';
+}
+function yoloEnd() {
+  if (yoloStream) { yoloStream.getTracks().forEach((t) => t.stop()); }
+  if (yoloDiv) { yoloDiv.remove(); }
+  yoloDiv = null; yoloStream = null; yoloStop = false;
+  return '';
+}
+function yoloFrame(annotated) {
+  if (yoloStop || !yoloDiv) { return yoloEnd(); }
+  if (annotated) { yoloImg.src = annotated; }
+  const ctx = yoloCanvas.getContext('2d');
+  ctx.translate(yoloCanvas.width, 0); ctx.scale(-1, 1);          // mirror image
+  ctx.drawImage(yoloVideo, 0, 0, yoloCanvas.width, yoloCanvas.height);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  return yoloCanvas.toDataURL('image/jpeg', 0.8);
+}
+"""
+
+
+class ColabWebcam:
+    """Google Colab only: the webcam lives in the browser, so a small JavaScript loop sends frames to Python.
+
+    ``frames()`` yields ``(frame_bgr, t)`` like :func:`webcam_frames`; ``show`` is the ``display`` callback of
+    :func:`run_stream` and sends the annotated frame back to the page with the next request. Each frame makes a
+    round trip browser → Colab server → browser, so expect a few FPS: the model is fast, the network is not.
+    Nothing is saved to disk; the frames do travel to Google's runtime (that is where Python runs).
+    """
+
+    def __init__(self, width: int = 640, max_seconds: float = 30):
+        self.width, self.max_seconds, self.annotated = int(width), float(max_seconds), ""
+
+    def frames(self):
+        import base64
+        import json
+        import time
+
+        import cv2
+        from google.colab.output import eval_js
+        from IPython.display import Javascript, display
+
+        display(Javascript(_COLAB_JS))
+        status = eval_js(f"yoloStart({self.width})")
+        if status != "OK":
+            raise RuntimeError(f"No webcam access in the browser ({str(status)[6:] or 'no answer'}): "
+                               "allow the camera for colab.research.google.com.")
+        start = time.perf_counter()
+        try:
+            while time.perf_counter() - start < self.max_seconds:
+                data = eval_js(f"yoloFrame({json.dumps(self.annotated)})")
+                self.annotated = ""
+                if not data:                     # the Stop button
+                    break
+                buf = np.frombuffer(base64.b64decode(data.split(",", 1)[1]), np.uint8)
+                frame = cv2.imdecode(buf, cv2.IMREAD_COLOR)
+                if frame is not None:
+                    yield frame, time.perf_counter() - start
+        finally:
+            eval_js("yoloEnd()")
+
+    def show(self, img_bgr: np.ndarray) -> bool:
+        import base64
+
+        self.annotated = "data:image/jpeg;base64," + base64.b64encode(bgr_to_jpeg(img_bgr, 75)).decode()
+        return True
 
 
 # --------------------------------------------------------------------------------------------------

@@ -18,7 +18,9 @@ PAGES_URL = f"https://the-ai-learning-hub.github.io/{REPO_NAME}/"
 
 DATA_RELEASE = "data-v1"
 DATA_URL = f"{REPO_URL}/releases/download/{DATA_RELEASE}"
-DATASETS = ("sms_spam", "tweets", "lexicons", "cats_and_dogs")  # data/pets/ (test pets) is kept in git
+DATASETS = ("sms_spam", "tweets", "lexicons", "cats_and_dogs", "yolo_media")  # data/pets/ (test pets) is kept in git
+# Downloaded only when a notebook asks for them by name (not by a plain ``data_dir()``).
+ON_DEMAND = ("yolo_media",)
 # Files added to a dataset after its first release: an older local copy without them is downloaded again.
 REQUIRED_FILES = {"lexicons": ("vader_lexicon.txt", "afinn_lexicon.txt", "Portuguese-NRC-EmoLex.txt")}
 
@@ -62,10 +64,10 @@ def data_dir(*names: str) -> Path:
     """Folder with the lesson datasets (``<root>/data``).
 
     Downloads the datasets that are missing: the ones named in ``names``,
-    or all of them when no name is given.
+    or all of them (except the ``ON_DEMAND`` ones, e.g. the YOLO videos) when no name is given.
     """
     data = find_root() / "data"
-    for name in names or DATASETS:
+    for name in names or [d for d in DATASETS if d not in ON_DEMAND]:
         download_dataset(name, data)
     return data
 

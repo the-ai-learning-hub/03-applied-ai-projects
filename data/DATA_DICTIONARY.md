@@ -10,6 +10,7 @@ The datasets are not stored in git: each one is a zip file in the GitHub release
 - [Sentiment lexicons (`lexicons/`)](#sentiment-lexicons-lexicons)
 - [Cats and dogs photos (`cats_and_dogs/`)](#cats-and-dogs-photos-cats_and_dogs)
 - [Test pets (`pets/`)](#test-pets-pets)
+- [YOLO test media (`yolo_media/` + `03_challenge_yolo/media/`)](#yolo-test-media-yolo_media--03_challenge_yolomedia)
 - [Fashion-MNIST (downloaded at runtime)](#fashion-mnist-downloaded-at-runtime--_cachefashionmnist)
 
 ---
@@ -98,18 +99,24 @@ Word lists where each word has a sentiment score. Used in notebooks 01 and 02.2 
 | **Licence** | Shared with the owner's permission for this lesson only; not under an open licence — please do not reuse the photos outside the lesson |
 | **Files** | `pets/original/{cats,dogs}/` (16 full photos, up to 1024 px) and `pets/cropped/{cats,dogs}/` (17 photos cut around the animal, roughly square). JPEG, RGB. Names: `cat9001.jpg`, `dog9006.jpg`, … — the same name in both folders is the same photo |
 | **One file =** | one photo; the label is the folder name |
-| **Used in** | `02_computer_vision/02_project_cats_vs_dogs/04_Cats_vs_Dogs_And_Our_Pets.ipynb` (predictions, original vs cropped, Grad-CAM) and `03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb` (CLIP), plus the challenges: `03_multimodal/02_challenge_clip_pictionary/` (all 17 cropped photos on the Pictionary table) and `02_computer_vision/03_challenge_yolo/my_photos/` (example photos, see below) |
+| **Used in** | `02_computer_vision/02_project_cats_vs_dogs/04_Cats_vs_Dogs_And_Our_Pets.ipynb` (predictions, original vs cropped, Grad-CAM) and `03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb` (CLIP), plus the challenges: `03_multimodal/02_challenge_clip_pictionary/` (all 17 cropped photos on the Pictionary table) |
 
 **Known issues:** only 17 photos — enough for a live demo, far too few to rank models (one photo = 6 percentage points). Phone photos may carry an EXIF rotation flag; `src.vision.load_image` applies it. The photos are a *different source* from the training data on purpose (the real test of a model).
 
+---
 
-**Example photos of Challenge 2 (`02_computer_vision/03_challenge_yolo/my_photos/`).** Three photos derived from this folder so the YOLO scavenger hunt runs out of the box (same permission and restrictions as above, resized to ≤ 1024 px):
+## YOLO test media (`yolo_media/` + `03_challenge_yolo/media/`)
 
-| File | Made from | How |
-|---|---|---|
-| `example_cat_in_my_bag.jpg` | `original/cats/cat9009.jpg` | resized copy |
-| `example_dog_and_plants.jpg` | `original/dogs/dog9008.jpg` | resized copy |
-| `example_cats_on_a_screen.jpg` | `original/cats/cat9003.jpg` | composite made with Pillow for this lesson: the photo pasted on a hand-drawn laptop screen on a synthetic desk (the "Fool YOLO" example: the cats are only pixels on a screen). No downloaded image was used |
+| | |
+|---|---|
+| **What** | Test media for Challenge 2 (YOLO Live): **8 photos** chosen for object detection (a busy street, a laid table, a desk, a market, elephants, a skatepark, an aerial parking lot, kangaroos) and **2 short videos** (traffic at a crossroads, people walking in a shopping street) |
+| **Source** | Wikimedia Commons; author, link and licence of every file in the [challenge README](../02_computer_vision/03_challenge_yolo/README.md#credits) (and in `yolo_media/CREDITS.md`) |
+| **Licence** | Open licences per file: CC0, CC BY 2.0 / 4.0, CC BY-SA 2.0 / 3.0 / 4.0 (both videos are CC BY-SA). Credit the authors when you reuse them; the BY-SA files keep their licence |
+| **Files** | Photos (committed, ≈ 1.8 MB): `02_computer_vision/03_challenge_yolo/media/*.jpg`, resized to ≤ 1280 px. Videos (release zip `yolo_media.zip`, ≈ 4.2 MB → `data/yolo_media/`): `traffic_chiang_mai.mp4`, `pedestrians_madrid.mp4` (12 s each, 1280 × 720, 25 / 24 FPS, H.264, no sound) + `CREDITS.md` |
+| **One file =** | one photo or one video; no labels (YOLO's pretrained COCO classes are the "labels") |
+| **Used in** | `02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Live.ipynb` (`data_dir("yolo_media")`; the videos are downloaded only by this notebook) |
+
+**Known issues:** some subjects are **not** COCO classes on purpose (kangaroos → YOLO says *sheep*; an iMac → *tv*), and the parking lot is an aerial photo with tiny cars (most are missed at 640 px). The street video is handheld, so the heatmap of the pedestrian video is blurrier than the traffic one (fixed camera). People in the photos and videos are in public places; the files are published on Commons with these licences.
 
 ---
 

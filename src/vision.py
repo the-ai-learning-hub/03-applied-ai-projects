@@ -299,6 +299,32 @@ def show_grid(images: Sequence, titles: Sequence[str] | None = None, ncols: int 
     return fig
 
 
+def number_grid(ax, values, fmt: str = "{:.0f}", cmap: str = "gray", vmin: float | None = None,
+                vmax: float | None = None, fontsize: float = 9, title: str | None = None):
+    """Draw a small 2-D array as coloured cells *with its numbers written inside* (pixels, kernels).
+
+    The text colour flips between dark and light so every number stays readable. Returns ``ax``.
+    """
+    import matplotlib as mpl
+    arr = np.asarray(values, dtype=np.float32)
+    lo = float(np.nanmin(arr)) if vmin is None else vmin
+    hi = float(np.nanmax(arr)) if vmax is None else vmax
+    ax.imshow(arr, cmap=cmap, vmin=lo, vmax=hi)
+    colormap = mpl.colormaps[cmap]
+    for (r, c), v in np.ndenumerate(arr):
+        if np.isnan(v):
+            continue
+        level = 0.5 if hi == lo else (v - lo) / (hi - lo)
+        red, green, blue, _ = colormap(np.clip(level, 0, 1))
+        light_cell = 0.299 * red + 0.587 * green + 0.114 * blue > 0.5
+        ax.text(c, r, fmt.format(v), ha="center", va="center", fontsize=fontsize,
+                color="#1a2433" if light_cell else "white")
+    ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
+    if title:
+        ax.set_title(title, fontsize=11, loc="center")
+    return ax
+
+
 def overlay_heatmap(img, heatmap: np.ndarray, alpha: float = 0.45, cmap: str = "inferno") -> np.ndarray:
     """Blend a 0–1 ``heatmap`` (any size) on top of an image; returns an RGB float array."""
     import matplotlib as mpl
@@ -342,6 +368,64 @@ def apply_kernel(gray: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     x = torch.as_tensor(np.asarray(gray, dtype=np.float32))[None, None]
     k = torch.as_tensor(np.asarray(kernel, dtype=np.float32))[None, None]
     return F.conv2d(x, k, padding=k.shape[-1] // 2)[0, 0].numpy()
+
+
+def shift_images(x: torch.Tensor, dx: int = 0, dy: int = 0) -> torch.Tensor:
+    """Move images ``dx`` pixels to the right (negative = left) and ``dy`` down (negative = up).
+
+    Works on any tensor whose last two dimensions are ``(H, W)``. The uncovered border becomes 0
+    (black), nothing wraps around (unlike ``torch.roll``).
+    """
+    out = torch.zeros_like(x)
+    h, w = x.shape[-2:]
+    if abs(dx) >= w or abs(dy) >= h:
+        return out
+    src_r = slice(max(0, -dy), h - max(0, dy))
+    dst_r = slice(max(0, dy), h - max(0, -dy))
+    src_c = slice(max(0, -dx), w - max(0, dx))
+    dst_c = slice(max(0, dx), w - max(0, -dx))
+    out[..., dst_r, dst_c] = x[..., src_r, src_c]
+    return out
+
+
+@torch.no_grad()
+def capture_activations(model: nn.Module, x: torch.Tensor, layers: dict[str, nn.Module]
+                        ) -> dict[str, torch.Tensor]:
+    """Run ``model(x)`` once and return the output of each named layer (via forward hooks).
+
+    ``layers`` maps a name to a sub-module, e.g. ``{"conv 1": cnn.features[1]}``. Hooks are always
+    removed afterwards, even if the forward pass fails.
+    """
+    found: dict[str, torch.Tensor] = {}
+    handles = [layer.register_forward_hook(lambda m, i, out, name=name: found.__setitem__(name, out.detach()))
+               for name, layer in layers.items()]
+    try:
+        model.eval()
+        model(x)
+    finally:
+        for h in handles:
+            h.remove()
+    return {name: found[name] for name in layers}
+
+
+def input_gradients(model: nn.Module, x: torch.Tensor, target: int, samples: int = 1,
+                    noise: float = 0.0) -> np.ndarray:
+    """Saliency map: how much the score of class ``target`` changes when each input pixel changes.
+
+    ``x`` is one batch ``(N, C, H, W)``; returns the gradient of the ``target`` logit w.r.t. the
+    input, as an array ``(N, H, W)`` (summed over channels). Positive = a brighter pixel here would
+    raise the score; negative = it would lower it. With ``samples > 1`` and ``noise > 0`` the
+    gradients of several slightly noisy copies are averaged (SmoothGrad): a less speckled map.
+    """
+    model.eval()
+    total = torch.zeros_like(x)
+    for _ in range(samples):
+        xi = x + noise * torch.randn_like(x) if noise else x
+        xi = xi.detach().clone().requires_grad_(True)
+        with torch.enable_grad():
+            (gradient,) = torch.autograd.grad(model(xi)[:, target].sum(), xi)
+        total += gradient
+    return (total / samples).sum(dim=1).cpu().numpy()
 
 
 # --------------------------------------------------------------------------------------------

@@ -230,3 +230,7 @@ data/*
 !data/pets/
 .ipynb_checkpoints/
 runs/
+
+# Challenge 2: students' own photos and videos (only the README is kept)
+02_computer_vision/03_challenge_yolo/my_media/*
+!02_computer_vision/03_challenge_yolo/my_media/README.md

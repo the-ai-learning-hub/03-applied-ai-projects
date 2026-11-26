@@ -27,7 +27,7 @@ flowchart LR
 | 🎮 1 | [🎚️ Flip It!](01_text_mining/03_challenge_flip_it/Challenge_1_Flip_It.ipynb) | How few words must you change to make a sentiment AI change its mind? | [#challenge-1](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#challenge-1) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/03_challenge_flip_it/Challenge_1_Flip_It.ipynb) |
 | 03 | [Computer Vision basics: Fashion-MNIST](02_computer_vision/01_mini_project_fashion_mnist/03_Computer_Vision_Basics_Fashion_MNIST.ipynb) | An image is a grid of numbers: how does a model read it? | [#fashion](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#fashion) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/01_mini_project_fashion_mnist/03_Computer_Vision_Basics_Fashion_MNIST.ipynb) |
 | 04 | [Cats vs dogs, and our pets](02_computer_vision/02_project_cats_vs_dogs/04_Cats_vs_Dogs_And_Our_Pets.ipynb) | From scratch or borrowed knowledge? Does it work on *our* animals? | [#cats-dogs](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#cats-dogs) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/02_project_cats_vs_dogs/04_Cats_vs_Dogs_And_Our_Pets.ipynb) |
-| 🎮 2 | [YOLO scavenger hunt](02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Scavenger_Hunt.ipynb) | How many objects can YOLO find on your desk? | [#challenge-2](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#challenge-2) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Scavenger_Hunt.ipynb) |
+| 🎮 2 | [YOLO Live](02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Live.ipynb) | Images, video, your webcam: what can a real-time detector see, count and track? | [#challenge-2](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#challenge-2) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Live.ipynb) |
 | 05 | [Everything is a vector](03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb) | Can one idea connect words, photos and voices? | [#multimodal](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#multimodal) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb) |
 | 🎮 3 | [CLIP Pictionary](03_multimodal/02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb) | Can you describe a photo so CLIP finds it first? | [#challenge-3](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#challenge-3) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb) |
 
@@ -92,7 +92,7 @@ In VS Code, open a notebook, click **Select Kernel** → **Python Environments**
 ├── 02_computer_vision/
 │   ├── 01_mini_project_fashion_mnist/
 │   ├── 02_project_cats_vs_dogs/    # + results/ (CPU vs GPU, heavy runs, pets)
-│   └── 03_challenge_yolo/          # + my_photos/
+│   └── 03_challenge_yolo/          # + media/ (test photos), my_media/ (yours)
 ├── 03_multimodal/
 │   ├── 01_project_everything_is_a_vector/
 │   └── 02_challenge_clip_pictionary/
@@ -117,7 +117,7 @@ uv run python -m http.server 8000      # preview the slides at http://localhost:
 
 ## Data and credits
 
-Datasets, sources and licences are in [`data/DATA_DICTIONARY.md`](data/DATA_DICTIONARY.md): the SMS Spam Collection (UCI, CC BY 4.0), English tweets provided in the Text Mining course at ISCTE – University Institute of Lisbon, VADER, AFINN and NRC EmoLex lexicons, a subset of the Kaggle *Dogs vs. Cats* photos, Fashion-MNIST (Zalando, MIT) and **our own pets**. Models come from Hugging Face, torchvision and Ultralytics (YOLO, AGPL-3.0).
+Datasets, sources and licences are in [`data/DATA_DICTIONARY.md`](data/DATA_DICTIONARY.md): the SMS Spam Collection (UCI, CC BY 4.0), English tweets provided in the Text Mining course at ISCTE – University Institute of Lisbon, VADER, AFINN and NRC EmoLex lexicons, a subset of the Kaggle *Dogs vs. Cats* photos, Fashion-MNIST (Zalando, MIT), **our own pets** and open-licence photos and videos from Wikimedia Commons for the YOLO challenge. Models come from Hugging Face, torchvision and Ultralytics (YOLO, AGPL-3.0).
 
 ## Learn more
 

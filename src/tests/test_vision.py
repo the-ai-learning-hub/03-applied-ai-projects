@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import torch
+from torch import nn
 from PIL import Image
 from torch.utils.data import DataLoader
 
@@ -153,3 +154,47 @@ def test_extract_features_keeps_device_and_order():
         V.extract_features(backbone, DataLoader(dl.dataset, batch_size=4, shuffle=True))
     clf = V.PetClassifier(backbone, torch.nn.Linear(3, 1))
     assert clf(imgs[:2]).shape == (2,)
+
+
+def test_shift_images_moves_and_fills_with_black():
+    x = torch.arange(1, 17, dtype=torch.float32).reshape(1, 1, 4, 4)
+    right = V.shift_images(x, dx=1)
+    assert right[0, 0, :, 0].eq(0).all()                       # uncovered column is black
+    assert torch.equal(right[0, 0, :, 1:], x[0, 0, :, :3])      # nothing wraps around
+    up_left = V.shift_images(x, dx=-1, dy=-2)
+    assert torch.equal(up_left[0, 0, :2, :3], x[0, 0, 2:, 1:])
+    assert up_left[0, 0, 2:].eq(0).all() and up_left[0, 0, :, 3].eq(0).all()
+    assert torch.equal(V.shift_images(x), x)
+    assert V.shift_images(x, dx=5).eq(0).all()
+
+
+def test_capture_activations_and_input_gradients():
+    torch.manual_seed(0)
+    model = nn.Sequential(nn.Conv2d(1, 4, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+                          nn.Flatten(), nn.Linear(4 * 4 * 4, 3))
+    x = torch.rand(2, 1, 8, 8)
+    acts = V.capture_activations(model, x, {"relu": model[1], "pool": model[2]})
+    assert list(acts) == ["relu", "pool"]
+    assert acts["relu"].shape == (2, 4, 8, 8) and acts["pool"].shape == (2, 4, 4, 4)
+    assert not model[1]._forward_hooks                          # hooks removed
+    grad = V.input_gradients(model, x, target=1)
+    assert grad.shape == (2, 8, 8) and np.abs(grad).sum() > 0
+    # matches a finite-difference check on one pixel
+    eps = 1e-3
+    x2 = x.clone(); x2[0, 0, 3, 3] += eps
+    with torch.no_grad():
+        num = (model(x2)[0, 1] - model(x)[0, 1]).item() / eps
+    assert abs(num - grad[0, 3, 3]) < 1e-2
+    # SmoothGrad: same shape, and with zero noise it equals the plain gradient
+    assert V.input_gradients(model, x, 1, samples=4, noise=0.1).shape == (2, 8, 8)
+    assert np.allclose(V.input_gradients(model, x, 1, samples=3), grad, atol=1e-6)
+
+
+def test_number_grid_writes_every_value():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    V.number_grid(ax, np.array([[0, 128], [255, np.nan]]), title="t")
+    assert sorted(t.get_text() for t in ax.texts) == ["0", "128", "255"]
+    plt.close(fig)

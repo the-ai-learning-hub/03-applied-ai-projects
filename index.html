@@ -5175,38 +5175,38 @@ class  conf  box (x, y, w, h)
 <!-- 13 · Challenge 2 -->
 <section class="slide" data-mod="Computer vision" style="--acc:#7fd6c8" data-id="challenge-2">
   <div class="main">
-    <div class="head"><div class="kicker">Challenge 2<span class="sep">/</span>play alone</div><h2>🎮 Challenge 2 · YOLO <span class="hl">scavenger hunt</span></h2></div>
+    <div class="head"><div class="kicker">Challenge 2<span class="sep">/</span>play alone</div><h2>🎮 Challenge 2 · YOLO <span class="hl">Live</span></h2></div>
     <div class="bw">
       <div class="chal">
         <div class="stack" style="gap:16px;justify-content:center">
           <ol>
-            <li><b>Warm-up:</b> give YOLO a <b>photo or a video</b> and look at what it sees: boxes, classes, confidences.</li>
-            <li><b>Go live:</b> switch on your <b>webcam</b>. You have <b>60 seconds</b> to find the hunt list.</li>
-            <li>An object counts at confidence <b>≥ 0.35</b> for <b>3 frames</b> in a row.</li>
-            <li><b>Fool YOLO:</b> make it see something that is not really there (a drawing, a phone screen).</li>
+            <li><b>🖼️ Images:</b> boxes, counts and a <b>threshold slider</b>; the same photo as <b>boxes, masks and skeletons</b>; what YOLO gets wrong.</li>
+            <li><b>🎬 Video:</b> <b>tracking</b> with IDs and motion trails, objects per second and a <b>heatmap</b> of where they go.</li>
+            <li><b>📷 Webcam:</b> you, live, for 30 seconds, with an <b>FPS meter</b>. Watch the detections and track IDs update.</li>
+            <li><b>Your turn:</b> pick the model size (<b>n</b> → <b>x</b>) and drop your own photos and videos in <b>my_media/</b>.</li>
           </ol>
-          <div class="cv3-hunt"><div class="label" style="margin:0 0 8px">🔎 hunt list</div><div class="chips"><span class="chip">☕ cup</span><span class="chip">🍾 bottle</span><span class="chip">📱 cell phone</span><span class="chip">📖 book</span><span class="chip">✂️ scissors</span><span class="chip">⌨️ keyboard</span><span class="chip">🖱️ mouse</span><span class="chip">💻 laptop</span><span class="chip">🎒 backpack</span><span class="chip">🪴 potted plant</span></div></div>
-          <p class="sub" style="font-size:16px">No camera, or on Colab? Use photos: same scoring. Please don't film other people.</p>
+          <div class="cv3-hunt"><div class="label" style="margin:0 0 8px">🧪 test media</div><div class="chips"><span class="chip">🚌 street</span><span class="chip">🍷 table</span><span class="chip">⌨️ desk</span><span class="chip">☂️ market</span><span class="chip">🐘 elephants</span><span class="chip">🛹 skatepark</span><span class="chip">🚗 parking lot</span><span class="chip">🦘 kangaroos?</span><span class="chip">🎬 traffic video</span><span class="chip">🎬 street video</span></div></div>
+          <p class="sub" style="font-size:16px">On Colab the webcam runs in the browser (slower). Please don't film other people.</p>
         </div>
         <div class="stack" style="gap:10px">
-          <figure class="opt" style="margin:0"><img src="assets/slides/ch2-gallery.webp" width="1259" height="391" alt="Three photos with YOLO detection boxes: a cat in a bag, cats on a laptop screen, a dog next to potted plants" style="width:100%;height:auto;max-height:140px;object-fit:contain;background:#fff;border-radius:10px;border:1px solid var(--line2)"><div class="opt-fb" aria-hidden="true">🎮</div></figure>
-          <div class="card a" style="padding:10px 14px"><div class="label" style="margin-bottom:4px">scoring</div><div class="score">
-            <div><span>each distinct class</span><b>+1</b></div>
-            <div><span>each hunt-list item</span><b>+3 extra</b></div>
-            <div><span>each Fool YOLO claim (max 3)</span><b>+5</b></div>
-            <div><span>medals</span><b>🥉10 🥈25 🥇40</b></div>
+          <figure class="opt" style="margin:0"><img src="assets/slides/ch2-gallery.webp" width="1600" height="566" alt="Eight test photos with YOLO detection boxes and object counts: a London street, a laid table, a desk, a market, elephants, kangaroos called sheep, a parking lot and a skatepark" style="width:100%;height:auto;max-height:140px;object-fit:contain;background:#fff;border-radius:10px;border:1px solid var(--line2)"><div class="opt-fb" aria-hidden="true">🎮</div></figure>
+          <div class="card a" style="padding:10px 14px"><div class="label" style="margin-bottom:4px">one family, many sizes</div><div class="score">
+            <div><span>yolo26n · 2.4 M params</span><b>40.9 mAP</b></div>
+            <div><span>yolo26x · 55.7 M params</span><b>57.5 mAP</b></div>
+            <div><span>n on a laptop CPU</span><b>≈ 28 FPS</b></div>
+            <div><span>tasks</span><b>detect · segment · pose</b></div>
           </div></div>
           <div class="term sm"><div class="bar"><i></i><i></i><i></i><span>path</span></div><pre style="font-size:14.5px;padding:10px 14px">02_computer_vision/03_challenge_yolo/
-  Challenge_2_YOLO_Scavenger_Hunt.ipynb</pre></div>
+  Challenge_2_YOLO_Live.ipynb</pre></div>
           <div class="nb" style="margin-top:0">
-            <a class="pill y" href="https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Scavenger_Hunt.ipynb" target="_blank" rel="noopener">Open in Colab</a>
-            <a class="pill ghost" href="https://github.com/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Scavenger_Hunt.ipynb" target="_blank" rel="noopener">View on GitHub</a>
+            <a class="pill y" href="https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Live.ipynb" target="_blank" rel="noopener">Open in Colab</a>
+            <a class="pill ghost" href="https://github.com/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/03_challenge_yolo/Challenge_2_YOLO_Live.ipynb" target="_blank" rel="noopener">View on GitHub</a>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <aside class="notes">Two phases. Warm-up: run YOLO on a photo or a short video (the example photos, or their own) and read the output together: boxes, class names, confidences, and the mistakes. Then the game: live webcam, 60 seconds, press Q or Esc to stop early. An object counts after 3 frames in a row at confidence ≥ 0.35 (one lucky frame is not enough: that trades a little recall for fewer false alarms). Points: +1 per distinct class, +3 extra per hunt-list item, +5 per honest "Fool YOLO" claim (max 3: a drawn cup, a photo of a bottle on a phone…). Medals at 10, 25 and 40 points. Watch the FPS counter and link it back to the CPU vs GPU question. Colab cannot read a webcam live: use snapshots or photos there. Ask students not to film other people.</aside>
+  <aside class="notes">Three stages, each harder than the last. Images: YOLO26 nano finds and counts objects in eight test photos; the threshold slider shows boxes appearing and disappearing (precision vs recall again); the same photo as boxes, masks and skeletons (detect, segment, pose: one family, different heads); and two failures: kangaroos become "sheep" (not a COCO class) and an aerial parking lot loses most cars at 640 pixels (tiny objects; 1280 pixels finds several times more). Video: tracking links boxes frame to frame by overlap (IoU), giving IDs and motion trails, a count of objects over time and a heatmap that draws the lanes by itself; the simple tracker counts too many cars, a good discussion on why counting is harder than detecting. Webcam: watch detections, track IDs and the frame rate update as objects move. Sizes n to x: mAP 40.9 to 57.5, but about 13 times slower on a CPU. Students can drop their own photos and videos in my_media/. Colab cannot open a webcam window: the camera runs in the browser and frames travel to Colab and back (a few FPS). Ask students not to film other people.</aside>
 </section>
 
 <!-- ===== div_mm ===== -->
