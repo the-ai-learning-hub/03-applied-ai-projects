@@ -1062,8 +1062,9 @@ table.t.tm2-tf{font-size:17px}
 #tm2-ana-d{gap:10px;flex:none}
 .tm2-ana{display:grid;grid-template-columns:440px 1fr;gap:22px;align-items:start}
 #tm2-ana-steps .btn{font-size:15px;padding:6px 10px}
-#tm2-ana-svg .pk{fill:var(--violet)}#tm2-ana-svg .pkt{fill:var(--ink)}
-#tm2-ana-svg .pm{fill:var(--yellow)}#tm2-ana-svg .pmt{fill:var(--yellow)}
+#tm2-ana-svg .pk{fill:var(--ink)}#tm2-ana-svg .pkt{fill:var(--ink)}
+#tm2-ana-svg .pr{fill:var(--red)}#tm2-ana-svg .prt{fill:var(--red)}
+#tm2-ana-svg .pb{fill:var(--blue)}#tm2-ana-svg .pbt{fill:var(--blue)}
 #tm2-ana-svg .pq{fill:var(--green)}#tm2-ana-svg .pqt{fill:var(--green)}
 .tm2-anag{gap:6px}
 .tm2-ar{display:grid;grid-template-columns:190px 1fr;gap:10px;align-items:center;transition:opacity .35s}
@@ -2848,7 +2849,7 @@ print(tokens)</pre></div>
 
 <section class="slide" data-mod="Text mining" style="--acc:#c4a2ff" data-id="tm2-analogy" data-hook="tm2ana">
   <div class="main tm2-m-ana">
-    <div class="head"><div class="kicker">Text mining<span class="sep">/</span>interactive · vector arithmetic</div><h2><span class="hl">king − man + woman ≈ queen</span></h2></div>
+    <div class="head"><div class="kicker">Text mining<span class="sep">/</span>interactive · vector arithmetic</div><h2><span class="hl">king + <span style="color:var(--blue)">woman</span> − <span style="color:var(--red)">man</span> ≈ queen</span></h2></div>
     <div class="bw">
       <div class="demo" id="tm2-ana-d">
         <div class="ctl">
@@ -2856,13 +2857,13 @@ print(tokens)</pre></div>
           <button class="btn pri" id="tm2-ana-next">Next step ▸</button>
           <div class="steps" id="tm2-ana-steps" role="group" aria-label="Steps">
             <button class="btn sm" data-k="0">① four words</button>
-            <button class="btn sm" data-k="1">② man → woman</button>
-            <button class="btn sm" data-k="2">③ same step from king</button>
+            <button class="btn sm" data-k="1">② king + woman</button>
+            <button class="btn sm" data-k="2">③ − man</button>
             <button class="btn sm" data-k="3">④ closest word</button>
           </div>
         </div>
         <div class="tm2-ana">
-          <div class="diagbox" style="padding:6px"><svg class="sv" id="tm2-ana-svg" viewBox="0 0 440 330" role="img" aria-label="Sketch: man and woman are joined by an arrow; the same arrow drawn from king lands next to queen."></svg></div>
+          <div class="diagbox" style="padding:6px"><svg class="sv" id="tm2-ana-svg" viewBox="0 0 440 330" role="img" aria-label="Sketch: man, king, woman and queen are arrows from the origin; adding the woman arrow at the tip of king, then subtracting the man arrow, lands next to queen."></svg></div>
           <div class="stack" style="gap:8px;min-width:0">
             <div class="tm2-vg tm2-anag" id="tm2-ana-g"></div>
             <div class="status" id="tm2-ana-st" aria-live="polite">–</div>
@@ -2873,7 +2874,7 @@ print(tokens)</pre></div>
       <div class="caption">left: sketch (the real vectors have 50 numbers) · right: real GloVe-50 numbers · closest words searched among all 400,000, the three input words excluded</div>
     </div>
   </div>
-  <aside class="notes">Go step by step. 1: the four words. 2: the arrow from man to woman is "woman − man": what changes when you go from a man to a woman. 3: add that same arrow to king: king − man + woman. On the right, the cells show the real computation: the result row is king's row, minus man's row, plus woman's row, number by number. 4: search the whole 400,000-word vocabulary for the vector closest to the result: queen (cosine 0.85), then throne and prince. Compare the result row with queen's row: similar colours. Honest caveat: as in every published demo, the three input words are excluded from the answer; without that rule, the closest vector would be king itself. Analogies are a nice illustration of "directions carry meaning", not a guarantee: many analogies fail.</aside>
+  <aside class="notes">Go step by step. 1: the four words, each drawn as an arrow from the origin (a vector). 2: start at the tip of king and add woman: the blue dashed arrow is the woman arrow, just moved so it starts at king. 3: subtract man: the red dashed arrow is the man arrow walked backwards. We land very close to queen: king + woman − man ≈ queen. On the right, the cells show the real computation: the result row is king's row, plus woman's row, minus man's row, number by number. 4: search the whole 400,000-word vocabulary for the vector closest to the result: queen (cosine 0.85), then throne and prince. Compare the result row with queen's row: similar colours. Honest caveat: as in every published demo, the three input words are excluded from the answer; without that rule, the closest vector would be king itself. Analogies are a nice illustration of "directions carry meaning", not a guarantee: many analogies fail.</aside>
 </section>
 
 <section class="slide" data-mod="Text mining" style="--acc:#c4a2ff" data-id="tm2-limits">
@@ -6584,33 +6585,47 @@ demo("tm2-vec-d", function () {
 demo("tm2-ana-d", function () {
   var svg = $("tm2-ana-svg"); if (!svg) return;
   var V = TM2G.vec, RES = V.king.map(function (x, i) { return x - V.man[i] + V.woman[i]; }), step = 0, MAX = 3;
-  // sketch coordinates (schematic, not data): a clean parallelogram
-  var P = { man: [270, 250], woman: [370, 110], king: [70, 230], queen: [200, 74] }, R = [P.king[0] + P.woman[0] - P.man[0], P.king[1] + P.woman[1] - P.man[1]];
-  var ROWS = [["king", V.king, 0], ["man", V.man, 0], ["woman", V.woman, 0], ["king−man+woman", RES, 2], ["queen", V.queen, 3]];
+  // sketch coordinates (schematic, not data): every word is an arrow from the origin O
+  var O = [40, 305], RED = "#ff7a7a", BLUE = "#6aaef0", INK = "#f1f5fb";
+  function at(v) { return [O[0] + v[0], O[1] + v[1]]; }
+  var VM = [95, -190], VK = [160, -160], VW = [210, -68], VQ = [256, -25];
+  var P = { man: at(VM), king: at(VK), woman: at(VW), queen: at(VQ) };
+  var KW = [P.king[0] + VW[0], P.king[1] + VW[1]], R = [KW[0] - VM[0], KW[1] - VM[1]];
+  var ROWS = [["king", V.king, 0, ""], ["woman", V.woman, 0, "var(--blue)"], ["man", V.man, 0, "var(--red)"], ["king+woman−man", RES, 2, ""], ["queen", V.queen, 3, ""]];
   var g = $("tm2-ana-g");
   g.innerHTML = ROWS.map(function (r, k) {
-    return '<div class="r tm2-ar" data-k="' + k + '"><span class="nm">' + r[0] + '</span><div class="cells">' + r[1].map(function (v) { return '<i style="background:' + tm2Col(v) + '"></i>'; }).join("") + "</div></div>";
+    return '<div class="r tm2-ar" data-k="' + k + '"><span class="nm"' + (r[3] ? ' style="color:' + r[3] + '"' : "") + ">" + r[0] + '</span><div class="cells">' + r[1].map(function (v) { return '<i style="background:' + tm2Col(v) + '"></i>'; }).join("") + "</div></div>";
   }).join("");
   function pt(name, xy, cls, lab) {
-    return '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="7" class="' + cls + '"/><text x="' + (xy[0] + (lab || [12, 6])[0]) + '" y="' + (xy[1] + (lab || [12, 6])[1]) + '" font-size="19" class="m b ' + cls + 't">' + name + "</text>";
+    return '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="7" class="' + cls + '"/><text x="' + (xy[0] + lab[0]) + '" y="' + (xy[1] + lab[1]) + '" font-size="19" class="m b ' + cls + 't">' + name + "</text>";
   }
   function arrow(a, b, col, mk, dash, w) {
-    var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.sqrt(dx * dx + dy * dy), e = [b[0] - dx / L * 10, b[1] - dy / L * 10];
-    return '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '" stroke="' + col + '" stroke-width="' + (w || 4) + '"' + (dash ? ' stroke-dasharray="8 6"' : "") + ' marker-end="url(#' + mk + ')"/>';
+    var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.sqrt(dx * dx + dy * dy), e = [b[0] - dx / L * 9, b[1] - dy / L * 9];
+    return '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '" stroke="' + col + '" stroke-width="' + (w || 2) + '"' + (dash ? ' stroke-dasharray="7 5"' : "") + ' marker-end="url(#' + mk + ')"/>';
   }
+  function mk(id, col) { return '<marker id="' + id + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10z" fill="' + col + '"/></marker>'; }
   function render() {
-    var h = '<rect x="1" y="1" width="438" height="328" rx="10" fill="#0b1526"/>';
-    if (step >= 1) h += arrow(P.man, P.woman, "#ffd43b", "ar-y") + '<text x="' + ((P.man[0] + P.woman[0]) / 2 + 14) + '" y="' + ((P.man[1] + P.woman[1]) / 2 + 8) + '" font-size="15" class="m" style="fill:var(--yellow)">woman − man</text>';
-    if (step >= 2) h += arrow(P.king, R, "#ffffff", "ar-b", true, 3) + '<text x="20" y="312" font-size="15" class="m" style="fill:#fff">- - -  king + (woman − man)</text>';
-    if (step >= 3) h += '<circle cx="' + P.queen[0] + '" cy="' + P.queen[1] + '" r="22" fill="none" stroke="var(--green)" stroke-width="3"/>';
-    h += pt("man", P.man, "pm") + pt("woman", P.woman, "pm", [-24, -16]) + pt("king", P.king, "pk", [-20, 32]) + (step >= 3 ? pt("queen", P.queen, "pq", [-36, -30]) : pt("queen", P.queen, "pk", [-36, -30]));
-    if (step >= 2) h += '<circle cx="' + R[0] + '" cy="' + R[1] + '" r="7" fill="#fff"/><text x="' + (R[0] + 14) + '" y="' + (R[1] + 6) + '" font-size="18" class="m b" style="fill:#fff">?</text>';
+    var h = '<defs>' + mk("tm2a-r", RED) + mk("tm2a-b", BLUE) + mk("tm2a-k", INK) + mk("tm2a-a", "#5b6b85") + mk("tm2a-g", "#9bd67e") + '</defs>';
+    h += '<rect x="1" y="1" width="438" height="328" rx="10" fill="#0b1526"/>';
+    // axes
+    h += '<line x1="' + O[0] + '" y1="' + O[1] + '" x2="428" y2="' + O[1] + '" stroke="#5b6b85" stroke-width="1.5" marker-end="url(#tm2a-a)"/>';
+    h += '<line x1="' + O[0] + '" y1="' + O[1] + '" x2="' + O[0] + '" y2="16" stroke="#5b6b85" stroke-width="1.5" marker-end="url(#tm2a-a)"/>';
+    // the four words: arrows from the origin
+    h += arrow(O, P.man, RED, "tm2a-r") + arrow(O, P.king, INK, "tm2a-k") + arrow(O, P.woman, BLUE, "tm2a-b") + arrow(O, P.queen, step >= 3 ? "#9bd67e" : INK, step >= 3 ? "tm2a-g" : "tm2a-k");
+    // step 2: + woman (the blue arrow moved to king's tip)
+    if (step >= 1) h += arrow(P.king, KW, BLUE, "tm2a-b", true, 3) + '<text x="' + ((P.king[0] + KW[0]) / 2 - 30) + '" y="' + ((P.king[1] + KW[1]) / 2 - 26) + '" font-size="16" class="m b" style="fill:var(--blue)">+ woman</text>'
+      + '<circle cx="' + KW[0] + '" cy="' + KW[1] + '" r="5" fill="#0b1526" stroke="' + BLUE + '" stroke-width="2"/><text x="' + (KW[0] - 4) + '" y="' + (KW[1] - 14) + '" font-size="14" class="m" text-anchor="end" style="fill:var(--muted)">king + woman</text>';
+    // step 3: − man (the red arrow walked backwards)
+    if (step >= 2) h += arrow(KW, R, RED, "tm2a-r", true, 3) + '<text x="' + ((KW[0] + R[0]) / 2 + 10) + '" y="' + ((KW[1] + R[1]) / 2 + 6) + '" font-size="16" class="m b" style="fill:var(--red)">− man</text>';
+    if (step >= 3) h += '<circle cx="' + P.queen[0] + '" cy="' + P.queen[1] + '" r="16" fill="none" stroke="var(--green)" stroke-width="3"/>';
+    h += pt("man", P.man, "pr", [-18, -14]) + pt("king", P.king, "pk", [12, 20]) + pt("woman", P.woman, "pb", [-34, -14]) + pt("queen", P.queen, step >= 3 ? "pq" : "pk", [10, 19]);
+    if (step >= 2) h += '<circle cx="' + R[0] + '" cy="' + R[1] + '" r="6" fill="#fff"/><text x="' + (R[0] + 12) + '" y="' + (R[1] + 6) + '" font-size="18" class="m b" style="fill:#fff">?</text>';
     svg.innerHTML = h;
     g.querySelectorAll(".tm2-ar").forEach(function (r) { var k = +r.dataset.k; r.classList.toggle("off", ROWS[k][2] > step); r.classList.toggle("res", k === 3 && step >= 2); r.classList.toggle("q", k === 4 && step >= 3); });
     var ST = [
-      "Four words, each a vector of 50 numbers (right: their real cells).",
-      "The arrow from <b>man</b> to <b>woman</b> = <b>woman − man</b>: what changes from a man to a woman.",
-      "Add the same arrow to <b>king</b>: <b>king − man + woman</b>, computed number by number (row 4).",
+      "Four words, each an <b>arrow from the origin</b>: a vector of 50 numbers (right: their real cells).",
+      "Start at the tip of <b>king</b> and add <b style=\"color:var(--blue)\">woman</b>: the same blue arrow, moved so it starts at king.",
+      "Subtract <b style=\"color:var(--red)\">man</b>: the red arrow, walked backwards. Result: <b>king + woman − man</b>, number by number (row 4).",
       "Search all 400,000 words for the closest vector: <b>queen</b>. Compare rows 4 and 5: similar colours."
     ];
     $("tm2-ana-st").innerHTML = ST[step];
