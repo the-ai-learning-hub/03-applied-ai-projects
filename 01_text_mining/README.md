@@ -1,22 +1,27 @@
 # 01 · Text Mining: from words to sentiment
 
-How does text become numbers? We start with six sentences and a pencil (bag of words, TF-IDF, cosine similarity), build a real SMS spam filter, and then race lexicons, six classic models and two transformers on 50,000 tweets. 🏠 [Lesson 03](../README.md) · 📖 [Slides](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#text-mining)
+How does text become numbers? We start with six sentences and a pencil (bag of words, TF-IDF, cosine similarity), build a real SMS spam filter, and then follow a full sentiment-analysis project on 50,000 tweets: exploration, ready-made tools, lexicons, machine learning, transformers and generative LLMs. 🏠 [Lesson 03](../README.md) · 📖 [Slides](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#text-mining)
 
 | Notebook | Question | Time | Open |
 |---|---|---|---|
-| [01 · Text Mining basics: SMS spam](01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb) | How does text become numbers? | 60 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb) |
-| [02 · Tweet sentiment analysis](02_project_tweets/02_Tweet_Sentiment_Analysis.ipynb) | Can we beat the 83% of "always say positive"? | 90 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02_Tweet_Sentiment_Analysis.ipynb) |
-| [🎮 Challenge 1 · Fool the sentiment model](03_challenge_fool_the_model/Challenge_1_Fool_The_Sentiment_Model.ipynb) | Can you write a sentence that tricks both judges? | 15 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/03_challenge_fool_the_model/Challenge_1_Fool_The_Sentiment_Model.ipynb) |
+| [01 · Text Mining basics: SMS spam](01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb) | How does text become numbers? | 90 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb) |
+| [02.0 · Tweets: exploratory data analysis](02_project_tweets/02.0_Tweets_EDA.ipynb) | What do positive and negative tweets look like? | 30 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.0_Tweets_EDA.ipynb) |
+| [02.1 · Tweets: baseline tools](02_project_tweets/02.1_Tweets_Baseline_Tools.ipynb) | How good are ready-made tools (TextBlob, VADER, SentiWordNet, AFINN)? | 30 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.1_Tweets_Baseline_Tools.ipynb) |
+| [02.2 · Tweets: lexicons](02_project_tweets/02.2_Tweets_Lexicons.ipynb) | Do sentiment dictionaries (NRC, VADER, AFINN) and negation handling help? | 30 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.2_Tweets_Lexicons.ipynb) |
+| [02.3 · Tweets: machine learning](02_project_tweets/02.3_Tweets_Machine_Learning.ipynb) | Which models learn best from TF-IDF and GloVe? | 30 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.3_Tweets_Machine_Learning.ipynb) |
+| [02.4 · Tweets: transformers](02_project_tweets/02.4_Tweets_Transformers.ipynb) | How much do pretrained and fine-tuned transformers win? | 30 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.4_Tweets_Transformers.ipynb) |
+| [02.5 · Generative LLMs](02_project_tweets/02.5_Tweets_Generative_LLMs.ipynb) | Can an LLM classify sentiment with just a prompt? | 30 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.5_Tweets_Generative_LLMs.ipynb) |
+| [🎮 Challenge 1 · 🎚️ Flip It!](03_challenge_flip_it/Challenge_1_Flip_It.ipynb) | How few words must you change to make a sentiment AI change its mind? | 15 min | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/03_challenge_flip_it/Challenge_1_Flip_It.ipynb) |
 
-**Order:** 01 → 02 (02 assumes bag of words, TF-IDF and text pipelines from 01).
+**Order:** 01 → 02.0 → … → 02.5. Notebook 01 is the tutorial: it practises every concept of the Text Mining slides. The 02 notebooks are a real project, based on the *Text Mining para Ciência de Dados* project by Diogo Freitas, João Francisco Botas and Ana Sofia Trabulo (ISCTE, 2024/25; [project slides](https://github.com/the-ai-learning-hub/03-applied-ai-projects/releases/tag/tmcd-project)): they keep the outputs of the original runs (some steps needed a GPU or an API key), so you can read the results without re-running everything.
 
 ## 🎯 Objectives
 
 - **Text → numbers:** tokens, vocabulary, bag of words and TF-IDF computed by hand on a toy corpus, then with scikit-learn; cosine similarity as a tiny search engine.
 - **A real spam filter:** `Pipeline(TfidfVectorizer + Naive Bayes / Logistic Regression)`, spam as the positive class, the model's "spam words", its mistakes, and a cell to test **your own messages**.
 - **Clean text data honestly:** empty texts, duplicates and **train/test leakage**.
-- **Sentiment, three ways:** lexicons (VADER, AFINN) with a negation rule → classic ML on TF-IDF (Naive Bayes, Logistic Regression, linear SVM, KNN, Random Forest, XGBoost) and sentence embeddings → transformers (pretrained Twitter-RoBERTa, fine-tuned DistilBERT), all on one **leaderboard** (macro-F1, recall of negatives).
-- **Think like a practitioner:** class weights and thresholds, error analysis of the tweets every model gets wrong, and **score vs cost**.
+- **A real project, step by step:** exploratory analysis → ready-made tools (TextBlob, VADER, SentiWordNet, AFINN) → lexicons (NRC EmoLex, VADER, AFINN) with and without negation handling → machine learning on TF-IDF and GloVe (Logistic Regression, SVM, Random Forest, KNN, XGBoost, RNN/LSTM/GRU/CNN) → transformers (zero-shot pipelines and fine-tuning) → generative LLMs with prompts.
+- **Read results critically:** every notebook ends with a comparison chart, and ⚠️ *Limitation* boxes point out the mistakes in the original project (accuracy on an unbalanced dataset, train/test duplicates, "recurrent" networks that never see a sequence).
 
 ## 📋 Prerequisites
 
@@ -28,7 +33,7 @@ Lesson 02 (train/test split, `Pipeline`, leakage, precision/recall/F1, confusion
 |---|---|---|
 | `data/sms_spam/` | SMS Spam Collection (UCI, CC BY 4.0): 5,574 messages, `ham` / `spam` | 0.5 MB |
 | `data/tweets/` | English tweets labelled `pos` / `neg` (train 39,936 · test 9,985) | 4.3 MB |
-| `data/lexicons/` | VADER (MIT) and AFINN (ODbL) sentiment lexicons | 0.5 MB |
+| `data/lexicons/` | VADER (MIT), AFINN (ODbL) and NRC EmoLex (research and education use) sentiment lexicons | 1 MB |
 
 Details, sources, licences and known issues: [`data/DATA_DICTIONARY.md`](../data/DATA_DICTIONARY.md).
 
@@ -38,25 +43,19 @@ Measured on the authors' laptop (8 CPU threads), downloads excluded.
 
 | Notebook | First run | Later runs |
 |---|---|---|
-| 01 · SMS spam | ≈ 25 s | ≈ 25 s |
-| 02 · Tweets | ≈ 2.5 min (sentence embeddings are computed once) | ≈ 1.2 min (embeddings cached in `data/_cache/`) |
+| 01 · SMS spam | ≈ 20 s (+ ≈ 90 MB MiniLM download) | ≈ 20 s |
+| 02.0 – 02.2 · Tweets | seconds to a minute each | same |
+| 02.3 – 02.5 · Tweets | outputs are saved: the heavy cells (⏳) took minutes to hours on a GPU or needed an API key | read the saved outputs |
+| 🎮 Challenge 1 · Flip It! | ≈ 5 s (the model trains in ≈ 1.5 s) | ≈ 5 s |
 
-Fine-tuning DistilBERT takes ≈ 2 min on an RTX 4060 Laptop GPU but ≈ 30+ min on a CPU, so it is behind `RUN_HEAVY = False`: the notebook loads the precomputed run from [`02_project_tweets/results/`](02_project_tweets/results/) (`finetune_results.json` with metrics, timing and training history; `distilbert_test_probs.csv` and `roberta_test_probs.csv` with test-set probabilities). Set `RUN_HEAVY = True` on a GPU (Colab: *Runtime → Change runtime type → T4 GPU*) to train it live.
+## 📦 Pretrained models and APIs (notebooks 02.4 and 02.5)
 
-## 📦 Pretrained models (downloaded on first run, notebook 02)
-
-| Model | Used for | Size |
-|---|---|---|
-| [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) | sentence embeddings (384 numbers per tweet) | ≈ 90 MB |
-| [`cardiffnlp/twitter-roberta-base-sentiment-latest`](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest) | pretrained tweet sentiment (negative / neutral / positive) | ≈ 500 MB |
-| [`distilbert/distilbert-base-uncased`](https://huggingface.co/distilbert/distilbert-base-uncased) | fine-tuning (only with `RUN_HEAVY = True`) | ≈ 270 MB |
-
-Weights go to the Hugging Face cache (`~/.cache/huggingface`). Fine-tuned models are saved in `models/` (git-ignored).
+Notebook 02.4 uses Hugging Face transformers (DistilBERT, RoBERTa, `cardiffnlp/twitter-roberta-base-sentiment` and others; fine-tuning needs a GPU). Notebook 02.5 calls Gemini (needs a free `GEMINI_API_KEY`) and Llama 2 (needs a Hugging Face token with access to the model, and a GPU). Without them the notebooks still open and show the saved results.
 
 ## ✍️ Your own text
 
-Notebook 01 ends with `check_sms("...")` and a text box to type your own SMS; notebook 02's Exercise 4 compares your own tweets across a lexicon, Logistic Regression and RoBERTa.
+Notebook 01 ends with `check_sms("...")` and a text box to type your own SMS; Challenge 1 lets you type any sentence and watch the model react word by word.
 
 ## 🧰 Helpers
 
-Shared code lives in [`src/text.py`](../src/text.py) (`clean_tweet`, `tokenize`, `load_lexicon`, `lexicon_score` with negation, `evaluate`, `top_coefficients`), tested in `src/tests/test_text.py` (`uv run pytest`).
+Shared code lives in [`src/tweet_tools.py`](../src/tweet_tools.py) (cleaning and evaluation helpers of the tweet project), [`src/text_cleaning_tuning.py`](../src/text_cleaning_tuning.py) (advanced cleaning + the grid search over cleaning choices) and [`src/text.py`](../src/text.py) (`clean_tweet`, `tokenize`, `load_lexicon`, `lexicon_score` with negation, `evaluate`, `top_coefficients`), tested in `src/tests/test_text.py` (`uv run pytest`). The Flip It! game (`FlipGame`: live word pushes, gauge, medals, scorecard) lives in [`src/challenges.py`](../src/challenges.py), tested in `src/tests/test_challenges.py`.

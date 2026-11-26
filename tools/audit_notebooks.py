@@ -16,6 +16,12 @@ ROOT = Path(__file__).resolve().parent.parent
 FORBIDDEN = ["ISCTE logo", "Grupo", "Group 7", "Group 27", "C:/Users", "C:" + "\\" + "Users", "!pip install",
              "Vullkano", "notebooks-challenge", "<!DOCTYPE", "<style", "api_key", "API_KEY"]
 MAX_MB = 3.5
+# The tweet project (02.x) keeps the outputs of the original university runs (GPU, API keys): some cells were never
+# run there, and the Gemini notebook reads its key from the environment, so these checks are relaxed for it.
+SAVED_RUN = "02_project_tweets"
+SAVED_RUN_ALLOWED = {"!pip install", "notebooks-challenge", "api_key", "API_KEY"}
+# Real secrets are never allowed: Hugging Face tokens and Google API keys.
+SECRET = re.compile(r"hf_[A-Za-z0-9]{30,}|AIza[0-9A-Za-z_-]{35}")
 
 
 def audit(path: Path) -> list[str]:
@@ -25,7 +31,12 @@ def audit(path: Path) -> list[str]:
     code = "\n".join(c.source for c in nb.cells if c.cell_type == "code")
     # "!pip install" is allowed only inside the Colab branch of the setup cell.
     code_wo_colab = re.sub(r"if IN_COLAB:.*?(?=\n\S|\Z)", "", code, flags=re.S)
+    saved_run = SAVED_RUN in path.parts
+    if SECRET.search(md + "\n" + code):
+        problems.append("contains what looks like an API key or token")
     for word in FORBIDDEN:
+        if saved_run and word in SAVED_RUN_ALLOWED:
+            continue
         haystack = md + (code_wo_colab if word == "!pip install" else code)
         if word.lower() in haystack.lower():
             problems.append(f"contains '{word}'")
@@ -50,7 +61,7 @@ def audit(path: Path) -> list[str]:
     if re.search(r"^\s*[^#\n]*\binput\(", code, re.M):
         problems.append("executed input() call")
     for c in nb.cells:
-        if c.cell_type == "code" and c.get("execution_count") is None and c.source.strip():
+        if not saved_run and c.cell_type == "code" and c.get("execution_count") is None and c.source.strip():
             problems.append("notebook not executed (cells without outputs)")
             break
         for out in c.get("outputs", []):

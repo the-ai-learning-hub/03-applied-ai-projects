@@ -1,0 +1,9 @@
+config,accuracy,precision,recall,f1_score
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=True|hashtags=True|numbers=True|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8614922383575363,0.8466300158291552,0.8614922383575363,0.834535322470584
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=True|hashtags=True|numbers=False|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8615923885828743,0.8465218061901396,0.8615923885828743,0.8350890218809409
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=True|hashtags=False|numbers=True|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8618928392588884,0.8473887305791027,0.8618928392588884,0.834934651363246
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=True|hashtags=False|numbers=False|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8614922383575363,0.8465248571850108,0.8614922383575363,0.8346938039470194
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=False|hashtags=True|numbers=True|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8627941912869304,0.8488867486324364,0.8627941912869304,0.8361299707496422
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=False|hashtags=True|numbers=False|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8614922383575363,0.8464227498746371,0.8614922383575363,0.8348516810493529
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=False|hashtags=False|numbers=True|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8620931397095644,0.8475751032566583,0.8620931397095644,0.8354109674873794
+"Lowercase=False|Emojis=True|Stem=False|POS=False|URLs=False|hashtags=False|numbers=False|NegHandl=True|Ngram=(1, 2)|Feat=5000",0.8617926890335503,0.846919862736449,0.8617926890335503,0.8352492101442189

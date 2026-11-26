@@ -1,22 +1,26 @@
 """Scoring rules and the scorecard figure for the three Lesson 03 class challenges.
 
-* Challenge 1 · Fool the Sentiment Model  (``01_text_mining/03_challenge_fool_the_model``)
+* Challenge 1 · Flip It!                 (``01_text_mining/03_challenge_flip_it``)
 * Challenge 2 · YOLO Scavenger Hunt       (``02_computer_vision/03_challenge_yolo``)
 * Challenge 3 · CLIP Pictionary           (``03_multimodal/02_challenge_clip_pictionary``)
 
 Everything here is plain Python + NumPy/pandas/Matplotlib: no model is loaded, so the tests run in
 a second. The notebooks call the models and pass the *answers* (labels, probabilities, detected
-classes, ranks) to these functions. Every rule lives in one constant, so the notebook, the README
-and the slides can quote the exact same numbers.
+classes, ranks) to these functions. Challenge 1 also gets its interactive game here
+(:class:`FlipGame`, ``ipywidgets`` + HTML), so the notebook stays short. Every rule lives in one
+constant, so the notebook, the README and the slides can quote the exact same numbers.
 """
 
 from __future__ import annotations
 
+import html
 import re
 from collections.abc import Iterable, Mapping, Sequence
 
 import numpy as np
 import pandas as pd
+
+from src.text import clean_tweet
 
 # --------------------------------------------------------------------------------------------------
 # Levels (medals)
@@ -24,7 +28,7 @@ import pandas as pd
 
 #: Minimum points for each medal, per challenge (below Bronze you are a "Rookie").
 LEVELS = {
-    "fool_the_model": {"Bronze": 10, "Silver": 25, "Gold": 40},
+    "flip_it": {"Bronze": 5, "Silver": 9, "Gold": 13},          # stars (3 per level, 5 levels)
     "yolo_hunt": {"Bronze": 10, "Silver": 25, "Gold": 40},
     "clip_pictionary": {"Bronze": 12, "Silver": 24, "Gold": 35},
 }
@@ -66,63 +70,528 @@ def clean_entries(entries: Iterable, max_entries: int, key=lambda e: e) -> list:
 
 
 # --------------------------------------------------------------------------------------------------
-# Challenge 1 · Fool the Sentiment Model
+# Challenge 1 · Flip It!
 # --------------------------------------------------------------------------------------------------
 
-#: Points of Challenge 1 (the notebook, the README and the slides quote these).
-CH1_RULES = {
-    "max_sentences": 8,        # Round 1: only the first 8 different sentences count
-    "per_judge_fooled": 2,     # Round 1: a judge predicts the opposite of your TRUE label
-    "both_fooled_bonus": 3,    # Round 1: extra if BOTH judges are fooled by the same sentence
-    "max_spam": 6,             # Round 2: only the first 6 different messages count
-    "spam_passes": 3,          # Round 2: a real spam (self-declared) gets P(spam) < 0.5
-    "stealth_below": 0.10,     # Round 2: ... and if P(spam) < 0.10
-    "stealth_bonus": 2,        # ... you also get the stealth bonus
-}
+#: The five levels of Challenge 1. ``start``: the sentence you get; ``goal``: the verdict you must reach;
+#: ``gold`` / ``silver``: most word swaps for that medal (any flip is at least Bronze);
+#: ``rule``: ``None``, ``"liar"`` (a human must still read the *start* sentiment) or ``"add_only"``.
+FLIP_LEVELS = [
+    {"name": "Warm-up", "emoji": "🌞", "start": "I love this sunny day", "goal": "neg",
+     "gold": 1, "silver": 2, "rule": None,
+     "mission": "Make the model say NEGATIVE."},
+    {"name": "Rescue mission", "emoji": "🚑", "start": "this is the worst headache ever", "goal": "pos",
+     "gold": 1, "silver": 3, "rule": None,
+     "mission": "Make the model say POSITIVE. One swap is possible, but the word is not the one you think."},
+    {"name": "Liar mode", "emoji": "🎭", "start": "this new phone is awesome", "goal": "neg",
+     "gold": 1, "silver": 3, "rule": "liar",
+     "mission": "Make the model say NEGATIVE while a human still reads a HAPPY sentence."},
+    {"name": "Add-only", "emoji": "➕", "start": "I lost my keys and missed the bus", "goal": "pos",
+     "gold": 3, "silver": 5, "rule": "add_only",
+     "mission": "Make the model say POSITIVE. You may only ADD words: the bad news cannot be deleted."},
+    {"name": "Boss · 99.98 % sure", "emoji": "💀", "start":
+     "happy birthday! thank you so much, love you all, have a great day! haha", "goal": "neg",
+     "gold": 3, "silver": 5, "rule": None,
+     "mission": "The model has never been so sure. Make it say NEGATIVE."},
+]
+
+#: Liar mode: words too obviously negative to add (a human would not read the sentence as happy any more).
+LIAR_BANNED = frozenset({
+    "sad", "hate", "hates", "hated", "sucks", "suck", "worst", "awful", "terrible", "horrible", "depressing",
+    "depressed", "died", "dead", "die", "ugh", "cry", "crying", "angry", "upset", "boring", "bored", "annoyed",
+    "disappointed", "disappointing", "lame", "unfortunately", "sadly", "bummer", "pain", "hurts", "hurt",
+    "broken", "broke", "fail", "failed", "rip", "shitty", "crap", "useless", "ugly", "stupid", "waste",
+    "wrong", "sorry", "headache", "unhappy", "miserable", "worse", "bad",
+})
+
+#: Stars per medal in a level, and the colours of the game (the slide deck's dark palette).
+FLIP_STARS = {"Gold": 3, "Silver": 2, "Bronze": 1}
+FLIP_THEME = {"page": "#08111f", "slide": "#0e1a2e", "card": "#13223b", "card2": "#172a48",
+              "line": "#1d3152", "line2": "#2a4570", "ink": "#f1f5fb", "body": "#b4c2d8", "muted": "#94a6c2",
+              "pos": "#9bd67e", "neg": "#ff7a7a", "yellow": "#ffd43b", "violet": "#c4a2ff", "blue": "#6aaef0"}
+_VERDICT = {"pos": "POSITIVE", "neg": "NEGATIVE"}
 
 
-def judge_points(true_label: str, pred_a: str, pred_b: str, rules: Mapping = CH1_RULES) -> dict:
-    """Round 1 points for one sentence: which judges were fooled and how many points that is."""
-    if true_label not in ("pos", "neg"):
-        raise ValueError(f"true label must be 'pos' or 'neg', got {true_label!r}")
-    fooled_a, fooled_b = pred_a != true_label, pred_b != true_label
-    points = rules["per_judge_fooled"] * (fooled_a + fooled_b)
-    bonus = rules["both_fooled_bonus"] if (fooled_a and fooled_b) else 0
-    return {"fooled_a": bool(fooled_a), "fooled_b": bool(fooled_b), "points": int(points), "bonus": int(bonus),
-            "total": int(points + bonus)}
+def word_edits(a: Sequence[str], b: Sequence[str]) -> int:
+    """Word swaps between two token lists: each word added, removed or replaced counts 1 (Levenshtein).
 
-
-def spam_points(p_spam: float, still_spam: bool, rules: Mapping = CH1_RULES, threshold: float = 0.5) -> dict:
-    """Round 2 points for one message: it must *still be spam* (your honest call) and get past the filter."""
-    passed = bool(still_spam) and p_spam < threshold
-    stealth = passed and p_spam < rules["stealth_below"]
-    points = rules["spam_passes"] if passed else 0
-    bonus = rules["stealth_bonus"] if stealth else 0
-    return {"passed": passed, "stealth": bool(stealth), "points": int(points), "bonus": int(bonus),
-            "total": int(points + bonus)}
-
-
-def term_contributions(text: str, vectorizer, model, positive_class: str | None = None) -> pd.DataFrame:
-    """How much each term of ``text`` pushed a linear model (TF-IDF value × model weight).
-
-    Positive ``contribution`` pushes towards ``positive_class`` (default: ``model.classes_[1]``).
-    Sorted by absolute effect, strongest first. Works for ``LogisticRegression`` (``coef_``) and
-    ``MultinomialNB`` (log-probability difference between the two classes).
+    >>> word_edits(["i", "love", "it"], ["i", "hate", "it", "!"])
+    2
     """
-    row = vectorizer.transform([text])
-    if row.nnz == 0:
-        return pd.DataFrame(columns=["term", "tfidf", "weight", "contribution"])
-    if hasattr(model, "coef_"):
-        weights = np.ravel(model.coef_)
-    else:
-        weights = model.feature_log_prob_[1] - model.feature_log_prob_[0]
+    previous = list(range(len(b) + 1))
+    for i, word_a in enumerate(a, 1):
+        current = [i]
+        for j, word_b in enumerate(b, 1):
+            current.append(min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (word_a != word_b)))
+        previous = current
+    return previous[-1]
+
+
+def is_add_only(start: Sequence[str], tokens: Sequence[str]) -> bool:
+    """``True`` if ``tokens`` keeps every word of ``start``, in the same order (words were only added)."""
+    remaining = iter(tokens)
+    return all(word in remaining for word in start)
+
+
+def new_word_positions(start: Sequence[str], tokens: Sequence[str]) -> set[int]:
+    """Positions in ``tokens`` of the words that are not in ``start`` (added or replaced)."""
+    from difflib import SequenceMatcher
+
+    kept = set()
+    for block in SequenceMatcher(None, list(start), list(tokens), autojunk=False).get_matching_blocks():
+        kept.update(range(block.b, block.b + block.size))
+    return set(range(len(tokens))) - kept
+
+
+def word_pushes(text: str, vectorizer, model, clean=clean_tweet, pos_label: str = "pos") -> dict:
+    """Read ``text`` like the model does and say how hard each word pushes towards ``pos_label``.
+
+    Works for a word-level (unigram) ``TfidfVectorizer`` + a binary linear model (``LogisticRegression``):
+    the model's score is ``bias + Σ tfidf(word) × weight(word)``, so each word's push is exact.
+    A word that appears twice shares its push between its two copies; an unknown word pushes 0.
+    Returns ``tokens``, ``pushes`` (NumPy array), ``known`` (bool per token), ``bias``, ``logit`` and
+    ``p_pos`` (probability of ``pos_label``).
+    """
+    if getattr(vectorizer, "ngram_range", (1, 1)) != (1, 1):
+        raise ValueError("word_pushes needs a word-level vectorizer (ngram_range=(1, 1))")
+    cleaned = clean(text) if clean else str(text)
+    tokens = list(vectorizer.build_analyzer()(cleaned))
     classes = list(model.classes_)
-    sign = 1.0 if positive_class in (None, classes[1]) else -1.0
-    terms = np.asarray(vectorizer.get_feature_names_out())[row.indices]
-    w = sign * weights[row.indices]
-    frame = pd.DataFrame({"term": terms, "tfidf": row.data, "weight": w, "contribution": row.data * w})
-    order = frame["contribution"].abs().sort_values(ascending=False).index
-    return frame.loc[order].reset_index(drop=True)
+    sign = 1.0 if pos_label == classes[1] else -1.0
+    weights = sign * np.ravel(model.coef_)
+    bias = float(sign * np.ravel(model.intercept_)[0])
+    row = vectorizer.transform([cleaned])
+    value = dict(zip(row.indices, row.data))
+    vocab = vectorizer.vocabulary_
+    counts: dict[str, int] = {}
+    for t in tokens:
+        counts[t] = counts.get(t, 0) + 1
+    pushes, known = [], []
+    for t in tokens:
+        f = vocab.get(t)
+        known.append(f is not None)
+        pushes.append(0.0 if f is None else value.get(f, 0.0) * weights[f] / counts[t])
+    pushes = np.array(pushes, dtype=float)
+    logit = bias + float(pushes.sum())
+    return {"tokens": tokens, "pushes": pushes, "known": known, "bias": bias, "logit": logit,
+            "p_pos": float(1.0 / (1.0 + np.exp(-logit)))}
+
+
+def flip_medal(swaps: int, level: Mapping) -> tuple[str, int]:
+    """Medal and stars for a flip in ``swaps`` word swaps (Gold ≤ ``level['gold']``, Silver ≤ ``level['silver']``)."""
+    medal = "Gold" if swaps <= level["gold"] else "Silver" if swaps <= level["silver"] else "Bronze"
+    return medal, FLIP_STARS[medal]
+
+
+def flip_result(level: Mapping, start: Sequence[str], tokens: Sequence[str], p_pos: float,
+                honest: bool = False, banned: Iterable[str] = LIAR_BANNED) -> dict:
+    """Judge one attempt of a level: did the verdict flip, how many swaps, is it within the rules?
+
+    ``start`` / ``tokens``: the words of the start sentence and of the attempt (as the model reads them).
+    ``honest``: Liar mode only, the player's word that a human still reads the start sentiment.
+    Returns ``verdict``, ``flipped``, ``swaps``, ``problems`` (list of strings), ``valid``, ``medal``, ``stars``.
+    """
+    verdict = "pos" if p_pos >= 0.5 else "neg"
+    swaps = word_edits(start, tokens)
+    problems = []
+    if level.get("rule") == "add_only" and not is_add_only(start, tokens):
+        problems.append("Add-only: every original word must stay, in the same order.")
+    if level.get("rule") == "liar":
+        added = set(tokens) - set(start)
+        too_obvious = sorted(added & set(banned))
+        if too_obvious:
+            problems.append(f"Liar mode: {', '.join(too_obvious)} would make a human read it as negative.")
+        elif verdict == level["goal"] and not honest:
+            problems.append("Liar mode: tick the honour box if a human still reads it as happy.")
+    flipped = verdict == level["goal"]
+    valid = flipped and not problems
+    medal, stars = flip_medal(swaps, level) if valid else (None, 0)
+    return {"verdict": verdict, "flipped": flipped, "swaps": swaps, "problems": problems, "valid": valid,
+            "medal": medal, "stars": stars}
+
+
+def flip_summary(best: Mapping[int, Mapping], levels: Sequence[Mapping] = FLIP_LEVELS) -> dict:
+    """Total of a game: ``best`` maps a level number (1, 2, …) to its best valid result (``swaps``, ``stars``).
+
+    Returns ``stars``, ``max_stars``, ``flips``, ``swaps``, ``medal`` (from :data:`LEVELS` ``["flip_it"]``)
+    and a one-line ``share`` text.
+    """
+    stars = sum(int(r["stars"]) for r in best.values())
+    swaps = sum(int(r["swaps"]) for r in best.values())
+    medal, nxt, missing = medal_for(stars, LEVELS["flip_it"])
+    max_stars = FLIP_STARS["Gold"] * len(levels)
+    share = (f"🎚️ I flipped the AI {len(best)}/{len(levels)} times in {swaps} word swaps · "
+             f"{stars}/{max_stars} ⭐ · {MEDAL_EMOJI[medal]} {medal} · #FlipIt")
+    return {"stars": stars, "max_stars": max_stars, "flips": len(best), "swaps": swaps, "medal": medal,
+            "next": nxt, "missing": missing, "share": share}
+
+
+# ---- Flip It! · HTML pieces (inline styles, so they also look right where <style> tags are removed) ----
+
+_FLIP_CSS = """<style>
+@keyframes flipit-pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes flipit-burst{0%{transform:translate(-50%,-50%) scale(.3) rotate(0deg);opacity:1}
+ 100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.25) rotate(var(--r));opacity:0}}
+@keyframes flipit-glow{0%,100%{box-shadow:0 0 0 0 rgba(255,212,59,.0)}50%{box-shadow:0 0 28px 4px rgba(255,212,59,.45)}}
+.flipit-app{background:#08111f;border:1px solid #1d3152;border-radius:18px;padding:14px 16px 16px;max-width:980px}
+.flipit-app input[type="text"]{background:#0b1526!important;color:#f1f5fb!important;font-size:20px!important;
+ height:48px!important;border:2px solid #2a4570!important;border-radius:12px!important;padding:0 14px!important;
+ font-family:"Inter Tight",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important}
+.flipit-app input[type="text"]:focus{border-color:#c4a2ff!important;outline:none!important;box-shadow:0 0 0 4px rgba(196,162,255,.18)!important}
+.flipit-app .widget-toggle-button,.flipit-app .jupyter-button{border-radius:10px!important;font-weight:700!important}
+.flipit-app .widget-checkbox label,.flipit-app .widget-checkbox .widget-label-basic span{color:#f1f5fb!important;font-size:15px!important}
+.flipit-app .widget-html,.flipit-app .widget-html-content{color:#f1f5fb}
+</style>"""
+
+_FONT = "font-family:'Inter Tight',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"   # single quotes:
+_MONO = "font-family:'JetBrains Mono',ui-monospace,Consolas,'SF Mono',monospace"           # inside style="…"
+
+
+def _rgba(hex_color: str, alpha: float) -> str:
+    r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+    return f"rgba({r},{g},{b},{alpha:.2f})"
+
+
+def _confidence(p_pos: float) -> tuple[str, str]:
+    """('94 %', 'POSITIVE'): the confidence in the current verdict, with 2 decimals above 99 %."""
+    verdict = "pos" if p_pos >= 0.5 else "neg"
+    conf = p_pos if verdict == "pos" else 1 - p_pos
+    text = f"{conf * 100:.2f} %" if conf >= 0.99 else f"{conf * 100:.0f} %"
+    return text, _VERDICT[verdict]
+
+
+def render_word_chips(tokens: Sequence[str], pushes: Sequence[float], known: Sequence[bool],
+                      new: Iterable[int] = ()) -> str:
+    """The sentence as the model reads it: one chip per word, green = pushes to POSITIVE, red = NEGATIVE.
+
+    The number under each word is its push; a dashed chip is a word the model never saw (push 0);
+    a yellow underline marks a word you added or changed.
+    """
+    th, new = FLIP_THEME, set(new)
+    scale = max(1.0, max((abs(p) for p in pushes), default=0.0))
+    chips = []
+    for i, (tok, push, ok) in enumerate(zip(tokens, pushes, known)):
+        strength = min(1.0, abs(push) / scale)
+        if not ok:
+            bg, border, ink, label = "transparent", f"1.5px dashed {th['muted']}", th["muted"], "unknown"
+        else:
+            col = th["pos"] if push > 0 else th["neg"]
+            bg = _rgba(col, 0.10 + 0.78 * strength) if abs(push) > 1e-9 else _rgba(th["muted"], 0.12)
+            border = f"1.5px solid {_rgba(col, 0.35 + 0.65 * strength)}"
+            ink = th["page"] if strength > 0.55 else th["ink"]
+            label = f"{push:+.2f}"
+        mark = f"box-shadow:inset 0 -4px 0 {th['yellow']};" if i in new else ""
+        chips.append(
+            f'<span title="push {push:+.3f}" style="display:inline-flex;flex-direction:column;align-items:center;'
+            f'margin:4px 3px;padding:6px 11px 5px;border-radius:11px;background:{bg};border:{border};{mark}'
+            f'min-width:26px;vertical-align:top"><span style="{_FONT};font-weight:700;font-size:19px;'
+            f'line-height:1.25;color:{ink}">{html.escape(tok)}</span><span style="{_MONO};font-size:11px;'
+            f'color:{ink};opacity:.85">{label}</span></span>')
+    if not chips:
+        chips.append(f'<span style="color:{th["muted"]};{_FONT};font-size:16px">(no words: the model only has its bias)</span>')
+    return "".join(chips)
+
+
+def render_gauge(p_pos: float, start_p: float | None = None, uid: str = "0") -> str:
+    """The big NEG ◀━━●━━▶ POS thermometer; the knob slides from ``start_p`` to ``p_pos``."""
+    th = FLIP_THEME
+    col = th["pos"] if p_pos >= 0.5 else th["neg"]
+    conf, word = _confidence(p_pos)
+    left = f"{min(98.5, max(1.5, p_pos * 100)):.2f}%"    # keep the knob inside the bar
+    anim = ""
+    if start_p is not None:
+        anim = f"<style>@keyframes flipit-knob-{uid}{{from{{left:{min(98.5, max(1.5, start_p * 100)):.2f}%}}}}</style>"
+    return (
+        f'{anim}<div style="{_FONT};margin:6px 0 2px">'
+        f'<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px">'
+        f'<span style="font-size:40px;font-weight:800;color:{col};line-height:1">{conf}</span>'
+        f'<span style="font-size:20px;font-weight:800;letter-spacing:.12em;color:{col}">{word}</span>'
+        f'<span style="margin-left:auto;{_MONO};font-size:13px;color:{th["muted"]}">P(positive) = {p_pos:.4f}</span></div>'
+        f'<div style="position:relative;height:20px;border-radius:10px;'
+        f'background:linear-gradient(90deg,{th["neg"]} 0%,{_rgba(th["neg"], .25)} 46%,{_rgba(th["pos"], .25)} 54%,{th["pos"]} 100%)">'
+        f'<div style="position:absolute;left:50%;top:-7px;bottom:-7px;width:2px;margin-left:-1px;background:{th["ink"]};opacity:.55"></div>'
+        f'<div style="position:absolute;left:{left};top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;'
+        f'border-radius:50%;background:{th["ink"]};border:5px solid {col};box-shadow:0 0 0 6px {_rgba(col, .25)},0 0 22px {col};'
+        f'animation:flipit-knob-{uid} .55s cubic-bezier(.3,1.45,.5,1)"></div></div>'
+        f'<div style="display:flex;justify-content:space-between;margin-top:9px;{_MONO};font-size:12px;'
+        f'font-weight:700;letter-spacing:.14em"><span style="color:{th["neg"]}">◀ NEGATIVE</span>'
+        f'<span style="color:{th["muted"]}">flip line 50 %</span><span style="color:{th["pos"]}">POSITIVE ▶</span></div></div>')
+
+
+def render_level_intro(number: int, level: Mapping, start_p: float, total: int = len(FLIP_LEVELS)) -> str:
+    """The header card of a level: name, start sentence, the model's verdict, the mission and the medals."""
+    th = FLIP_THEME
+    conf, word = _confidence(start_p)
+    goal_col = th["pos"] if level["goal"] == "pos" else th["neg"]
+    extra = ""
+    if level.get("rule") == "liar":
+        extra = (f'<div style="margin-top:8px;font-size:13px;color:{th["muted"]}">🚫 too obvious, not allowed: '
+                 f'{", ".join(sorted(LIAR_BANNED)[:18])}…</div>')
+    return (
+        f'<div style="{_FONT};background:linear-gradient(135deg,{th["slide"]} 0%,{th["card2"]} 100%);'
+        f'border:1px solid {th["line"]};border-left:6px solid {th["violet"]};border-radius:14px;padding:14px 18px;color:{th["ink"]}">'
+        f'<div style="{_MONO};font-size:12px;font-weight:700;letter-spacing:.16em;color:{th["violet"]}">'
+        f'LEVEL {number}/{total} · {html.escape(level["name"].upper())}</div>'
+        f'<div style="font-size:24px;font-weight:800;margin:6px 0 4px">{level["emoji"]} “{html.escape(level["start"])}”</div>'
+        f'<div style="font-size:15px;color:{th["body"]}">The model says <b style="color:{th["ink"]}">{conf} {word}</b>. '
+        f'<b style="color:{goal_col}">{html.escape(level["mission"])}</b></div>'
+        f'<div style="margin-top:8px;font-size:14px;color:{th["body"]}">🥇 ≤ {level["gold"]} swap{"s" * (level["gold"] > 1)} · '
+        f'🥈 ≤ {level["silver"]} swaps · 🥉 any flip · every word added, removed or replaced = 1 swap</div>{extra}</div>')
+
+
+def render_status(result: Mapping, level: Mapping) -> str:
+    """One line under the gauge: the swap counter, the medal you would get, the rule problems."""
+    th = FLIP_THEME
+    swaps = result["swaps"]
+    pill = (f'<span style="display:inline-block;padding:5px 14px;border-radius:999px;background:{th["card2"]};'
+            f'border:1px solid {th["line2"]};font-weight:800;font-size:18px">🔁 {swaps} swap{"" if swaps == 1 else "s"}</span>')
+    if result["valid"]:
+        msg = (f'<b style="color:{th["yellow"]}">FLIPPED! {MEDAL_EMOJI[result["medal"]]} {result["medal"]} · '
+               f'{"⭐" * result["stars"]}</b>')
+    elif result["flipped"]:
+        msg = f'<b style="color:{th["yellow"]}">Flipped… but not by the rules.</b>'
+    else:
+        medal, _ = flip_medal(max(swaps, 1), level)
+        msg = (f'<span style="color:{th["body"]}">Not flipped yet: push it to <b>{_VERDICT[level["goal"]]}</b>. '
+               f'(Flip now = {MEDAL_EMOJI[medal]})</span>' if swaps else
+               f'<span style="color:{th["body"]}">Edit the sentence above: every keystroke is scored live.</span>')
+    problems = "".join(f'<div style="margin-top:6px;color:{th["neg"]};font-weight:600">⚠️ {html.escape(p)}</div>'
+                       for p in result["problems"])
+    return (f'<div style="{_FONT};margin-top:12px;font-size:16px;display:flex;align-items:center;gap:14px;'
+            f'flex-wrap:wrap">{pill}{msg}</div>{problems}')
+
+
+def render_celebration(result: Mapping, seed: int = 0) -> str:
+    """A confetti burst (pure CSS, no JavaScript) and the medal, shown when a level is won."""
+    if not result.get("valid"):
+        return ""
+    th = FLIP_THEME
+    rng = np.random.default_rng(seed)
+    bits = []
+    for k in range(34):
+        angle = rng.uniform(0, 2 * np.pi)
+        dist = rng.uniform(120, 360)
+        dx, dy = dist * np.cos(angle), dist * np.sin(angle) * 0.55 - 30
+        emoji = ["🎉", "✨", "🎊", "⭐", "🎚️", "💥", "🥳", "🌟"][k % 8]
+        bits.append(f'<span style="position:absolute;left:50%;top:50%;font-size:{rng.uniform(18, 34):.0f}px;'
+                    f'--dx:{dx:.0f}px;--dy:{dy:.0f}px;--r:{rng.uniform(-540, 540):.0f}deg;pointer-events:none;'
+                    f'animation:flipit-burst {rng.uniform(1.0, 1.9):.2f}s cubic-bezier(.15,.7,.3,1) '
+                    f'{rng.uniform(0, .25):.2f}s both">{emoji}</span>')
+    swaps = result["swaps"]
+    return (
+        f'<div style="position:relative;overflow:visible;margin:14px 0 4px;text-align:center;{_FONT};'
+        f'padding:16px 12px;border-radius:16px;color:{th["page"]};'
+        f'background:linear-gradient(110deg,{th["yellow"]} 0%,#ffe680 45%,{th["violet"]} 100%);'
+        f'animation:flipit-pop .55s cubic-bezier(.3,1.5,.5,1) both,flipit-glow 1.6s ease-in-out .4s 2">'
+        f'{"".join(bits)}<div style="font-size:30px;font-weight:900;letter-spacing:.02em">'
+        f'🎉 FLIPPED in {swaps} swap{"" if swaps == 1 else "s"}! {MEDAL_EMOJI[result["medal"]]}</div>'
+        f'<div style="font-size:17px;font-weight:700;margin-top:4px">{result["medal"]} · {"⭐" * result["stars"]}'
+        f'{"☆" * (FLIP_STARS["Gold"] - result["stars"])} · the AI now says {_VERDICT[result["verdict"]]}</div></div>')
+
+
+def render_scoreboard(best: Mapping[int, Mapping], levels: Sequence[Mapping] = FLIP_LEVELS) -> str:
+    """The final scorecard: stars per level, best sentence, total medal and a one-line result to share."""
+    th = FLIP_THEME
+    s = flip_summary(best, levels)
+    rows = []
+    for n, level in enumerate(levels, 1):
+        r = best.get(n)
+        stars = (f'<span style="color:{th["yellow"]}">{"★" * r["stars"]}</span>'
+                 f'<span style="color:{th["line2"]}">{"★" * (3 - r["stars"])}</span>') if r else \
+            f'<span style="color:{th["line2"]}">★★★</span>'
+        what = (f'{r["swaps"]} swap{"" if r["swaps"] == 1 else "s"} · <i>“{html.escape(r["text"])}”</i>' if r
+                else f'<span style="color:{th["muted"]}">not flipped yet</span>')
+        rows.append(f'<div style="display:flex;gap:14px;align-items:center;padding:8px 0;border-top:1px solid {th["line"]}">'
+                    f'<span style="width:230px;font-weight:700">{level["emoji"]} {n} · {html.escape(level["name"])}</span>'
+                    f'<span style="width:62px;font-size:18px;letter-spacing:1px">{stars}</span>'
+                    f'<span style="flex:1;color:{th["body"]}">{what}</span></div>')
+    hint = f' · {s["missing"]} more ⭐ for {s["next"]}' if s["next"] else " · top level!"
+    return (
+        f'<div style="{_FONT};background:{th["slide"]};border:1px solid {th["line"]};border-radius:16px;'
+        f'padding:16px 18px;color:{th["ink"]}">'
+        f'<div style="display:flex;align-items:center;gap:16px;margin-bottom:8px">'
+        f'<span style="font-size:46px">{MEDAL_EMOJI[s["medal"]]}</span><div>'
+        f'<div style="{_MONO};font-size:12px;font-weight:700;letter-spacing:.16em;color:{th["violet"]}">FLIP IT! · SCORECARD</div>'
+        f'<div style="font-size:26px;font-weight:800">{s["stars"]} / {s["max_stars"]} ⭐ · {s["medal"]}</div>'
+        f'<div style="color:{th["body"]};font-size:14px">{s["flips"]}/{len(levels)} levels flipped · '
+        f'{s["swaps"]} swaps in total{hint} · medals: 🥉 {LEVELS["flip_it"]["Bronze"]} ⭐ · '
+        f'🥈 {LEVELS["flip_it"]["Silver"]} ⭐ · 🥇 {LEVELS["flip_it"]["Gold"]} ⭐</div></div></div>'
+        f'{"".join(rows)}'
+        f'<div style="margin-top:12px;padding:10px 14px;border-radius:10px;background:{th["page"]};'
+        f'border:1px dashed {th["line2"]};{_MONO};font-size:14px;color:{th["yellow"]};user-select:all">'
+        f'{html.escape(s["share"])}</div></div>')
+
+
+class FlipGame:
+    """Challenge 1 · Flip It! Change as few words as possible to flip a sentiment model's verdict.
+
+    ``FlipGame(vectorizer, model)`` takes a fitted word-level ``TfidfVectorizer`` and a binary linear model.
+    * :meth:`play` returns the interactive game (``ipywidgets``: type, and everything updates live);
+    * :meth:`flip` is the no-widget version: ``game.flip("my sentence", level=1)`` shows the same card;
+    * :meth:`scorecard` shows your stars, medal and a line to share.
+    The best valid result of each level is kept in ``game.best`` (fewest swaps wins).
+    """
+
+    def __init__(self, vectorizer, model, levels: Sequence[Mapping] = FLIP_LEVELS, clean=clean_tweet,
+                 pos_label: str = "pos"):
+        self.vectorizer, self.model, self.levels = vectorizer, model, list(levels)
+        self.clean, self.pos_label = clean, pos_label
+        self.best: dict[int, dict] = {}
+        self._starts = [self.read(lv["start"]) for lv in self.levels]
+        self._ui: dict = {}
+        self._count = 0
+
+    def read(self, text: str) -> dict:
+        """The model's reading of ``text``: tokens, push of each word, bias, logit and P(positive)."""
+        return word_pushes(text, self.vectorizer, self.model, clean=self.clean, pos_label=self.pos_label)
+
+    def check(self, text: str, level: int, honest: bool = False, record: bool = True) -> tuple[dict, dict]:
+        """Read and judge ``text`` for ``level`` (1-based); keep it in :attr:`best` if it is a better valid flip."""
+        lv, start = self.levels[level - 1], self._starts[level - 1]
+        reading = self.read(text)
+        result = flip_result(lv, start["tokens"], reading["tokens"], reading["p_pos"], honest=honest)
+        if record and result["valid"]:
+            old = self.best.get(level)
+            if old is None or result["swaps"] < old["swaps"]:
+                self.best[level] = {"text": " ".join(str(text).split()), "swaps": result["swaps"],
+                                    "stars": result["stars"], "medal": result["medal"]}
+        return reading, result
+
+    def card(self, text: str, level: int | None = None, honest: bool = False, start_p: float | None = None,
+             celebrate: bool = True, record: bool = True) -> str:
+        """HTML of one attempt: words coloured by push, the gauge, the swap counter and the medal."""
+        self._count += 1
+        uid = str(self._count)
+        th = FLIP_THEME
+        if level is None:  # just look at how the model reads a sentence
+            reading = self.read(text)
+            return (f'{_FLIP_CSS}<div style="{_FONT};background:{th["slide"]};border:1px solid {th["line"]};'
+                    f'border-radius:16px;padding:14px 18px;color:{th["ink"]}">'
+                    f'{render_word_chips(reading["tokens"], reading["pushes"], reading["known"])}'
+                    f'{render_gauge(reading["p_pos"], 0.5, uid)}</div>')
+        start = self._starts[level - 1]
+        reading, result = self.check(text, level, honest=honest, record=record)
+        new = new_word_positions(start["tokens"], reading["tokens"])
+        party = render_celebration(result, seed=self._count) if celebrate else ""
+        return (f'{_FLIP_CSS}<div style="{_FONT};background:{th["slide"]};border:1px solid {th["line"]};'
+                f'border-radius:16px;padding:14px 18px;color:{th["ink"]}">'
+                f'<div style="{_MONO};font-size:12px;font-weight:700;letter-spacing:.16em;color:{th["muted"]};'
+                f'margin-bottom:4px">THE MODEL READS · {self.levels[level - 1]["emoji"]} LEVEL {level}</div>'
+                f'{render_word_chips(reading["tokens"], reading["pushes"], reading["known"], new)}'
+                f'{render_gauge(reading["p_pos"], start["p_pos"] if start_p is None else start_p, uid)}'
+                f'{render_status(result, self.levels[level - 1])}{party}</div>')
+
+    def flip(self, text: str, level: int | None = None, honest: bool = False):
+        """No-widget version of the game: show (and score, if ``level`` is given) one attempt as HTML.
+
+        ``honest=True`` is your word of honour for Liar mode (a human still reads the sentence as happy).
+        """
+        from IPython.display import HTML
+
+        return HTML(self.card(text, level, honest=honest))
+
+    def intro(self, level: int):
+        """HTML card that presents a level (for the no-widget version)."""
+        from IPython.display import HTML
+
+        return HTML(_FLIP_CSS + render_level_intro(level, self.levels[level - 1], self._starts[level - 1]["p_pos"],
+                                                   len(self.levels)))
+
+    def scorecard(self):
+        """Your stars, medal and a one-line result to share, as HTML."""
+        from IPython.display import HTML
+
+        return HTML(_FLIP_CSS + render_scoreboard(self.best, self.levels))
+
+    def word_board(self, words: Sequence[str]):
+        """HTML chips with the weight of each word in ``words`` (green = positive, red = negative)."""
+        from IPython.display import HTML
+
+        vocab, coef = self.vectorizer.vocabulary_, np.ravel(self.model.coef_)
+        sign = 1.0 if self.pos_label == list(self.model.classes_)[1] else -1.0
+        weights = [sign * coef[vocab[w]] if w in vocab else 0.0 for w in words]
+        return HTML(_FLIP_CSS + f'<div style="background:{FLIP_THEME["slide"]};border-radius:14px;padding:10px 12px">'
+                    + render_word_chips(list(words), weights, [w in vocab for w in words]) + "</div>")
+
+    # ---- the interactive version -----------------------------------------------------------------
+    def play(self, level: int = 1):
+        """The interactive game (``ipywidgets``): pick a level, type, watch the gauge move, flip it!"""
+        import ipywidgets as w
+
+        th = FLIP_THEME
+        title = w.HTML(
+            f'{_FLIP_CSS}<div style="{_FONT};display:flex;align-items:center;gap:14px;margin-bottom:6px">'
+            f'<span style="font-size:40px">🎚️</span><div><div style="font-size:30px;font-weight:900;'
+            f'color:{th["ink"]};line-height:1.1">Flip <span style="color:{th["yellow"]}">It!</span></div>'
+            f'<div style="color:{th["body"]};font-size:14px">Change as few words as possible to flip the AI\'s verdict.'
+            f'</div></div></div>')
+        picker = w.ToggleButtons(options=[(f'{n} {lv["emoji"]}', n) for n, lv in enumerate(self.levels, 1)],
+                                 value=level, style={"button_width": "74px"})
+        intro, live, party, board = w.HTML(), w.HTML(), w.HTML(), w.HTML()
+        text = w.Text(continuous_update=True, placeholder="type your version of the sentence…",
+                      layout=w.Layout(width="100%"))
+        honest = w.Checkbox(value=False, indent=False,
+                            description="✋ On my honour: a human still reads this sentence as HAPPY")
+        reset = w.Button(description="↺ Reset", style={"button_color": th["card2"], "text_color": th["ink"]})
+        nxt = w.Button(description="Next level ▶", style={"button_color": th["violet"], "text_color": th["page"]})
+        state = {"p": None, "won": False, "busy": False}
+
+        def refresh(*_):
+            if state["busy"]:
+                return
+            n = picker.value
+            start = self._starts[n - 1]
+            reading, result = self.check(text.value, n, honest=honest.value)
+            self._count += 1
+            new = new_word_positions(start["tokens"], reading["tokens"])
+            live.value = (
+                f'<div style="{_FONT};background:{th["slide"]};border:1px solid {th["line"]};border-radius:16px;'
+                f'padding:12px 18px 16px;color:{th["ink"]}"><div style="{_MONO};font-size:12px;font-weight:700;'
+                f'letter-spacing:.16em;color:{th["muted"]};margin-bottom:4px">THE MODEL READS</div>'
+                f'{render_word_chips(reading["tokens"], reading["pushes"], reading["known"], new)}'
+                f'{render_gauge(reading["p_pos"], state["p"], str(self._count))}'
+                f'{render_status(result, self.levels[n - 1])}</div>')
+            state["p"] = reading["p_pos"]
+            if result["valid"] and not state["won"]:
+                party.value = render_celebration(result, seed=self._count)
+            elif not result["valid"]:
+                party.value = ""
+            state["won"] = result["valid"]
+            board.value = render_scoreboard(self.best, self.levels)
+
+        def on_text(change):
+            if honest.value:  # a new sentence needs a new word of honour
+                state["busy"] = True
+                honest.value = False
+                state["busy"] = False
+            refresh()
+
+        def load(*_):
+            n = picker.value
+            lv = self.levels[n - 1]
+            intro.value = render_level_intro(n, lv, self._starts[n - 1]["p_pos"], len(self.levels))
+            honest.layout.display = "" if lv.get("rule") == "liar" else "none"
+            state.update(busy=True, p=self._starts[n - 1]["p_pos"], won=False)
+            honest.value = False
+            text.value = lv["start"]
+            state["busy"] = False
+            party.value = ""
+            refresh()
+
+        def go_next(_):
+            picker.value = picker.value % len(self.levels) + 1
+
+        text.observe(on_text, names="value")
+        honest.observe(refresh, names="value")
+        picker.observe(load, names="value")
+        reset.on_click(load)
+        nxt.on_click(go_next)
+        load()
+        app = w.VBox([title, picker, intro, text, honest, live, party, w.HBox([reset, nxt]), board])
+        app.add_class("flipit-app")
+        self._ui = {"app": app, "picker": picker, "intro": intro, "text": text, "honest": honest, "live": live,
+                    "party": party, "board": board, "reset": reset, "next": nxt}
+        return app
 
 
 # --------------------------------------------------------------------------------------------------
@@ -522,86 +991,6 @@ def photo_frames(paths: Iterable, repeats: int = CH2_RULES["min_frames"]):
 # --------------------------------------------------------------------------------------------------
 # Figures used by the challenge notebooks
 # --------------------------------------------------------------------------------------------------
-
-#: Fill colours of the result boards: a fooled judge (you scored) vs a judge that caught you.
-BOARD_COLORS = {"fooled": "#E69F00", "caught": "#E3E8EF", "info": "#F5F7FA"}
-
-
-def _short(text: str, n: int) -> str:
-    text = " ".join(str(text).split())
-    return text if len(text) <= n else text[: n - 1] + "…"
-
-
-def plot_board(texts: Sequence[str], cells: Sequence[Sequence[tuple[str, str]]], col_titles: Sequence[str],
-               points: Sequence[int], title: str, text_title: str = "your sentence", wrap: int = 60):
-    """A results board: one row per entry, one coloured card per judge, and the points of the row.
-
-    ``cells[i][j]`` is ``(label, state)`` with ``state`` in :data:`BOARD_COLORS` (``"fooled"`` cards are
-    orange and say so in words; ``"caught"`` cards are light grey).
-    """
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import FancyBboxPatch
-
-    n, k = len(texts), len(col_titles)
-    fig, ax = plt.subplots(figsize=(12, 0.62 * n + 1.3))
-    ax.set_xlim(0, 1); ax.set_ylim(n, -0.9); ax.axis("off")
-    x_text, x_cols, x_pts = 0.0, 0.5, 0.96
-    col_w = (x_pts - x_cols - 0.02) / k
-    ax.text(x_text, -0.5, text_title.upper(), fontsize=9, color="#5B6778", fontweight="bold", va="center")
-    for j, t in enumerate(col_titles):
-        ax.text(x_cols + col_w * (j + 0.5), -0.5, t.upper(), fontsize=9, color="#5B6778", fontweight="bold",
-                ha="center", va="center")
-    ax.text(x_pts, -0.5, "PTS", fontsize=9, color="#5B6778", fontweight="bold", ha="center", va="center")
-    for i, (text, row, pts) in enumerate(zip(texts, cells, points)):
-        ax.text(x_text, i + 0.5, _short(text, wrap), fontsize=10, color="#0E1A2E", va="center")
-        for j, (label, state) in enumerate(row):
-            x0 = x_cols + col_w * j + 0.006
-            ax.add_patch(FancyBboxPatch((x0, i + 0.14), col_w - 0.012, 0.72,
-                                        boxstyle="round,pad=0,rounding_size=0.012", mutation_aspect=20,
-                                        fc=BOARD_COLORS[state], ec="none"))
-            ax.text(x0 + (col_w - 0.012) / 2, i + 0.5, label, fontsize=9.5, ha="center", va="center",
-                    color="#0E1A2E", fontweight="bold" if state == "fooled" else "normal")
-        ax.text(x_pts, i + 0.5, f"+{pts}" if pts else "0", fontsize=12, ha="center", va="center",
-                color="#0E1A2E", fontweight="bold")
-    ax.set_title(title, loc="left", fontsize=13, fontweight="bold", pad=4)
-    fig.tight_layout()
-    return fig
-
-
-def plot_term_pushes(tables: Sequence[pd.DataFrame], titles: Sequence[str], toward: str, away: str,
-                     colors: tuple[str, str], top: int = 6, ncols: int = 3, suptitle: str = ""):
-    """Small multiples: for each text, the ``top`` terms that pushed a linear model the most.
-
-    Each table comes from :func:`term_contributions`; bars to the right push towards ``toward``
-    (first colour), bars to the left towards ``away`` (second colour). Same x-scale everywhere.
-    """
-    import matplotlib.pyplot as plt
-
-    n = len(tables)
-    nrows = int(np.ceil(n / ncols)) if n else 1
-    fig, axes = plt.subplots(nrows, ncols, figsize=(12, 2.5 * nrows + 0.6), squeeze=False)
-    lim = max([t["contribution"].abs().max() for t in tables if len(t)] + [0.1]) * 1.15
-    for ax, table, title in zip(axes.ravel(), tables, titles):
-        part = table.head(top).iloc[::-1]
-        ax.barh(range(len(part)), part["contribution"], height=0.62,
-                color=[colors[0] if v > 0 else colors[1] for v in part["contribution"]])
-        ax.set_yticks(range(len(part)), part["term"], fontsize=9.5)
-        ax.axvline(0, color="#0E1A2E", lw=0.8)
-        ax.set_xlim(-lim, lim)
-        ax.set_title(_short(title, 40), fontsize=10, fontweight="normal")
-        ax.grid(axis="y", visible=False)
-        ax.tick_params(axis="x", labelsize=8)
-        if len(part) == 0:
-            ax.text(0, 0.5, "no known word", ha="center", va="center", transform=ax.transAxes, color="#5B6778")
-    for ax in axes.ravel()[n:]:
-        ax.axis("off")
-    for ax in axes[-1]:
-        ax.set_xlabel(f"← pushes to {away}    ·    pushes to {toward} →", fontsize=9)
-    if suptitle:
-        fig.suptitle(suptitle, x=0.01, ha="left", fontsize=13, fontweight="bold")
-    fig.tight_layout()
-    return fig
-
 
 def thumbnail(path, size: int = 220):
     """A square RGB thumbnail (centre crop) of an image file, as a NumPy array."""

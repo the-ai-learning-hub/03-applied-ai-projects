@@ -19,6 +19,8 @@ PAGES_URL = f"https://the-ai-learning-hub.github.io/{REPO_NAME}/"
 DATA_RELEASE = "data-v1"
 DATA_URL = f"{REPO_URL}/releases/download/{DATA_RELEASE}"
 DATASETS = ("sms_spam", "tweets", "lexicons", "cats_and_dogs")  # data/pets/ (test pets) is kept in git
+# Files added to a dataset after its first release: an older local copy without them is downloaded again.
+REQUIRED_FILES = {"lexicons": ("vader_lexicon.txt", "afinn_lexicon.txt", "Portuguese-NRC-EmoLex.txt")}
 
 
 def find_root(start: Path | None = None) -> Path:
@@ -40,7 +42,8 @@ def download_dataset(name: str, data: Path | None = None) -> Path:
         raise ValueError(f"Unknown dataset {name!r}. Available: {', '.join(DATASETS)}")
     data = data or (find_root() / "data")
     target = data / name
-    if target.is_dir() and any(target.iterdir()):
+    required = REQUIRED_FILES.get(name, ())
+    if target.is_dir() and any(target.iterdir()) and all((target / f).exists() for f in required):
         return target
     data.mkdir(parents=True, exist_ok=True)
     archive = data / f"{name}.zip"

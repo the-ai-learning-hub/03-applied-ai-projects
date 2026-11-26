@@ -23,7 +23,7 @@ The datasets are not stored in git: each one is a zip file in the GitHub release
 | **Licence** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | **File** | `sms_spam/sms_spam.csv` (UTF-8, comma-separated, with header). Converted from the original tab-separated `SMSSpamCollection` file without changing any message |
 | **One row =** | one SMS message |
-| **Used in** | `01_text_mining/01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb` and `01_text_mining/03_challenge_fool_the_model/Challenge_1_Fool_The_Sentiment_Model.ipynb` (spam filter of Round 2) |
+| **Used in** | `01_text_mining/01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb` |
 
 | Column | Type | Description |
 |---|---|---|
@@ -42,7 +42,7 @@ The datasets are not stored in git: each one is a zip file in the GitHub release
 | **Source** | Provided in the Text Mining course at ISCTE – University Institute of Lisbon |
 | **Files** | `tweets/tweets_train.csv` (39,936 rows) and `tweets/tweets_test.csv` (9,985 rows), UTF-8 with header |
 | **One row =** | one tweet |
-| **Used in** | `01_text_mining/02_project_tweets/02_Tweet_Sentiment_Analysis.ipynb` and `01_text_mining/03_challenge_fool_the_model/Challenge_1_Fool_The_Sentiment_Model.ipynb` (training data of judge A, `tweets_train.csv` only) |
+| **Used in** | `01_text_mining/02_project_tweets/02.0`–`02.4_*.ipynb` and `01_text_mining/03_challenge_flip_it/Challenge_1_Flip_It.ipynb` (training data of the Flip It! model; `tweets_test.csv` only for its macro-F1) |
 
 | Column | Type | Description |
 |---|---|---|
@@ -62,12 +62,13 @@ The datasets are not stored in git: each one is a zip file in the GitHub release
 
 ## Sentiment lexicons (`lexicons/`)
 
-Word lists where each word has a sentiment score. Used in notebook 02 to score tweets word by word.
+Word lists where each word has a sentiment score. Used in notebooks 01 and 02.2 to score text word by word.
 
 | File | Lexicon | Format | Licence |
 |---|---|---|---|
 | `lexicons/vader_lexicon.txt` | **VADER** (Hutto & Gilbert, 2014), 7,520 entries incl. emoticons and slang. <https://github.com/cjhutto/vaderSentiment> | tab-separated: `token`, mean score (−4 to +4), standard deviation, the 10 raw human ratings | [MIT](https://github.com/cjhutto/vaderSentiment/blob/master/LICENSE.txt) |
 | `lexicons/afinn_lexicon.txt` | **AFINN-en-165** (Finn Årup Nielsen, 2011–2015), 3,382 English words. <https://github.com/fnielsen/afinn> | tab-separated: `word`, integer score (−5 to +5) | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/) — © Finn Årup Nielsen |
+| `lexicons/Portuguese-NRC-EmoLex.txt` | **NRC Word-Emotion Association Lexicon (EmoLex)** (Mohammad & Turney, 2013), 14,154 English words with 0/1 flags for 8 emotions and positive/negative, plus a Portuguese translation column (only the English words are used). <https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm> | tab-separated: `English Word`, anger … trust, `Portuguese Word` | Free for research and education; commercial use needs a licence from the NRC |
 
 **Known issues:** lexicons know nothing about context (sarcasm, "not bad"), and cover only some of the words in a tweet: about 1 in 4 cleaned test tweets contains *no* VADER word at all (so it scores 0 and falls back to the tie rule).
 
