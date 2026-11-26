@@ -1,6 +1,6 @@
 # Lesson 03 · Applied AI: unstructured data
 
-**How does a computer read text, see images and hear sound? Text Mining, Computer Vision and a multimodal finale with embeddings, CLIP, Whisper and RAG on a local LLM.** Part of [The AI Learning Hub](https://github.com/the-ai-learning-hub).
+**How does a computer read text, see images and hear sound? Text Mining, Computer Vision and a multimodal finale with embeddings, CLIP and Whisper.** Part of [The AI Learning Hub](https://github.com/the-ai-learning-hub).
 
 📖 **[Open the Lesson 03 slides](https://the-ai-learning-hub.github.io/03-applied-ai-projects/)** · use ← → to change slides, `F` for full screen and `N` for the speaker notes.
 
@@ -17,7 +17,7 @@ flowchart LR
     A["01 · SMS spam<br/>text → numbers"] --> B["02 · Tweets<br/>lexicons, ML, transformers"]
     B --> C["03 · Fashion-MNIST<br/>pixels, MLP vs CNN"]
     C --> D["04 · Cats vs dogs<br/>transfer learning, our pets"]
-    D --> E["05 · Everything is a vector<br/>CLIP, Whisper, RAG"]
+    D --> E["05 · Everything is a vector<br/>embeddings, CLIP, Whisper"]
 ```
 
 | # | Notebook | The question | Slides | Open | Time |
@@ -40,7 +40,7 @@ Each area folder has its own README with details, runtimes and models: [Text Min
 | Opening: unstructured data, how a computer reads / sees / hears | 15 min | — |
 | Text Mining: tokens, bag of words, TF-IDF, Naive Bayes → lexicons, classic ML, transformers | 150 min (notebooks 01 + 02) | 🎮 1 · 15 min |
 | Computer Vision: pixels, convolutions, CNNs → transfer learning, CPU vs GPU, Grad-CAM | 160 min (notebooks 03 + 04) | 🎮 2 · 15 min |
-| Multimodal: embeddings, semantic search, CLIP, sound and Whisper, RAG with Ollama | 60 min (notebook 05) | 🎮 3 · 15 min |
+| Multimodal: embeddings, semantic search, CLIP, sound and Whisper | 60 min (notebook 05) | 🎮 3 · 15 min |
 | Recap, responsible AI and what's next | 15 min | — |
 
 Short on time? Notebook 05 and the challenges are self-contained and can be done as homework.
@@ -51,7 +51,7 @@ Short on time? Notebook 05 and the challenges are self-contained and can be done
 - Compare **lexicons, six classic ML models and transformers** on real tweets, and pick the **metric** that matches the problem (macro-F1, not accuracy, when classes are unbalanced).
 - Read an image as a **grid of pixels**, explain what a **convolution** does and why a small **CNN** beats an MLP.
 - Use **transfer learning** to get ~98% on cats vs dogs in seconds on a CPU, measure the **CPU vs GPU** difference and see where the model looked with **Grad-CAM**.
-- Explain **embeddings** ("everything is a vector"): semantic search, **CLIP** for text ↔ images, **Whisper** for speech → text and **RAG** with a local LLM, with no API keys.
+- Explain **embeddings** ("everything is a vector"): semantic search, **CLIP** for text ↔ images, and **Whisper** for speech → text, with no API keys.
 
 ## Getting started
 
@@ -79,8 +79,6 @@ In VS Code, open a notebook, click **Select Kernel** → **Python Environments**
 > ```
 >
 > (a later `uv sync` brings back the CPU build).
-
-> **Local LLM (optional, notebook 05):** install [Ollama](https://ollama.com/download) and run `ollama pull qwen3.5:2b`. Without it, the RAG cells show the prompt that would be sent. See [03_multimodal/README.md](03_multimodal/README.md).
 
 ## Repository layout
 
@@ -119,7 +117,7 @@ uv run python -m http.server 8000      # preview the slides at http://localhost:
 
 ## Data and credits
 
-Datasets, sources and licences are in [`data/DATA_DICTIONARY.md`](data/DATA_DICTIONARY.md): the SMS Spam Collection (UCI, CC BY 4.0), English tweets provided in the Text Mining course at ISCTE – University Institute of Lisbon, VADER and AFINN lexicons, a subset of the Kaggle *Dogs vs. Cats* photos, Fashion-MNIST (Zalando, MIT) and **our own pets**. Models come from Hugging Face, torchvision, Ultralytics (YOLO, AGPL-3.0) and Ollama.
+Datasets, sources and licences are in [`data/DATA_DICTIONARY.md`](data/DATA_DICTIONARY.md): the SMS Spam Collection (UCI, CC BY 4.0), English tweets provided in the Text Mining course at ISCTE – University Institute of Lisbon, VADER and AFINN lexicons, a subset of the Kaggle *Dogs vs. Cats* photos, Fashion-MNIST (Zalando, MIT) and **our own pets**. Models come from Hugging Face, torchvision and Ultralytics (YOLO, AGPL-3.0).
 
 ## Learn more
 
@@ -127,7 +125,6 @@ Datasets, sources and licences are in [`data/DATA_DICTIONARY.md`](data/DATA_DICT
 - [scikit-learn: text feature extraction](https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction) — bag of words and TF-IDF pipelines.
 - [CS231n: CNNs for visual recognition](https://cs231n.github.io/) — the classic notes on convolutions.
 - [PyTorch transfer learning tutorial](https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html)
-- [Ollama](https://ollama.com/) — run open LLMs on your own laptop.
 
 ## License
 

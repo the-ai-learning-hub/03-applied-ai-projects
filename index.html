@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Applied AI: unstructured data · Lesson 03</title>
-<meta name="description" content="Lesson 03 · The AI Learning Hub: text mining, computer vision, multimodal AI and RAG. How a computer reads and sees, with interactive slides.">
+<meta name="description" content="Lesson 03 · The AI Learning Hub: text mining, computer vision and multimodal AI. How a computer reads and sees, with interactive slides.">
 <meta property="og:title" content="Applied AI: unstructured data · Lesson 03">
-<meta property="og:description" content="Text mining, computer vision, multimodal AI and RAG: how a computer reads and sees. Interactive slides.">
+<meta property="og:description" content="Text mining, computer vision and multimodal AI: how a computer reads and sees. Interactive slides.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://the-ai-learning-hub.github.io/03-applied-ai-projects/">
 <meta name="theme-color" content="#0e1a2e">
@@ -512,7 +512,7 @@ canvas.cv{background:var(--term);border:1px solid var(--line2);border-radius:10p
 .op-auto code{font:600 15.5px var(--mono);color:var(--ink);background:var(--term);border:1px solid var(--line2);border-radius:7px;padding:6px 10px;white-space:nowrap}
 .op-auto code .f{color:var(--f)}.op-auto code .s{color:var(--s)}.op-auto code .k{color:var(--k)}
 
-/* ---------- section dividers (shared by div_tm, div_cv, div_mm, div_rag) */
+/* ---------- section dividers (shared by div_tm, div_cv, div_mm) */
 .dv{display:grid;grid-template-columns:1fr 500px;gap:40px;height:100%;align-items:center}
 .dv-l{position:relative}
 .dv-num{font:800 220px/.78 var(--sans);letter-spacing:-.07em;margin:0 0 18px -8px;
@@ -531,7 +531,7 @@ canvas.cv{background:var(--term);border:1px solid var(--line2);border-radius:10p
 .dv-vis .m{font-family:var(--mono)}
 
 /* ---------- closing */
-.cl-sec{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;min-height:0;align-items:stretch}
+.cl-sec{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;min-height:0;align-items:stretch}
 .cl-tile p{min-height:132px}
 .cl-tile{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;padding:22px 20px 20px;border-radius:16px;
   background:linear-gradient(170deg,color-mix(in srgb,var(--tc) 16%,var(--card)),var(--card) 60%);border:1px solid color-mix(in srgb,var(--tc) 45%,var(--line))}
@@ -542,7 +542,7 @@ canvas.cv{background:var(--term);border:1px solid var(--line2);border-radius:10p
 .cl-tile p{font-size:18.5px;line-height:1.4;color:var(--body)}
 .cl-tile p b{color:var(--ink)}
 .cl-tile .mini{margin-top:auto;font:600 14.5px var(--mono);color:var(--tc);padding-top:12px;border-top:1px dashed color-mix(in srgb,var(--tc) 45%,transparent)}
-.cl-links{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;min-height:0;align-content:center}
+.cl-links{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;min-height:0;align-content:center}
 .cl-lk{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--tc);border-radius:14px;padding:22px 24px;min-height:190px}
 .cl-lk h4{font:800 16px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tc);margin-bottom:10px}
 .cl-lk ul{list-style:none;display:grid;gap:12px}
@@ -1737,143 +1737,27 @@ table.t.cv2-models th,table.t.cv2-models td{padding:5px 10px}
 .mm2-tower{padding:12px 14px}
 .mm2-res{gap:10px;justify-content:center;align-items:center;flex:none}
 .mm2-res .label{align-self:flex-start;margin-left:2px}
-/* ---------- rag */
-.rag-toy{display:inline-block;font:700 14px/1 var(--mono);letter-spacing:.04em;text-transform:none;color:var(--orange);border:1px dashed rgba(255,181,71,.55);border-radius:4px;padding:3px 6px;margin-left:8px;vertical-align:1px}
-/* next-token demo */
-.rag-nt{justify-content:center;gap:10px}
-.rag-nt .chips{min-height:46px}
-.rag-nt .chip{font-size:19px;padding:8px 9px}
-.rag-nt .chip.new{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 20%,var(--card));animation:ragPop .45s ease}
-@keyframes ragPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
-.rag-nt-bars{gap:7px}
-.rag-nt-bars .r{grid-template-columns:130px 1fr 64px;font-size:18px}
-.rag-nt-bars .r i{height:24px;background:color-mix(in srgb,var(--acc) 55%,var(--card2))}
-.rag-nt-bars .r.top i{background:var(--acc)}
-.rag-nt-bars .r.top span{color:var(--ink);font-weight:700}
-.rag-nt-bars .r span{white-space:pre}
-/* limits */
-.rag-lim .card{gap:10px}
-.rag-lim-h{display:flex;align-items:center;gap:10px}
-.rag-lim-h h4{margin:0}
-.rag-ic{font-size:28px;line-height:1}
-.rag-q,.rag-a{font-size:17px;line-height:1.38;border-radius:12px;padding:9px 12px;position:relative}
-.rag-q{background:rgba(106,174,240,.13);border:1px solid rgba(106,174,240,.4);color:var(--ink);margin-left:28px;border-bottom-right-radius:3px}
-.rag-q::before{content:"You";position:absolute;left:-30px;top:9px;font:700 14px var(--mono);color:var(--blue)}
-.rag-a{background:var(--term);border:1px solid var(--line2);color:var(--body);margin-right:28px;border-bottom-left-radius:3px;font-style:italic}
-.rag-lim .rag-a::after{content:"LLM";position:absolute;right:-32px;top:9px;font:700 14px var(--mono);color:var(--violet);font-style:normal}
-.rag-x{display:inline-block;margin-left:6px;font:700 14px/1 var(--mono);font-style:normal;color:#1a0d0d;background:var(--red);border-radius:4px;padding:3px 6px}
-.rag-lim .ex strong{color:var(--ink)}
+/* ---------- semantic search (text) */
+.ss-toy{display:inline-block;font:700 14px/1 var(--mono);letter-spacing:.04em;text-transform:none;color:var(--orange);border:1px dashed rgba(255,181,71,.55);border-radius:4px;padding:3px 6px;margin-left:8px;vertical-align:1px}
 .cardx .ex strong{color:var(--ink)}
-/* search */
-.rag-colh{font:800 19px var(--sans);color:var(--ink);padding-bottom:6px;border-bottom:3px solid var(--c);margin-bottom:4px}
-#rag-search-demo .doc{font-size:16px;padding:4px 10px}
-#rag-search-demo .doc mark{background:rgba(106,174,240,.35);color:var(--ink);border-radius:3px;padding:0 2px}
-.rag-none{font:600 16px var(--mono);color:var(--red);padding:6px 10px;border:1px dashed rgba(255,122,122,.5);border-radius:8px}
-#rag-kw .doc.top{border-color:var(--blue);background:rgba(106,174,240,.12)}
-#rag-kw .doc.top b{color:var(--blue)}
-/* pipeline */
-.rag-pipe .rag-st{transition:opacity .45s ease}
-.rag-pipe.playing .rag-st{opacity:.12}
-.rag-pipe.playing .rag-st.on{opacity:1}
-/* step-by-step demo */
-#rag-docs .doc{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;font-size:15px;padding:4px 9px}
-#rag-docs .doc .bar{width:86px;height:10px;border-radius:5px;background:var(--term);overflow:hidden}
-#rag-docs .doc .bar i{display:block;height:100%;background:var(--acc);border-radius:5px;transition:width .5s cubic-bezier(.2,.7,.2,1)}
-#rag-docs .doc.fade{opacity:.4}
-.rag-vecs{display:flex;gap:2px}
-.rag-vecs i{width:9px;height:14px;border-radius:2px}
-.rag-out{font-size:15.5px;display:flex;flex-direction:column;gap:10px;white-space:normal}
-.rag-out .rag-h{font:800 15px var(--mono);color:var(--acc);letter-spacing:.05em;text-transform:uppercase}
-.rag-out .qb{background:rgba(106,174,240,.14);border:1px solid rgba(106,174,240,.45);color:var(--ink);border-radius:10px;padding:10px 12px;font:600 18px var(--sans)}
-.rag-out .qv{display:flex;gap:3px;flex-wrap:wrap}
-.rag-out .qv i{width:22px;height:30px;border-radius:4px}
-.rag-out .seg{border-radius:6px;padding:7px 10px;white-space:pre-wrap}
-.rag-out .seg.i{background:rgba(255,212,59,.1);border-left:4px solid var(--yellow)}
-.rag-out .seg.c{background:rgba(155,214,126,.1);border-left:4px solid var(--green)}
-.rag-out .seg.q{background:rgba(106,174,240,.12);border-left:4px solid var(--blue)}
-.rag-out .ans{white-space:pre-wrap;color:var(--ink);font:500 16px/1.5 var(--sans)}
-.rag-out .cite{font:700 14px var(--mono);color:#0d1528;background:var(--acc);border-radius:4px;padding:1px 5px}
-.rag-out .rk{display:grid;grid-template-columns:34px 48px 1fr;gap:6px;align-items:baseline}
-.rag-out .rk b{color:var(--acc)}
-.rag-mut{color:var(--muted)}
-/* grounding */
-.rag-rules{font-size:16px;line-height:1.55}
-.rag-rules span{color:var(--ink);font-weight:700;border-radius:4px;padding:0 3px}
-.rag-r1{background:rgba(155,214,126,.22)}.rag-r2{background:rgba(255,212,59,.2)}.rag-r3{background:rgba(106,174,240,.22)}
-#rag-ground-demo .rag-q{margin-left:34px}
-#rag-g-docs .doc{font-size:16px}
-#rag-g-docs .doc.bad{border-color:rgba(255,122,122,.5)}
-.rag-g-ans{margin-left:0;margin-right:0;font-size:18px;font-style:normal;color:var(--ink)}
-.rag-g-ans::before{content:"LLM";display:inline-block;font:700 14px var(--mono);color:var(--violet);margin-right:10px}
-#rag-g-v{font-size:17px;background:var(--card);border:1px solid var(--line2)}
-#rag-g-v.ok{background:rgba(155,214,126,.09);border-color:rgba(155,214,126,.4)}#rag-g-v.ok .tag{background:var(--green)}
-#rag-g-v.mid{background:rgba(255,212,59,.09);border-color:rgba(255,212,59,.34)}#rag-g-v.mid .tag{background:var(--yellow)}
-#rag-g-v.bad{background:rgba(255,122,122,.1);border-color:rgba(255,122,122,.45)}#rag-g-v.bad .tag{background:var(--red)}
-/* model size */
-.rag-formula{font:500 17px var(--mono);color:var(--body)}
-.rag-formula b{color:var(--ink)}
-.rag-sz{display:grid;gap:8px;position:relative;padding:22px 0 4px}
-.rag-sz .r{display:grid;grid-template-columns:62px 1fr 76px;gap:10px;align-items:center;font:600 16px var(--mono);color:var(--body)}
-.rag-sz .r .tr{position:relative;height:24px;background:var(--term);border-radius:0 5px 5px 0;border-left:2px solid var(--line2)}
-.rag-sz .r .tr i{position:absolute;left:0;top:2px;bottom:2px;border-radius:0 4px 4px 0;background:var(--acc);transition:width .5s cubic-bezier(.2,.7,.2,1)}
-.rag-sz .r b{color:var(--ink);text-align:right}
-.rag-sz .mk{position:absolute;top:-5px;bottom:-5px;border-left:2px dashed var(--yellow);pointer-events:none;text-decoration:none}
-.rag-sz .mk span{position:absolute;top:-20px;left:-4px;transform:translateX(-50%);font:700 14px var(--mono);color:var(--yellow);white-space:nowrap}
-.rag-sz .mk.o{border-color:var(--orange)}.rag-sz .mk.o span{color:var(--orange)}
-#rag-size-demo{gap:10px}
-#rag-size-demo h4{margin:0}
-/* install */
-.rag-stepn{display:flex;align-items:center;gap:10px;font:800 19px var(--sans);color:var(--ink)}
-.rag-stepn b{width:30px;height:30px;border-radius:50%;background:var(--acc);color:#0d1528;font:800 16px var(--mono);display:grid;place-items:center}
-.rag-srv{padding:8px}
-/* python */
-.rag-code pre{font-size:15px;line-height:1.5;padding:10px 18px 12px}
-.rag-legend{gap:12px}
-.rag-lg{font-size:16.5px;white-space:nowrap;line-height:1.35;color:var(--body);background:var(--card);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:10px;padding:10px 12px}
-.rag-lg{display:flex;gap:10px;align-items:flex-start}
-.rag-lg b{flex:none;width:26px;height:26px;border-radius:50%;background:var(--c);color:#0d1528;font:800 15px var(--mono);display:grid;place-items:center}
-/* hands-on */
-.rag-hands{align-items:center;text-align:center;gap:18px}
-.rag-hands .term{min-width:620px;text-align:left}
-.rag-hands .term pre{font-size:20px}
-.rag-hands .nb{justify-content:center;margin-top:4px}
-.rag-hands .nb .pill{font-size:17px;padding:11px 16px}
-.rag-concepts .pill{background:var(--acc);font-size:16px;padding:9px 13px}
-
-#rag-docs .doc>b{min-width:0}
-#rag-out{height:100%}
-.rag-pipe text.m.b{letter-spacing:.04em}
-
-/* open-book exam (intro) */
-.rag-exam{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.rag-exam>div{display:flex;align-items:center;gap:14px;border-radius:12px;padding:12px 16px;font-size:19px;line-height:1.35;color:var(--body)}
-.rag-exam strong{color:var(--ink)}
-.rag-closed{background:rgba(255,122,122,.08);border:1px solid rgba(255,122,122,.4)}
-.rag-open{background:rgba(155,214,126,.09);border:1px solid rgba(155,214,126,.45)}
-.rag-exam-t{flex:none;font:800 16px var(--mono);color:var(--ink);white-space:nowrap}
-.rag-book .card{border-top:4px solid var(--c);gap:6px}
-.rag-bk-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.rag-bk-h .ic{font-size:40px;margin:0}
-.rag-bk-l{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;font:800 32px var(--mono);background:var(--c);color:#0d1528}
-.rag-book .ex{font:600 16.5px var(--mono);color:var(--body)}
-.rag-book .ex b{color:var(--c);font-size:19px}
-/* semantic search */
-.rag-sem{display:grid;grid-template-columns:585px 1fr;gap:24px;align-items:center;min-height:0}
-.rag-sem-map{gap:8px;flex:none}
-.rag-sem-map .btn.sm{font-size:14.5px;padding:6px 9px}
-.rag-sem-txt{gap:10px}
-.rag-br{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:9px 14px}
-.rag-br b{font:800 17px var(--sans);color:var(--c)}
-.rag-br span{font-size:17px;line-height:1.35;color:var(--body)}
-.rag-br strong{color:var(--ink)}
-.rag-sem-steps{list-style:none;counter-reset:r;display:grid;gap:9px}
-.rag-sem-steps li{counter-increment:r;position:relative;padding-left:40px;font-size:18.5px;line-height:1.35;color:var(--body)}
-.rag-sem-steps li::before{content:counter(r);position:absolute;left:0;top:-1px;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#0d1528;font:800 15px var(--mono);display:grid;place-items:center}
-.rag-sem-steps li b{color:var(--ink)}
-/* chunk & top-k (static) */
-.rag-knobs .card{padding:14px 18px}
-.rag-knobs h4{font-size:20px}
-.rag-knobs p{font-size:17.5px}
+.ss-colh{font:800 19px var(--sans);color:var(--ink);padding-bottom:6px;border-bottom:3px solid var(--c);margin-bottom:4px}
+#ss-search-demo .doc{font-size:16px;padding:4px 10px}
+#ss-search-demo .doc mark{background:rgba(106,174,240,.35);color:var(--ink);border-radius:3px;padding:0 2px}
+.ss-none{font:600 16px var(--mono);color:var(--red);padding:6px 10px;border:1px dashed rgba(255,122,122,.5);border-radius:8px}
+#ss-kw .doc.top{border-color:var(--blue);background:rgba(106,174,240,.12)}
+#ss-kw .doc.top b{color:var(--blue)}
+.ss-sem{display:grid;grid-template-columns:585px 1fr;gap:24px;align-items:center;min-height:0}
+.ss-sem-map{gap:8px;flex:none}
+.ss-sem-map .btn.sm{font-size:14.5px;padding:6px 9px}
+.ss-sem-txt{gap:10px}
+.ss-br{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:9px 14px}
+.ss-br b{font:800 17px var(--sans);color:var(--c)}
+.ss-br span{font-size:17px;line-height:1.35;color:var(--body)}
+.ss-br strong{color:var(--ink)}
+.ss-sem-steps{list-style:none;counter-reset:r;display:grid;gap:9px}
+.ss-sem-steps li{counter-increment:r;position:relative;padding-left:40px;font-size:18.5px;line-height:1.35;color:var(--body)}
+.ss-sem-steps li::before{content:counter(r);position:absolute;left:0;top:-1px;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#0d1528;font:800 15px var(--mono);display:grid;place-items:center}
+.ss-sem-steps li b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -2057,7 +1941,7 @@ table.t.cv2-models th,table.t.cv2-models td{padding:5px 10px}
             </div></div>
           <div class="op-cap"><span class="op-tech">image</span><div><b>Object detection</b><small>camera frame → boxes + labels</small></div></div>
         </div>
-        <div class="op-app rv" style="--mc:var(--green)">
+        <div class="op-app rv" style="--mc:var(--violet)">
           <div class="op-win"><div class="op-wbar"><i></i><i></i><i></i><span>Assistant · my files</span></div>
             <div class="op-wbody">
               <div class="op-chat">
@@ -2065,13 +1949,13 @@ table.t.cv2-models th,table.t.cv2-models td{padding:5px 10px}
                 <div class="a">25 working days per year, plus your birthday off.<br><span class="src">📄 HR-handbook.pdf · p. 4</span></div>
               </div>
             </div></div>
-          <div class="op-cap"><span class="op-tech">documents</span><div><b>Ask your documents</b><small>question → answer + source</small></div></div>
+          <div class="op-cap"><span class="op-tech">text</span><div><b>Ask your documents</b><small>question → answer + source</small></div></div>
         </div>
       </div>
       <div class="caption" style="margin-top:2px;text-align:center">Illustrative mock-ups, not real products. Percentages on the camera boxes are toy confidence scores.</div>
     </div>
   </div>
-  <aside class="notes">Ask the room which of these they used this week. All six have the same core problem: the input has no columns. Each caption says what goes in and what comes out; the coloured tag is the kind of data (and the colour code for the rest of the lesson): violet = text, teal = images, coral = text and images together, green = a language model answering from your own documents. Pitfall: the medical example "helps" doctors; it does not replace them, and the outlined area is a suggestion to review, not a diagnosis.</aside>
+  <aside class="notes">Ask the room which of these they used this week. All six have the same core problem: the input has no columns. Each caption says what goes in and what comes out; the coloured tag is the kind of data (and the colour code for the rest of the lesson): violet = text, teal = images and coral = text and images together. Pitfall: the medical example "helps" doctors; it does not replace them, and the outlined area is a suggestion to review, not a diagnosis.</aside>
 </section>
 
 <section class="slide" data-mod="Opening" style="--acc:#ffd43b" data-id="op-setup">
@@ -5353,6 +5237,52 @@ class  conf  box (x, y, w, h)
 </section>
 
 <!-- ===== mm ===== -->
+<section class="slide" data-mod="Multimodal" style="--acc:#ff9f7a" data-id="mm-semantic">
+  <div class="main">
+    <div class="head"><div class="kicker">Multimodal<span class="sep">/</span>sentence vectors</div><h2>What is <span class="hl">semantic search</span>?</h2></div>
+    <div class="bw">
+      <div class="ss-sem">
+        <div class="demo ss-sem-map" id="ss-sem-demo">
+          <div class="ctl"><span class="label" style="margin:0">query</span><span role="group" aria-label="Query" id="ss-sem-q" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
+          <div class="diagbox" style="padding:6px 8px">
+            <svg class="sv" id="ss-sem-svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="A map where each tweet is a point; tweets with similar meaning are close together (travel, weather, pets, phones). The query is a star; its closest points are highlighted."></svg>
+          </div>
+          <div class="caption" style="margin-top:0">toy 2-D drawing · real vectors have hundreds of numbers</div>
+        </div>
+        <div class="stack ss-sem-txt">
+          <div class="label" style="margin:0">you have seen this idea before</div>
+          <div class="ss-br" style="--c:var(--violet)"><b>Text mining · word vectors</b><span>words with a similar meaning get close vectors, compared with <strong>cosine similarity</strong></span></div>
+          <div class="label" style="margin:6px 0 0">semantic search = the same trick for whole texts</div>
+          <ol class="ss-sem-steps">
+            <li>An <b>embedding model</b> turns each document into <b>one vector</b> (a sentence embedding).</li>
+            <li>The question goes through the <b>same model</b>.</li>
+            <li>Return the <b>closest vectors</b> (highest cosine) = the <b>closest meaning</b>.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="simple"><b>In plain words:</b> keyword search asks <strong>"same words?"</strong>, semantic search asks <strong>"same meaning?"</strong></div>
+    </div>
+  </div>
+  <aside class="notes">First step of "everything is a vector", still with text only. In text mining, word vectors (GloVe) put words with similar meanings close together and we compared them with cosine similarity. A sentence-embedding model (for example all-MiniLM-L6-v2, 384 numbers) does the same for whole sentences or paragraphs: one vector per text. Semantic search = embed every document once, embed the question with the same model, return the nearest vectors. Click the three queries: "my plane was late" lands in the travel corner even though no tweet contains "plane" or "late". The map is a 2-D drawing of the idea; real vectors have hundreds of dimensions and we measure closeness with cosine similarity, not with a ruler. Keyword search is the other option (match the exact words): the next slide puts both side by side.</aside>
+</section>
+
+<section class="slide" data-mod="Multimodal" style="--acc:#ff9f7a" data-id="mm-textsearch">
+  <div class="main">
+    <div class="head"><div class="kicker">Multimodal<span class="sep">/</span>keyword vs meaning</div><h2>Keyword search vs <span class="hl">semantic search</span></h2></div>
+    <div class="bw">
+      <div class="demo" id="ss-search-demo" style="gap:10px;flex:none">
+        <div class="ctl"><span class="label" style="margin:0">search for</span><span role="group" aria-label="Query" id="ss-sq" style="display:flex;gap:8px;flex-wrap:wrap"></span></div>
+        <div class="g2" style="gap:22px">
+          <div class="stack" style="gap:5px"><div class="ss-colh" style="--c:var(--blue)">🔤 Keyword: shared words</div><div class="stack" style="gap:5px" id="ss-kw"></div></div>
+          <div class="stack" style="gap:5px"><div class="ss-colh" style="--c:var(--green)">🧭 Semantic: cosine of embeddings <span class="ss-toy">toy numbers</span></div><div class="stack" style="gap:5px" id="ss-se"></div></div>
+        </div>
+      </div>
+      <div class="simple"><b>In plain words:</b> keyword search breaks when the words differ ("plane" vs "flight", "rainy" vs "rain"). Semantic search compares <strong>meaning</strong>, so it still finds the right tweet.</div>
+    </div>
+  </div>
+  <aside class="notes">Same eight tweets and the same three queries as the map on the previous slide, now as ranked lists side by side. Left: keyword search counts shared words. Right: semantic search ranks by cosine similarity of sentence embeddings. Click the three queries. "my plane was late" shares no useful word with "Flight delayed 3 hours…": keyword search only matches the word "my". "rainy weather" shares no word at all with "Rain all day in Lisbon" (rainy ≠ rain). The semantic column (toy similarity numbers) finds the right tweet anyway. Fair point for keyword search: real keyword engines (TF-IDF, BM25) give very little weight to words like "my", and they are excellent for exact names, codes and rare words. Many production systems combine both ("hybrid search"). Bridge to the next slide: this works because the question and the tweets are both text, in one space. What if the query is a sentence and the documents are photos?</aside>
+</section>
+
 <section class="slide" data-mod="Multimodal" style="--acc:#ff9f7a" data-id="mm-modality">
   <div class="main">
     <div class="head"><div class="kicker">Multimodal<span class="sep">/</span>modalities</div><h2>One model, <span class="hl">two or more types</span> of data</h2></div>
@@ -5737,609 +5667,20 @@ class  conf  box (x, y, w, h)
   <aside class="notes">Rules: 36 photos (the test pets + photos from the cats-and-dogs validation set). Score by the rank of the secret photo: #1 = 10, #2–3 = 5, #4–5 = 2; +3 if #1 with 5 words or fewer; 3 tries per level, the best counts. Level 3 forbids cat, dog, kitten, puppy, pet, feline, canine and their variants: a forbidden word = 0 for that try. Medals: bronze 12, silver 24, gold 35. Hint for the room: a vague description ("a cat") is close to every cat; distinctive details (colour, pose, background) win, exactly what CLIP learned from captions.</aside>
 </section>
 
-<!-- ===== div_rag ===== -->
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag">
-  <canvas class="rain" data-set="4" data-avoid="[[96,96,690,620],[716,80,1244,654]]" aria-hidden="true"></canvas>
-  <div class="main">
-    <div class="dv">
-      <div class="dv-l">
-        <div class="dv-num" aria-hidden="true">04</div>
-        <div class="kicker">Section<span class="sep">·</span>language models</div>
-        <h1>RAG &amp; <span class="hl">local LLMs</span></h1>
-        
-        <p class="dv-hook">How do you make a language model answer from <em style="font-style:normal;color:var(--acc)">your</em> documents, running on your own laptop?</p>
-      </div>
-      <div class="dv-vis">
-<svg viewBox="0 0 460 430" role="img" aria-label="A question goes to your own documents; the most relevant passage is retrieved and handed to a language model running on a laptop, which answers and cites the document.">
-<g class="an" style="--d:0.2s"><rect x="150" y="6" width="296" height="52" rx="16" fill="#172a48" stroke="#94a6c2" stroke-width="1.5"/><text x="298" y="38" font-size="17" font-weight="700" fill="#f1f5fb" text-anchor="middle">How many vacation days?</text><text x="134" y="38" font-size="24" text-anchor="end">🙋</text></g>
-<g class="an" style="--d:0.4s"><text x="14" y="80" font-size="14" font-weight="700" fill="#9bd67e" class="m" letter-spacing="1.5">YOUR FILES</text><rect x="14" y="92" width="150" height="90" rx="10" fill="#13223b" stroke="#9bd67e" stroke-width="2.5"/><text x="26" y="116" font-size="14" font-weight="700" fill="#f1f5fb" class="m">📄 handbook.pdf</text><rect x="26" y="132" width="118" height="7" rx="3.5" fill="#2a4570"/><rect x="26" y="146" width="96" height="7" rx="3.5" fill="rgba(155,214,126,.75)"/><rect x="26" y="160" width="108" height="7" rx="3.5" fill="#2a4570"/><rect x="14" y="196" width="150" height="90" rx="10" fill="#13223b" stroke="#2a4570" stroke-width="1.5"/><text x="26" y="220" font-size="14" font-weight="700" fill="#f1f5fb" class="m">📄 notes.md</text><rect x="26" y="236" width="118" height="7" rx="3.5" fill="#2a4570"/><rect x="26" y="250" width="96" height="7" rx="3.5" fill="#2a4570"/><rect x="26" y="264" width="108" height="7" rx="3.5" fill="#2a4570"/><rect x="14" y="300" width="150" height="90" rx="10" fill="#13223b" stroke="#2a4570" stroke-width="1.5"/><text x="26" y="324" font-size="14" font-weight="700" fill="#f1f5fb" class="m">📄 faq.txt</text><rect x="26" y="340" width="118" height="7" rx="3.5" fill="#2a4570"/><rect x="26" y="354" width="96" height="7" rx="3.5" fill="#2a4570"/><rect x="26" y="368" width="108" height="7" rx="3.5" fill="#2a4570"/></g>
-<g class="an" style="--d:0.9s"><path d="M168,148 C206,148 214,190 250,196" fill="none" stroke="#9bd67e" stroke-width="2.5" marker-end="url(#ar-y)"/><text x="172" y="134" font-size="14" font-weight="700" fill="#ffd43b" class="m">retrieve</text><path d="M346,62 V112" stroke="#94a6c2" stroke-width="2" marker-end="url(#ar-b)" fill="none"/></g>
-<g class="an" style="--d:1.2s"><rect x="246" y="118" width="200" height="140" rx="10" fill="#0a1526" stroke="#9bd67e" stroke-width="2.5"/><rect x="258" y="130" width="176" height="116" rx="5" fill="#13223b"/><text x="346" y="168" font-size="16" font-weight="800" fill="#9bd67e" text-anchor="middle">local LLM</text><rect x="266" y="182" width="160" height="26" rx="6" fill="rgba(155,214,126,.18)" stroke="#9bd67e"/><text x="346" y="200" font-size="14" fill="#f1f5fb" text-anchor="middle" class="m">question + passage</text><text x="346" y="232" font-size="14" fill="#94a6c2" text-anchor="middle" class="m">no internet needed</text><path d="M226,258 H466 L450,276 H242 Z" fill="#1d3152" stroke="#9bd67e" stroke-width="2"/></g>
-<g class="an" style="--d:1.6s"><path d="M346,280 V304" stroke="#94a6c2" stroke-width="2" marker-end="url(#ar-b)" fill="none"/><rect x="196" y="310" width="250" height="84" rx="16" fill="rgba(155,214,126,.12)" stroke="#9bd67e" stroke-width="2"/><text x="214" y="340" font-size="16" font-weight="700" fill="#f1f5fb">25 working days a year.</text><text x="214" y="372" font-size="14" font-weight="700" fill="#9bd67e" class="m">source: handbook.pdf</text></g>
-<g class="an" style="--d:1.9s"><text x="230" y="424" font-size="14" fill="#94a6c2" text-anchor="middle" class="m">toy example</text></g>
-</svg>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Last section: language models. Ask: "If you ask a chatbot about your company's vacation policy, where does the answer come from?" Without your documents it can only guess. The picture shows the trick: first retrieve the right passage from your files, then hand it to a model that runs locally, so nothing leaves the laptop and the answer can cite its source.</aside>
-</section>
-
-<!-- ===== rag ===== -->
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-llm">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>what is an LLM?</div><h2>An LLM is a <span class="hl">next-token machine</span></h2></div>
-    <div class="bw">
-      <div class="cols" style="grid-template-columns:1.12fr .88fr;align-items:center">
-        <div class="demo rag-nt" id="rag-next-demo">
-          <div class="label" style="margin:0">the text so far</div>
-          <div class="chips" id="rag-nt-ctx" aria-live="polite"></div>
-          <div class="label" style="margin:6px 0 0">probability of the next token <span class="rag-toy">toy numbers</span></div>
-          <div class="bars rag-nt-bars" id="rag-nt-bars"></div>
-          <div class="ctl"><button class="btn pri" id="rag-nt-go">add the next token ▶</button><button class="btn" id="rag-nt-reset">↺ reset</button><span class="status" id="rag-nt-msg" style="flex:1">The model scores every token in its vocabulary.</span></div>
-        </div>
-        <div class="stack">
-          <div class="card a"><h4>① Pre-training</h4><p>A <strong>decoder transformer</strong> (GPT, Llama, Qwen…) reads a huge pile of text: web pages, books, code, trillions of tokens. Its only exercise: <strong>guess the next token</strong>.</p></div>
-          <div class="card a"><h4>② Instruction tuning</h4><p>Then it is trained on examples of <strong>questions + good answers</strong>, so it behaves like a helpful chat assistant.</p></div>
-          <div class="simple"><b>In plain words:</b> a chatbot answer is "predict the next token" repeated hundreds of times. It writes what is <strong>likely</strong>, not what was <strong>checked</strong>.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Bridge from the text-mining section: remember encoders (BERT, read the whole sentence) vs decoders (GPT, Llama, Qwen, predict the next token)? An LLM ("large language model") is a big decoder. Click "add the next token" four times: each click picks the most likely token and appends it, then the model scores everything again with the longer text. The probabilities are toy numbers. The sentence is a nice local example: pastéis de nata were first made by the monks of the Jerónimos Monastery in Belém, a district of Lisbon. Notice that "Belém" and "Lisbon" are both likely continuations: the model does not look anything up, it only knows which words tend to follow in the texts it read. Ask the room: "what if it did not always pick the top token?" Real chatbots often sample, which is why the same question can give different answers. Key sentence to leave on: it was trained to continue text in a plausible way, not to look facts up. That sets up the next slide.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-limits">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>the limits</div><h2>What an LLM does <span class="hl">not</span> know</h2></div>
-    <div class="bw">
-      <div class="g3 rag-lim">
-        <div class="card cardx">
-          <div class="rag-lim-h"><span class="rag-ic">🔒</span><h4>Your private data</h4></div>
-          <div class="rag-q">What did our customers complain about this week?</div>
-          <div class="rag-a">Customers often complain about price, delivery times and customer support…</div>
-          <div class="ex">It never saw your emails, company documents or your tweets: it <strong>guesses</strong> something generic.</div>
-        </div>
-        <div class="card cardx">
-          <div class="rag-lim-h"><span class="rag-ic">📅</span><h4>Anything recent</h4></div>
-          <div class="rag-q">What is the newest version of Python?</div>
-          <div class="rag-a">The latest version is Python 3.11.</div>
-          <div class="ex">Its knowledge stops at the <strong>training cut-off</strong> date. The world moved on, the model did not.</div>
-        </div>
-        <div class="card cardx">
-          <div class="rag-lim-h"><span class="rag-ic">🎭</span><h4>Hallucinations</h4></div>
-          <div class="rag-q">Which paper introduced RAG?</div>
-          <div class="rag-a">RAG was introduced by Smith &amp; Chen (2017) in "Retrieval Networks for Dialogue".<span class="rag-x">does not exist</span></div>
-          <div class="ex">A <strong>fluent, confident and false</strong> answer, even with a citation that looks real.</div>
-        </div>
-      </div>
-      <div class="caption" style="margin-top:0;text-align:center">toy conversations, written to illustrate typical failures</div>
-      <div class="simple"><b>In plain words:</b> fluent ≠ true. An LLM always produces <strong>some</strong> likely-sounding text, even when it has no idea.</div>
-    </div>
-  </div>
-  <aside class="notes">Three different failures. (1) Private data: the model was trained on public text; it has never seen your inbox, your school's rules or a company's internal documents. (2) Training cut-off: a model's knowledge is frozen when its training data was collected; asking about recent events or versions gives stale answers. (3) Hallucination: because it predicts likely tokens, it can invent names, numbers, quotes and references. The "Smith &amp; Chen 2017" paper is made up on purpose; the real RAG paper comes in a few slides. Ask: "has a chatbot ever invented something for you?" Most students have a story.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-options">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>giving it knowledge</div><h2>How do we teach it <span class="hl">our documents</span>?</h2></div>
-    <div class="bw">
-      <div class="cols" style="grid-template-columns:.9fr 1.1fr;align-items:center;flex:none">
-        <div class="stack">
-          <div class="card cardx" style="border-left:4px solid var(--red)"><h4>A · Re-train / fine-tune it</h4><p>Train the model again on your documents.</p><div class="ex">💸 GPUs, time and expertise · 🐢 every change in the documents = train again · ❓ you can't see where an answer came from</div></div>
-          <div class="card cardx" style="border-left:4px solid var(--green)"><h4>B · Paste the text into the prompt</h4><p>"Here are the documents. Now answer the question."</p><div class="ex">✅ cheap and instant · ✅ always up to date · ✅ the answer can <strong>cite</strong> its sources</div></div>
-        </div>
-        <div class="diagbox" style="padding:12px 14px">
-          <svg class="sv" viewBox="0 0 560 330" width="560" height="330" role="img" aria-label="All your documents, millions of tokens, do not fit into a context window of a few thousand tokens; a retrieval step keeps only the 3 relevant pieces.">
-            <defs><marker id="rag-ar-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#9bd67e"/></marker></defs>
-            <g class="an" style="--d:.3s">
-              <rect x="14" y="62" width="120" height="150" rx="8" fill="#13223b" stroke="#2a4570"/>
-              <rect x="24" y="52" width="120" height="150" rx="8" fill="#13223b" stroke="#2a4570"/>
-              <rect x="34" y="42" width="120" height="150" rx="8" fill="#172a48" stroke="#9bd67e"/>
-              <g stroke="#5d6f8b" stroke-width="3" stroke-linecap="round"><path d="M50 66h88M50 82h70M50 98h88M50 114h60M50 130h88M50 146h76M50 162h52"/></g>
-              <rect x="56" y="104" width="64" height="12" rx="3" fill="#9bd67e" opacity=".85"/>
-              <rect x="60" y="152" width="64" height="12" rx="3" fill="#9bd67e" opacity=".85"/>
-              <text x="84" y="238" text-anchor="middle" class="ink b" font-size="17">all your documents</text>
-              <text x="84" y="258" text-anchor="middle" class="mu m" font-size="15">millions of tokens</text>
-            </g>
-            <g class="an" style="--d:.9s">
-              <path d="M170 120 L300 120" stroke="#ff7a7a" stroke-width="3" stroke-dasharray="7 6" fill="none"/>
-              <text x="236" y="106" text-anchor="middle" style="fill:#ff7a7a" class="b" font-size="15">paste everything?</text>
-              <text x="236" y="144" text-anchor="middle" style="fill:#ff7a7a" font-size="15">✗ doesn't fit</text>
-              <text x="236" y="163" text-anchor="middle" style="fill:#ff7a7a" font-size="15">✗ slow, pay per token</text>
-            </g>
-            <g class="an" style="--d:1.5s">
-              <path d="M170 200 C230 200 250 250 300 250" stroke="#9bd67e" stroke-width="3" fill="none" marker-end="url(#rag-ar-g)"/>
-              <text x="200" y="262" style="fill:#9bd67e" class="b" font-size="15">pick the 3</text>
-              <text x="200" y="281" style="fill:#9bd67e" class="b" font-size="15">right pieces</text>
-            </g>
-            <g class="an" style="--d:.6s">
-              <rect x="312" y="40" width="232" height="256" rx="10" fill="#0e1a2e" stroke="#ffd43b" stroke-width="2"/>
-              <text x="428" y="64" text-anchor="middle" style="fill:#ffd43b" class="b m" font-size="15">context window</text>
-              <text x="428" y="84" text-anchor="middle" class="mu" font-size="14">what the model can read at once</text>
-              <rect x="328" y="98" width="200" height="30" rx="5" fill="rgba(255,212,59,.16)" stroke="#ffd43b"/>
-              <text x="428" y="118" text-anchor="middle" class="ink" font-size="14">instructions</text>
-            </g>
-            <g class="an" style="--d:1.9s">
-              <rect x="328" y="138" width="200" height="26" rx="5" fill="rgba(155,214,126,.18)" stroke="#9bd67e"/><text x="340" y="156" class="ink m" font-size="14">[1] piece</text>
-              <rect x="328" y="170" width="200" height="26" rx="5" fill="rgba(155,214,126,.18)" stroke="#9bd67e"/><text x="340" y="188" class="ink m" font-size="14">[2] piece</text>
-              <rect x="328" y="202" width="200" height="26" rx="5" fill="rgba(155,214,126,.18)" stroke="#9bd67e"/><text x="340" y="220" class="ink m" font-size="14">[3] piece</text>
-              <rect x="328" y="242" width="200" height="30" rx="5" fill="rgba(106,174,240,.16)" stroke="#6aaef0"/>
-              <text x="428" y="262" text-anchor="middle" class="ink" font-size="14">the question</text>
-            </g>
-          </svg>
-        </div>
-      </div>
-      <div class="call v"><span class="tag">SO</span><span>Option B wins, but only if we send the <strong>few pieces that matter</strong>. Finding them automatically is called <strong>retrieval</strong>.</span></div>
-    </div>
-  </div>
-  <aside class="notes">Two ways to give an LLM new knowledge. Re-training or fine-tuning changes the weights: expensive, slow to update, and you cannot trace an answer back to a document (fine-tuning is better for teaching a style or format than facts). Putting the text into the prompt is the "open-book exam": the model reads the material right before answering. Remember tokens and context windows from the text-mining section: the model can only read a limited number of tokens at once, and every token costs time (and money with paid APIs). A company wiki or 10,000 tweets is far too big to paste for every question. So the real problem becomes: which few pieces should we paste? That is a search problem.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-plain">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>the idea</div><h2>RAG is an <span class="hl">open-book exam</span></h2></div>
-    <div class="bw">
-      <div class="rag-exam">
-        <div class="rag-closed"><span class="rag-exam-t">📕 closed book</span><span>A plain chatbot answers <strong>from memory</strong>, and bluffs when it doesn't know.</span></div>
-        <div class="rag-open"><span class="rag-exam-t">📖 open book</span><span>We let it <strong>read the right pages</strong> just before it answers.</span></div>
-      </div>
-      <div class="g3 rag-book">
-        <div class="card cardx" style="--c:var(--green)"><div class="rag-bk-h"><span class="rag-bk-l">R</span><span class="ic">🗂️</span></div><h4>The librarian</h4><p>Looks through <strong>thousands of pages</strong> and brings back the few that answer the question.</p><div class="ex"><b>R</b>etrieval: a search step</div></div>
-        <div class="card cardx" style="--c:var(--yellow)"><div class="rag-bk-h"><span class="rag-bk-l">A</span><span class="ic">📄</span></div><h4>The open book</h4><p>Those pages go on the desk, next to the question, with a rule: <strong>"use only these pages, and cite them"</strong>.</p><div class="ex"><b>A</b>ugmented: the prompt gets extra text</div></div>
-        <div class="card cardx" style="--c:var(--violet)"><div class="rag-bk-h"><span class="rag-bk-l">G</span><span class="ic">✍️</span></div><h4>The student</h4><p><strong>The LLM</strong> reads the pages and writes the answer in good language, with the page numbers.</p><div class="ex"><b>G</b>eneration: the LLM writes</div></div>
-      </div>
-      <div class="simple"><b>In plain words:</b> we don't make the model smarter, we hand it the <strong>right pages to read</strong>. The hard part is the librarian: how do we find the right pages <strong>automatically</strong>?</div>
-    </div>
-  </div>
-  <aside class="notes">This is the intuition for everything that follows, before any technical detail. A closed-book exam is the plain chatbot: it answers from memory and sometimes bluffs (the hallucinations from two slides ago). RAG turns it into an open-book exam. Read the name with the three cards: Retrieval (the librarian finds the pages), Augmented (the pages are added to the prompt, next to the question), Generation (the LLM writes the answer). Ask: "in this metaphor, what happens if the librarian brings the wrong pages?" The student fails or bluffs: the search step decides the quality of the answer. That is why the next slides are about search. The name comes from Lewis et al., NeurIPS 2020.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-semantic">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>the librarian</div><h2>What is <span class="hl">semantic search</span>?</h2></div>
-    <div class="bw">
-      <div class="rag-sem">
-        <div class="demo rag-sem-map" id="rag-sem-demo">
-          <div class="ctl"><span class="label" style="margin:0">query</span><span role="group" aria-label="Query" id="rag-sem-q" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
-          <div class="diagbox" style="padding:6px 8px">
-            <svg class="sv" id="rag-sem-svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="A map where each tweet is a point; tweets with similar meaning are close together (travel, weather, pets, phones). The query is a star; its closest points are highlighted."></svg>
-          </div>
-          <div class="caption" style="margin-top:0">toy 2-D drawing · real vectors have hundreds of numbers</div>
-        </div>
-        <div class="stack rag-sem-txt">
-          <div class="label" style="margin:0">you have seen this idea twice</div>
-          <div class="rag-br" style="--c:var(--violet)"><b>Text mining · word vectors</b><span>words with a similar meaning get close vectors, compared with <strong>cosine similarity</strong></span></div>
-          <div class="rag-br" style="--c:var(--coral)"><b>Multimodal · CLIP</b><span>a photo and its caption get close vectors in <strong>one shared space</strong></span></div>
-          <div class="label" style="margin:6px 0 0">semantic search = the same trick for documents</div>
-          <ol class="rag-sem-steps">
-            <li>An <b>embedding model</b> turns each document into <b>one vector</b> (a sentence embedding).</li>
-            <li>The question goes through the <b>same model</b>.</li>
-            <li>Return the <b>closest vectors</b> (highest cosine) = the <b>closest meaning</b>.</li>
-          </ol>
-        </div>
-      </div>
-      <div class="simple"><b>In plain words:</b> keyword search asks <strong>"same words?"</strong>, semantic search asks <strong>"same meaning?"</strong></div>
-    </div>
-  </div>
-  <aside class="notes">This slide answers "how does the librarian find the right pages?". Start from what they know. In text mining, word vectors (GloVe) put words with similar meanings close together and we compared them with cosine similarity. In multimodal, CLIP put a photo and its caption close together. A sentence-embedding model (for example all-MiniLM-L6-v2, 384 numbers) does the same for whole sentences or paragraphs: one vector per text. Semantic search = embed every document once, embed the question with the same model, return the nearest vectors. Click the three queries: "my plane was late" lands in the travel corner even though no tweet contains "plane" or "late". The map is a 2-D drawing of the idea; real vectors have hundreds of dimensions and we measure closeness with cosine similarity, not with a ruler. Keyword search is the other option (match the exact words): the next slide puts both side by side.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-search">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>retrieval</div><h2>Keyword search vs <span class="hl">semantic search</span></h2></div>
-    <div class="bw">
-      <div class="demo" id="rag-search-demo" style="gap:10px;flex:none">
-        <div class="ctl"><span class="label" style="margin:0">search for</span><span role="group" aria-label="Query" id="rag-sq" style="display:flex;gap:8px;flex-wrap:wrap"></span></div>
-        <div class="g2" style="gap:22px">
-          <div class="stack" style="gap:5px"><div class="rag-colh" style="--c:var(--blue)">🔤 Keyword: shared words</div><div class="stack" style="gap:5px" id="rag-kw"></div></div>
-          <div class="stack" style="gap:5px"><div class="rag-colh" style="--c:var(--green)">🧭 Semantic: cosine of embeddings <span class="rag-toy">toy numbers</span></div><div class="stack" style="gap:5px" id="rag-se"></div></div>
-        </div>
-      </div>
-      <div class="simple"><b>In plain words:</b> keyword search breaks when the words differ ("plane" vs "flight", "rainy" vs "rain"). Semantic search compares <strong>meaning</strong>, so it still finds the right tweet.</div>
-    </div>
-  </div>
-  <aside class="notes">Same eight tweets and the same three queries as the map on the previous slide, now as ranked lists side by side. Left: keyword search counts shared words. Right: semantic search ranks by cosine similarity of sentence embeddings. Click the three queries. "my plane was late" shares no useful word with "Flight delayed 3 hours…": keyword search only matches the word "my". "rainy weather" shares no word at all with "Rain all day in Lisbon" (rainy ≠ rain). The semantic column (toy similarity numbers) finds the right tweet anyway. Fair point for keyword search: real keyword engines (TF-IDF, BM25) give very little weight to words like "my", and they are excellent for exact names, codes and rare words. Many production systems combine both ("hybrid search").</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-phase1" data-hook="ragp1">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>phase 1 · once</div><h2>Phase 1: <span class="hl">prepare the documents</span></h2></div>
-    <div class="bw">
-      <div class="demo" id="rag-p1-demo" style="gap:12px;flex:none">
-        <div class="diagbox" style="padding:14px 10px 8px">
-          <svg class="sv rag-pipe" id="rag-p1-svg" viewBox="0 0 1110 350" width="1110" height="350" role="img" aria-label="Phase 1, done once: documents are split into chunks, an embedding model turns each chunk into a vector, and the vectors are stored with their text in a vector database.">
-            <g class="rag-st" data-s="1">
-              <rect x="62" y="40" width="104" height="136" rx="8" fill="#13223b" stroke="#2a4570"/>
-              <rect x="50" y="50" width="104" height="136" rx="8" fill="#13223b" stroke="#2a4570"/>
-              <rect x="38" y="60" width="104" height="136" rx="8" fill="#172a48" stroke="#b4c2d8" stroke-width="1.5"/>
-              <g stroke="#5d6f8b" stroke-width="4" stroke-linecap="round"><path d="M54 86h72M54 104h56M54 122h72M54 140h44M54 158h68M54 176h50"/></g>
-              <text x="92" y="246" text-anchor="middle" class="b ink" font-size="20">documents</text>
-              <text x="92" y="272" text-anchor="middle" class="mu" font-size="16">PDFs, web pages,</text>
-              <text x="92" y="292" text-anchor="middle" class="mu" font-size="16">emails, tweets…</text>
-            </g>
-            <g class="rag-st" data-s="2">
-              <path d="M176 118 H218" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <rect x="235" y="44" width="200" height="34" rx="6" fill="rgba(155,214,126,.2)" stroke="#9bd67e" stroke-width="2"/><text x="335" y="67" text-anchor="middle" class="ink m" font-size="16">chunk 1</text>
-              <rect x="235" y="90" width="200" height="34" rx="6" fill="rgba(106,174,240,.2)" stroke="#6aaef0" stroke-width="2"/><text x="335" y="113" text-anchor="middle" class="ink m" font-size="16">chunk 2</text>
-              <rect x="235" y="136" width="200" height="34" rx="6" fill="rgba(196,162,255,.2)" stroke="#c4a2ff" stroke-width="2"/><text x="335" y="159" text-anchor="middle" class="ink m" font-size="16">chunk 3</text>
-              <rect x="235" y="182" width="200" height="34" rx="6" fill="rgba(255,159,122,.2)" stroke="#ff9f7a" stroke-width="2"/><text x="335" y="205" text-anchor="middle" class="ink m" font-size="16">chunk …</text>
-              <text x="335" y="246" text-anchor="middle" class="b ink" font-size="20">split into chunks</text>
-              <text x="335" y="272" text-anchor="middle" class="mu" font-size="16">small pieces, e.g.</text>
-              <text x="335" y="292" text-anchor="middle" class="mu" font-size="16">one paragraph each</text>
-            </g>
-            <g class="rag-st" data-s="3">
-              <path d="M445 130 H486" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <polygon points="500,62 650,84 650,176 500,198" fill="rgba(196,162,255,.18)" stroke="#c4a2ff" stroke-width="2.5" stroke-linejoin="round"/>
-              <text x="575" y="126" text-anchor="middle" class="b ink" font-size="19">embedding</text>
-              <text x="575" y="150" text-anchor="middle" class="b ink" font-size="19">model</text>
-              <text x="575" y="246" text-anchor="middle" class="b ink" font-size="20">embed each chunk</text>
-              <text x="575" y="272" text-anchor="middle" class="mu" font-size="16">text → one vector</text>
-              <text x="575" y="292" text-anchor="middle" class="mu" font-size="16">(e.g. 384 numbers)</text>
-            </g>
-            <g class="rag-st" data-s="4">
-              <path d="M660 130 H700" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <g id="rag-p1-vecs"></g>
-              <text x="790" y="246" text-anchor="middle" class="b ink" font-size="20">one vector per chunk</text>
-              <text x="790" y="272" text-anchor="middle" class="mu" font-size="16">same colour =</text>
-              <text x="790" y="292" text-anchor="middle" class="mu" font-size="16">same chunk</text>
-            </g>
-            <g class="rag-st" data-s="5">
-              <path d="M882 130 H920" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <path d="M935 58 v138 a75 16 0 0 0 150 0 v-138" fill="#13223b" stroke="#9bd67e" stroke-width="2.5"/>
-              <ellipse cx="1010" cy="58" rx="75" ry="16" fill="#172a48" stroke="#9bd67e" stroke-width="2.5"/>
-              <g id="rag-p1-db"></g>
-              <text x="1010" y="246" text-anchor="middle" class="b ink" font-size="20">vector database</text>
-              <text x="1010" y="272" text-anchor="middle" class="mu" font-size="16">each chunk's text</text>
-              <text x="1010" y="292" text-anchor="middle" class="mu" font-size="16">+ its vector</text>
-              <text x="555" y="336" text-anchor="middle" style="fill:#9bd67e" class="b" font-size="17">Done once, before any question, and again only when the documents change.</text>
-            </g>
-          </svg>
-        </div>
-        <div class="ctl"><button class="btn pri" id="rag-p1-play">▶ play</button><button class="btn" id="rag-p1-step">step</button><span class="status" id="rag-p1-msg" aria-live="polite" style="flex:1">–</span><a class="pill ghost" href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">Lewis et al., NeurIPS 2020</a></div>
-      </div>
-      <div class="simple"><b>In plain words:</b> this is the librarian <strong>preparing the library</strong>: every piece of text gets its own vector, so it can be found by meaning later.</div>
-    </div>
-  </div>
-  <aside class="notes">Now the technical version of the open-book exam. RAG has two phases, and this one happens before anyone asks anything. 1) Collect the documents. 2) Split them into chunks, because a whole document would be one blurry vector and would not fit in the prompt (more on chunk size in a few slides). 3) Embed each chunk with a sentence-embedding model, exactly the semantic search from before (e.g. all-MiniLM-L6-v2, 384 numbers per chunk). 4) Store the text and the vector together in a "vector database": just a place that stores vectors and finds the nearest ones quickly; for a few thousand chunks a NumPy array is enough. Nothing here involves the LLM. The name comes from Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (NeurIPS 2020, arXiv 2005.11401); today "RAG" means the general pattern.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-phase2" data-hook="ragp2">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>phase 2 · every question</div><h2>Phase 2: <span class="hl">answer a question</span></h2></div>
-    <div class="bw">
-      <div class="demo" id="rag-p2-demo" style="gap:12px;flex:none">
-        <div class="diagbox" style="padding:12px 10px 6px">
-          <svg class="sv rag-pipe" id="rag-p2-svg" viewBox="0 0 1110 412" width="1110" height="412" role="img" aria-label="Phase 2, for every question: the question is embedded with the same embedding model, the query vector is compared with every chunk vector by cosine similarity, the top 3 chunks are retrieved, a prompt is built with rules, chunks and question, and the LLM generates an answer with citations.">
-            <defs><marker id="rag-ar-g2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#9bd67e"/></marker></defs>
-            <g class="rag-st" data-s="1">
-              <rect x="8" y="42" width="196" height="96" rx="16" fill="rgba(106,174,240,.14)" stroke="#6aaef0" stroke-width="2.5"/>
-              <text x="106" y="84" text-anchor="middle" class="ink b" font-size="18">What goes wrong</text>
-              <text x="106" y="108" text-anchor="middle" class="ink b" font-size="18">when people fly?</text>
-              <text x="106" y="172" text-anchor="middle" class="b ink" font-size="18">1 · the question</text>
-            </g>
-            <g class="rag-st" data-s="2">
-              <path d="M212 90 H246" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <polygon points="258,44 378,62 378,118 258,136" fill="rgba(196,162,255,.18)" stroke="#c4a2ff" stroke-width="2.5" stroke-linejoin="round"/>
-              <text x="318" y="86" text-anchor="middle" class="ink b" font-size="16">embedding</text>
-              <text x="318" y="106" text-anchor="middle" class="ink b" font-size="16">model</text>
-              <path d="M386 90 H420" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <g id="rag-p2-qv"></g>
-              <text x="318" y="172" text-anchor="middle" class="b ink" font-size="18">2 · embed it</text>
-              <text x="318" y="194" text-anchor="middle" class="mu" font-size="15">same model as phase 1</text>
-              <text x="510" y="172" text-anchor="middle" class="mu" font-size="15">query vector</text>
-            </g>
-            <g class="rag-st" data-s="3">
-              <path d="M598 90 H632" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <path d="M646 50 v84 a62 13 0 0 0 124 0 v-84" fill="#13223b" stroke="#9bd67e" stroke-width="2.5"/>
-              <ellipse cx="708" cy="50" rx="62" ry="13" fill="#172a48" stroke="#9bd67e" stroke-width="2.5"/>
-              <text x="708" y="96" text-anchor="middle" class="ink m" font-size="15">cosine</text>
-              <text x="708" y="116" text-anchor="middle" class="ink m" font-size="15">with every</text>
-              <text x="708" y="136" text-anchor="middle" class="ink m" font-size="15">chunk</text>
-              <path d="M778 90 H812" stroke="#9bd67e" stroke-width="3" marker-end="url(#rag-ar-g2)"/>
-              <rect x="822" y="40" width="282" height="32" rx="6" fill="rgba(155,214,126,.22)" stroke="#9bd67e"/><text x="834" y="62" class="ink" font-size="16"><tspan style="fill:#9bd67e" font-weight="800">[1]</tspan> Flight delayed 3 hours…</text>
-              <rect x="822" y="78" width="282" height="32" rx="6" fill="rgba(155,214,126,.22)" stroke="#9bd67e"/><text x="834" y="100" class="ink" font-size="16"><tspan style="fill:#9bd67e" font-weight="800">[2]</tspan> My flight got cancelled…</text>
-              <rect x="822" y="116" width="282" height="32" rx="6" fill="rgba(155,214,126,.22)" stroke="#9bd67e"/><text x="834" y="138" class="ink" font-size="16"><tspan style="fill:#9bd67e" font-weight="800">[3]</tspan> They lost my luggage…</text>
-              <text x="836" y="172" class="b ink" font-size="18">3 · retrieve the top-k</text>
-              <text x="836" y="194" class="mu" font-size="15">the k = 3 most similar chunks</text>
-            </g>
-            <g class="rag-st" data-s="4">
-              <path d="M963 204 V230" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <rect x="822" y="240" width="282" height="126" rx="10" fill="#0e1a2e" stroke="#b4c2d8" stroke-width="1.5"/>
-              <rect x="832" y="250" width="262" height="30" rx="5" fill="rgba(255,212,59,.16)" stroke="#ffd43b"/><text x="963" y="270" text-anchor="middle" class="ink" font-size="15">rules: use only these, cite [n]</text>
-              <rect x="832" y="286" width="262" height="38" rx="5" fill="rgba(155,214,126,.2)" stroke="#9bd67e"/><text x="963" y="310" text-anchor="middle" class="ink m" font-size="16">[1] [2] [3] chunks</text>
-              <rect x="832" y="330" width="262" height="28" rx="5" fill="rgba(106,174,240,.18)" stroke="#6aaef0"/><text x="963" y="349" text-anchor="middle" class="ink" font-size="15">the question</text>
-              <text x="963" y="398" text-anchor="middle" class="b ink" font-size="18">4 · augment the prompt</text>
-            </g>
-            <g class="rag-st" data-s="5">
-              <path d="M812 303 H770" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <rect x="618" y="258" width="140" height="90" rx="14" fill="rgba(196,162,255,.2)" stroke="#c4a2ff" stroke-width="2.5"/>
-              <text x="688" y="304" text-anchor="middle" class="ink b" font-size="28">LLM</text>
-              <text x="688" y="330" text-anchor="middle" class="mu m" font-size="15">generates</text>
-              <path d="M608 303 H566" stroke="#b4c2d8" stroke-width="3" marker-end="url(#ar-b)"/>
-              <rect x="150" y="246" width="404" height="114" rx="16" fill="rgba(155,214,126,.1)" stroke="#9bd67e" stroke-width="2.5"/>
-              <text x="172" y="284" class="ink" font-size="18">Common problems: long delays <tspan style="fill:#9bd67e" font-weight="800">[1]</tspan>,</text>
-              <text x="172" y="310" class="ink" font-size="18">cancelled flights <tspan style="fill:#9bd67e" font-weight="800">[2]</tspan> and lost</text>
-              <text x="172" y="336" class="ink" font-size="18">luggage <tspan style="fill:#9bd67e" font-weight="800">[3]</tspan>.</text>
-              <text x="352" y="398" text-anchor="middle" class="b ink" font-size="18">5 · answer with citations</text>
-            </g>
-          </svg>
-        </div>
-        <div class="ctl"><button class="btn pri" id="rag-p2-play">▶ play</button><button class="btn" id="rag-p2-step">step</button><span class="status" id="rag-p2-msg" aria-live="polite" style="flex:1">–</span><a class="pill ghost" href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">Lewis et al., NeurIPS 2020</a></div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">This runs for every question, in a second or two. Walk the five steps with "step". 1) The question arrives. 2) It is embedded with the SAME embedding model as the chunks; otherwise the vectors live in different spaces and cosine similarity is meaningless (same reason CLIP needs its own text encoder). 3) Cosine similarity with every chunk vector; keep the k most similar (here k = 3). That is the librarian. 4) Build the prompt: rules ("use only these documents, say you don't know, cite like [1]") + the chunks + the question. That is the open book. 5) The LLM writes the answer and cites the chunks, so every claim can be checked. That is the student. The model is never retrained: we only change what goes into its prompt. The example tweets and answer are illustrative. Source: Lewis et al., NeurIPS 2020 (arXiv 2005.11401).</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-steps">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>interactive</div><h2>RAG on 10 tweets, <span class="hl">step by step</span></h2></div>
-    <div class="bw">
-      <div class="demo" id="rag-demo" style="gap:10px;flex:none">
-        <div class="ctl"><span role="group" aria-label="Question" id="rag-qs" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
-        <div class="steps" id="rag-stepbar" role="group" aria-label="Steps">
-          <button class="btn sm" data-s="0">1 · question</button>
-          <button class="btn sm" data-s="1">2 · embed</button>
-          <button class="btn sm" data-s="2">3 · retrieve</button>
-          <button class="btn sm" data-s="3">4 · augment</button>
-          <button class="btn sm" data-s="4">5 · generate</button>
-          <button class="btn pri sm" id="rag-next">next ▶</button>
-        </div>
-        <div class="cols" style="grid-template-columns:1fr 1fr;gap:18px;min-height:0;flex:none;height:372px">
-          <div class="stack" style="gap:4px" id="rag-docs" aria-label="Our tweets"></div>
-          <div class="prompt rag-out" id="rag-out" aria-live="polite"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Click through the five steps for each question. The cosine similarities are real numbers computed with the all-MiniLM-L6-v2 sentence-embedding model (384 dimensions); the generated answers are illustrative, written in the format the prompt asks for. Start with the puppy question (clean retrieval: two puppy tweets on top). Then the weather question. Finish with the travel complaints question: its vague wording retrieves a POSITIVE flight tweet and two weather tweets, while the real complaints (delay, lost luggage, cancellation) stay below the top 3. A good model then answers "I don't know"; a weaker one might invent themes. Lesson for the next slides: retrieval decides what the LLM can say.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-chunks">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>two knobs</div><h2>Chunk size and <span class="hl">top-k</span></h2></div>
-    <div class="bw">
-      <div class="diagbox" style="padding:12px 12px 6px">
-        <svg class="sv" viewBox="0 0 1110 336" width="1110" height="336" role="img" aria-label="A shop help page is cut into four chunks: returns, refunds, shipping and sale items. For the question 'How do I get my money back?' each chunk gets a similarity score; the two most similar chunks, refunds and returns, are sent to the LLM with k equal to 2.">
-          <defs><marker id="rag-ar-g3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#9bd67e"/></marker></defs>
-          <text x="14" y="20" class="m b mu" font-size="15">THE DOCUMENT · shop help page</text>
-          <g class="an" style="--d:.2s">
-            <rect x="8" y="32" width="420" height="292" rx="12" fill="#13223b" stroke="#2a4570"/>
-            <rect x="22" y="44" width="392" height="58" rx="7" fill="rgba(106,174,240,.16)" stroke="#6aaef0" stroke-width="1.5"/>
-            <text x="36" y="68" class="ink" font-size="16"><tspan font-weight="800">Returns.</tspan> You can return any item</text>
-            <text x="36" y="90" class="ink" font-size="16">within 30 days. Keep the receipt.</text>
-            <rect x="22" y="114" width="392" height="58" rx="7" fill="rgba(155,214,126,.16)" stroke="#9bd67e" stroke-width="1.5"/>
-            <text x="36" y="138" class="ink" font-size="16"><tspan font-weight="800">Refunds.</tspan> We refund to the original</text>
-            <text x="36" y="160" class="ink" font-size="16">card. It takes 5–7 days.</text>
-            <rect x="22" y="184" width="392" height="58" rx="7" fill="rgba(196,162,255,.14)" stroke="#c4a2ff" stroke-width="1.5"/>
-            <text x="36" y="208" class="ink" font-size="16"><tspan font-weight="800">Shipping.</tspan> Delivery is free on</text>
-            <text x="36" y="230" class="ink" font-size="16">orders over €50.</text>
-            <rect x="22" y="254" width="392" height="58" rx="7" fill="rgba(255,159,122,.14)" stroke="#ff9f7a" stroke-width="1.5"/>
-            <text x="36" y="278" class="ink" font-size="16"><tspan font-weight="800">Sale items.</tspan> Items bought on sale</text>
-            <text x="36" y="300" class="ink" font-size="16">can only be exchanged.</text>
-          </g>
-          <g class="an" style="--d:.6s">
-            <g stroke="#b4c2d8" stroke-width="1.5" stroke-dasharray="5 5"><path d="M2 108 H438M2 178 H438M2 248 H438"/></g>
-            <text x="442" y="114" class="ink" font-size="18">✂</text><text x="442" y="184" class="ink" font-size="18">✂</text><text x="442" y="254" class="ink" font-size="18">✂</text>
-          </g>
-          <!-- similarity bars -->
-          <g class="an" style="--d:1s">
-            <rect x="470" y="0" width="290" height="30" rx="8" fill="rgba(106,174,240,.14)" stroke="#6aaef0" stroke-width="1.5"/>
-            <text x="615" y="21" text-anchor="middle" class="ink b" font-size="16">"How do I get my money back?"</text>
-            <text x="470" y="52" class="m mu" font-size="14">similarity to the question · toy</text>
-            <rect x="470" y="60" width="180" height="26" rx="4" fill="#9bd67e" fill-opacity=".75"/><text x="662" y="79" class="m b ink" font-size="16">0.64</text>
-            <rect x="470" y="130" width="200" height="26" rx="4" fill="#9bd67e"/><text x="682" y="149" class="m b ink" font-size="16">0.71</text>
-            <rect x="470" y="200" width="62" height="26" rx="4" fill="#5d6f8b"/><text x="544" y="219" class="m b mu" font-size="16">0.22</text>
-            <rect x="470" y="270" width="115" height="26" rx="4" fill="#5d6f8b"/><text x="597" y="289" class="m b mu" font-size="16">0.41</text>
-            <g stroke="#2a4570" stroke-width="1.5"><path d="M430 73 H464M430 143 H464M430 213 H464M430 283 H464"/></g>
-          </g>
-          <!-- sent to LLM -->
-          <g class="an" style="--d:1.5s">
-            <path d="M732 143 C770 143 776 120 800 120" stroke="#9bd67e" stroke-width="3" fill="none" marker-end="url(#rag-ar-g3)"/>
-            <path d="M714 73 C766 73 776 96 800 96" stroke="#9bd67e" stroke-width="3" fill="none" marker-end="url(#rag-ar-g3)"/>
-            <rect x="812" y="40" width="290" height="166" rx="12" fill="rgba(155,214,126,.08)" stroke="#9bd67e" stroke-width="2.5"/>
-            <text x="828" y="66" style="fill:#9bd67e" class="m b" font-size="15">SENT TO THE LLM · k = 2</text>
-            <rect x="826" y="80" width="262" height="50" rx="6" fill="rgba(155,214,126,.16)" stroke="#9bd67e"/>
-            <text x="838" y="102" class="ink" font-size="15"><tspan font-weight="800" style="fill:#9bd67e">[1]</tspan> Refunds. We refund to the</text>
-            <text x="838" y="121" class="ink" font-size="15">original card. It takes 5–7 days.</text>
-            <rect x="826" y="138" width="262" height="50" rx="6" fill="rgba(106,174,240,.14)" stroke="#6aaef0"/>
-            <text x="838" y="160" class="ink" font-size="15"><tspan font-weight="800" style="fill:#9bd67e">[2]</tspan> Returns. You can return any</text>
-            <text x="838" y="179" class="ink" font-size="15">item within 30 days…</text>
-            <text x="828" y="236" class="mu" font-size="15">the other chunks stay out of the prompt:</text>
-            <text x="828" y="256" class="mu" font-size="15">less to read, less to confuse the model</text>
-          </g>
-        </svg>
-      </div>
-      <div class="g2 rag-knobs">
-        <div class="card a"><h4>① Chunk size: how much text in one piece?</h4><p>Aim for <strong>one complete idea</strong>, about a paragraph. Too small and a piece loses its meaning ("It takes 5–7 days": what does?). Too big and one vector mixes many topics.</p></div>
-        <div class="card a"><h4>② k: how many pieces do we send?</h4><p>The <strong>k most similar</strong> chunks go into the prompt. Too few can miss part of the answer; too many add noise. Usually <strong>3 to 5</strong>: test with real questions.</p></div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Two design choices every RAG system has to make, shown on one tiny document. The help page is cut into four chunks, one idea each (here one paragraph = one chunk; for tweets, one tweet is already a natural chunk). The question "How do I get my money back?" shares almost no words with "We refund to the original card", but semantic search still ranks it first. With k = 2 we send the refund and the returns paragraphs, and shipping stays out. Chunk size: tiny chunks lose their context, huge chunks average many topics into one blurry vector and fill the prompt; real systems often use a few hundred tokens with a small overlap between neighbouring chunks so a sentence cut in half is not lost. k: too small misses information (ask: which chunk would we also need if the customer bought on sale?), too big adds noise and cost. Typical values are 3 to 10; the only way to choose is to try on real questions. Similarity numbers are toy values.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-ground">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>hallucinations</div><h2>RAG reduces hallucinations, but <span class="hl">retrieval decides</span></h2></div>
-    <div class="bw">
-      <div class="cols" style="grid-template-columns:.82fr 1.18fr;align-items:center;flex:none">
-        <div class="stack" style="justify-content:center">
-          <div class="label" style="margin:0">the rules we put in the prompt</div>
-          <div class="prompt rag-rules">Answer the question using <span class="rag-r1">ONLY the documents below</span>.
-If they don't contain the answer,
-<span class="rag-r2">say "I don't know"</span>.
-<span class="rag-r3">Cite documents like [1]</span>.
-
-Documents:
-[1] …
-[2] …
-
-Question: …</div>
-          <div class="call t"><span class="tag">WHY</span><span>Grounded in real text, allowed to say "I don't know", and <strong>checkable</strong> through the citations.</span></div>
-        </div>
-        <div class="demo" id="rag-ground-demo" style="gap:10px">
-          <div class="ctl" role="group" aria-label="Scenario" id="rag-g-btns"><button class="btn sm" data-g="0" aria-pressed="true">✓ right chunks</button><button class="btn sm" data-g="1" aria-pressed="false">✗ wrong · honest</button><button class="btn sm" data-g="2" aria-pressed="false">✗ wrong · invents</button><span class="rag-toy" style="margin-left:0">toy example</span></div>
-          <div class="rag-q" style="margin:0">How many days do I have to return a product?</div>
-          <div class="stack" style="gap:5px" id="rag-g-docs"></div>
-          <div class="rag-a rag-g-ans" id="rag-g-ans" aria-live="polite"></div>
-          <div class="call" id="rag-g-v"><span class="tag" id="rag-g-tag"></span><span id="rag-g-msg"></span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Why RAG helps: the model now copies facts from text in front of it instead of recalling them from memory, it has explicit permission to say "I don't know", and each claim points to a source you can open. Why it does not solve everything: click the scenarios. If retrieval brings the wrong chunks, the best case is an honest "I don't know"; the worst case is a confident answer with a citation that does not support it. Small models break the rules more often than big ones. Practical habits: look at the retrieved chunks before blaming the LLM, rephrase the search query, tune chunk size and k, and always click a citation before trusting it.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-ollama">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>local LLMs</div><h2>Run the LLM on <span class="hl">your laptop</span>: Ollama</h2></div>
-    <div class="bw">
-      <div class="cols" style="grid-template-columns:.95fr 1.05fr;align-items:center;flex:none">
-        <div class="stack" style="gap:12px">
-          <p class="body"><strong>Ollama</strong> is a free, open-source app that downloads <strong>open-weight</strong> LLMs (Qwen, Llama, Gemma, Mistral…) and runs them on your own computer.</p>
-          <div class="call v"><span class="tag">PRIVATE</span><span>Your documents and questions <strong>never leave</strong> your computer.</span></div>
-          <div class="call t"><span class="tag">FREE</span><span>No account, no API key, no cost per token; works offline once the model is downloaded.</span></div>
-          <div class="call g"><span class="tag">HARDWARE</span><span>Runs on a normal CPU; a GPU (or Apple chip) makes it much faster.</span></div>
-        </div>
-        <div class="card a demo" id="rag-size-demo">
-          <h4>How much memory does a model need?</h4>
-          <div class="ctl" role="group" aria-label="Model size" id="rag-sz-btns"></div>
-          <div class="rag-formula">size ≈ <b>parameters</b> × <b>bits per number</b> ÷ 8</div>
-          <div class="rag-sz" id="rag-sz"></div>
-          <div class="status" id="rag-sz-msg" aria-live="polite"></div>
-          <div class="caption" style="margin-top:2px">dashed lines = typical laptop RAM · weights only, add ~1–2 GB to run the chat</div>
-        </div>
-      </div>
-      <div class="caption" style="margin-top:0">qwen3.5:2b in Ollama: 1.9 B parameters stored in 8 bits (≈ 2 GB) + an image encoder → 2.7 GB download · <a href="https://ollama.com/library/qwen3.5" target="_blank" rel="noopener">ollama.com/library/qwen3.5</a></div>
-    </div>
-  </div>
-  <aside class="notes">Open-weight means the trained numbers (weights) are published, so anyone can download and run the model; Ollama packages that into one command. Memory rule of thumb: every parameter is one number; at 16 bits a number takes 2 bytes, so a 2-billion-parameter model is about 4 GB. Quantisation stores each number with fewer bits (8 or 4), which makes the model 2–4× smaller and faster with only a small loss in quality; most Ollama models are already quantised. Click the sizes: 2B fits easily in a laptop with 8 GB of RAM, 9B at 4 bits fits in 8–16 GB, 27B needs a powerful machine. The model must fit in RAM (or GPU memory) plus some room for the conversation. The qwen3.5:2b tag we use is 8-bit and also contains an image encoder, which is why its download is 2.7 GB (source: ollama.com/library/qwen3.5). Speed: on a laptop CPU a 2B model answers in seconds, a GPU is much faster.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-install">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>install Ollama</div><h2>Install it, download a model, <span class="hl">chat</span></h2></div>
-    <div class="bw">
-      <div class="cols" style="grid-template-columns:1fr 1fr;align-items:center">
-        <div class="stack" style="gap:12px">
-          <div class="rag-stepn"><b>1</b>Install (once)</div>
-          <div class="term sm"><div class="bar"><i></i><i></i><i></i><span>install</span></div><pre><span class="tc"># Windows / macOS: installer from</span> <span class="ts">ollama.com/download</span>
-<span class="tc"># Linux:</span>
-curl -fsSL https://ollama.com/install.sh | sh</pre></div>
-          <div class="rag-stepn"><b>2</b>Download a model and chat</div>
-          <div class="term sm"><div class="bar"><i></i><i></i><i></i><span>terminal</span></div><pre>ollama pull qwen3.5:2b    <span class="tc"># download once, ~2.7 GB</span>
-ollama run qwen3.5:2b     <span class="tc"># chat in the terminal</span>
-<span class="to">&gt;&gt;&gt;</span> Explain RAG in one sentence.
-ollama list               <span class="tc"># models on your disk</span></pre></div>
-        </div>
-        <div class="stack" style="gap:14px">
-          <div class="diagbox rag-srv">
-            <svg class="sv" viewBox="0 0 440 200" width="440" height="200" role="img" aria-label="Ollama runs a small local server on your computer at localhost port 11434. The terminal and Python both talk to it; nothing goes to the internet.">
-              <rect x="8" y="8" width="424" height="184" rx="12" fill="none" stroke="#2a4570" stroke-dasharray="6 6"/>
-              <text x="22" y="32" class="mu m" font-size="16">your laptop</text>
-              <rect x="22" y="52" width="130" height="44" rx="8" fill="#172a48" stroke="#b4c2d8"/><text x="87" y="79" text-anchor="middle" class="ink m" font-size="17">terminal</text>
-              <rect x="22" y="122" width="130" height="44" rx="8" fill="#172a48" stroke="#b4c2d8"/><text x="87" y="149" text-anchor="middle" class="ink m" font-size="17">Python</text>
-              <path d="M156 74 L246 100" stroke="#b4c2d8" stroke-width="2" marker-end="url(#ar-b)"/><path d="M156 144 L246 120" stroke="#b4c2d8" stroke-width="2" marker-end="url(#ar-b)"/>
-              <rect x="254" y="66" width="164" height="84" rx="10" fill="rgba(155,214,126,.14)" stroke="#9bd67e" stroke-width="2"/>
-              <text x="336" y="96" text-anchor="middle" class="ink b" font-size="19">Ollama</text>
-              <text x="336" y="116" text-anchor="middle" class="m" style="fill:#9bd67e" font-size="16">localhost:11434</text>
-              <text x="336" y="136" text-anchor="middle" class="mu m" font-size="16">qwen3.5:2b</text>
-            </svg>
-          </div>
-          <div class="call g"><span class="tag">OPTIONAL</span><span>Ollama runs on <strong>your</strong> computer. In Colab (Google's machine) you can still do the retrieval part and read the prompt.</span></div>
-          <div class="pills"><a class="pill ghost" href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com/download</a><a class="pill ghost" href="https://docs.ollama.com" target="_blank" rel="noopener">docs.ollama.com</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">After installing, Ollama keeps running in the background (tray icon on Windows, menu bar on macOS) and serves a local API at http://localhost:11434; both the terminal and Python talk to that server. Windows needs Windows 10 22H2 or newer. Alternatives if students prefer the terminal: on Windows PowerShell "irm https://ollama.com/install.ps1 | iex" or "winget install Ollama.Ollama"; on macOS the same curl script as Linux also works. "ollama pull" downloads a model once; "ollama run" opens a chat (type /bye to exit). If the laptop is slow or has little RAM, try a smaller model such as qwen3.5:0.8b. Pitfall: if Python says it cannot connect, the Ollama app is not running. In Colab, localhost is Google's machine, not the student's laptop, so the generation step is skipped there.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-python">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>in Python</div><h2>A whole RAG in <span class="hl">a dozen lines</span></h2></div>
-    <div class="bw">
-      <div class="term rag-code"><div class="bar"><i></i><i></i><i></i><span>rag.py · pip install sentence-transformers ollama</span></div>
-<pre class="py">from sentence_transformers import SentenceTransformer
-import ollama
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-docs = ["Flight delayed 3 hours and nobody at the gate tells us anything", ...]
-doc_vecs = embedder.encode(docs)                                   # 1 index (once)
-
-question = "What goes wrong when people fly?"
-scores = embedder.similarity(embedder.encode([question]), doc_vecs)[0]   # 2 retrieve
-top = scores.argsort(descending=True)[:3].tolist()
-context = "\n".join(f"[{n+1}] {docs[i]}" for n, i in enumerate(top))
-
-prompt = ("Answer using ONLY the documents below. If they don't contain the answer, "
-          "say you don't know. Cite like [1].\n\n" + context + "\n\nQuestion: " + question)   # 3 augment
-reply = ollama.chat(model="qwen3.5:2b", messages=[{"role": "user", "content": prompt}])   # 4 generate
-print(reply.message.content)</pre></div>
-      <div class="g4 rag-legend">
-        <div class="rag-lg" style="--c:var(--violet)"><b>1</b> embed every chunk once</div>
-        <div class="rag-lg" style="--c:var(--green)"><b>2</b> cosine similarity → top-3</div>
-        <div class="rag-lg" style="--c:var(--yellow)"><b>3</b> rules + chunks + question</div>
-        <div class="rag-lg" style="--c:var(--blue)"><b>4</b> the local LLM answers</div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">This is the full pipeline from the diagram, with no framework. Libraries such as LangChain or LlamaIndex wrap exactly these steps (plus document loaders and vector databases), but the idea fits on one screen. embedder.similarity computes cosine similarity (sentence-transformers 3+; older versions use util.cos_sim). ollama.chat sends a list of messages with roles ("system", "user", "assistant") to the local server and returns the reply; reply.message.content is the text. Adding stream=True prints the answer token by token, which nicely shows the "next-token machine" from the first slide of this section. Point out that the LLM is the last line: everything before it is search.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-nb05">
-  <div class="main">
-    <div class="head"><div class="kicker">Hands-on<span class="sep">/</span>notebook 05</div><h2>Now, <span class="hl">in practice</span></h2></div>
-    <div class="bw rag-hands">
-      <p class="lead">Open the notebook, run the RAG part and analyse the answers.</p>
-      <div class="pills rag-concepts"><span class="pill">chunks</span><span class="pill">embeddings</span><span class="pill">retrieval</span><span class="pill">prompt</span><span class="pill">Ollama</span></div>
-      <div class="term sm"><div class="bar"><i></i><i></i><i></i><span>path</span></div><pre>03_multimodal/01_project_everything_is_a_vector/
-  05_Everything_Is_A_Vector.ipynb</pre></div>
-      <div class="nb"><a class="pill y" href="https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb" target="_blank" rel="noopener">Open in Colab</a><a class="pill ghost" href="https://github.com/the-ai-learning-hub/03-applied-ai-projects/blob/main/03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb" target="_blank" rel="noopener">View on GitHub</a></div>
-    </div>
-  </div>
-  <aside class="notes">Students with Ollama installed and the model pulled can run the generation step locally; everyone else (and Colab) still runs retrieval and sees the exact prompt that would be sent. Ask them to look at the retrieved chunks before reading the answer, and to check every citation.</aside>
-</section>
-
-<section class="slide" data-mod="RAG" style="--acc:#9bd67e" data-id="rag-recap">
-  <div class="main">
-    <div class="head"><div class="kicker">RAG<span class="sep">/</span>recap</div><h2>What we learned about <span class="hl">RAG</span></h2></div>
-    <div class="bw">
-      <div class="recap" style="flex:none">
-        <div class="rl">
-          <ol>
-            <li>An LLM <b>predicts the next token</b>: fluent, but it doesn't know your data or recent facts, and it can <b>hallucinate</b>.</li>
-            <li><b>RAG</b> is an open-book exam: <b>semantic search</b> finds the chunks closest in meaning → they go into the <b>prompt</b> → the LLM answers with citations.</li>
-            <li>The answer is only as good as the retrieval: tune <b>chunk size</b> and <b>top-k</b>, and check the citations.</li>
-            <li><b>Ollama</b> runs open-weight LLMs on your laptop: free, private, offline.</li>
-          </ol>
-        </div>
-        <div class="disc">
-          <div class="ic">💬</div>
-          <div class="qq">Which documents would you plug into a RAG at your school or job?</div>
-          <p class="sub">And which of them should <strong>never</strong> be sent to an online chatbot?</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">Discussion prompts: class notes and past exams, a school's regulations, product manuals, support tickets, internal procedures, medical or HR records. The second question is about privacy: personal data, contracts, health or customer records should not be pasted into a cloud chatbot without permission; a local model (Ollama) keeps them on the machine. Also ask: how would you check that your RAG answers are correct? (a small set of test questions with known answers, and reading the citations).</aside>
-</section>
-
 <!-- ===== closing ===== -->
 <section class="slide" data-mod="Closing" style="--acc:#ffd43b" data-id="recap">
   <div class="main">
-    <div class="head"><div class="kicker">Closing<span class="sep">/</span>the whole lesson</div><h2>Four sections, <span class="hl">one idea</span>: turn it into good numbers</h2></div>
+    <div class="head"><div class="kicker">Closing<span class="sep">/</span>the whole lesson</div><h2>Three sections, <span class="hl">one idea</span>: turn it into good numbers</h2></div>
     <div class="bw">
       <div class="cl-sec">
         <div class="cl-tile card" style="--tc:var(--violet)"><span class="n" aria-hidden="true">01</span><div class="ic">📝</div><h3><small>Text mining</small>Words → vectors</h3><p>Text is cut into <b>tokens</b>, then counted or embedded. Transformers read each word <b>in context</b>.</p><div class="mini">"not good" ≠ "good"</div></div>
         <div class="cl-tile card" style="--tc:var(--teal)"><span class="n" aria-hidden="true">02</span><div class="ic">📷</div><h3><small>Computer vision</small>Pixels → patterns</h3><p>An image is a <b>grid of numbers</b>. CNNs learn the patterns; <b>pretrained</b> models give a huge head start.</p><div class="mini">edges → shapes → "cat"</div></div>
         <div class="cl-tile card" style="--tc:var(--coral)"><span class="n" aria-hidden="true">03</span><div class="ic">🔗</div><h3><small>Multimodal</small>Text + images, one space</h3><p>Sentences and photos land in the <b>same vector space</b>, so you can search pictures with words.</p><div class="mini">"a dog" ≈ 🐕</div></div>
-        <div class="cl-tile card" style="--tc:var(--green)"><span class="n" aria-hidden="true">04</span><div class="ic">💬</div><h3><small>RAG &amp; local LLMs</small>Answers from your files</h3><p><b>Retrieve</b> the right passage first, then let a model on your laptop answer <b>and cite</b> it.</p><div class="mini">retrieve → generate</div></div>
       </div>
-      <div class="simple"><b>In plain words:</b> a model only understands numbers. Every section was the same question asked again: <strong>what numbers capture the meaning</strong> of this text, this photo, this document?</div>
+      <div class="simple"><b>In plain words:</b> a model only understands numbers. Every section was the same question asked again: <strong>what numbers capture the meaning</strong> of this text, this photo, this pair of text and image?</div>
     </div>
   </div>
-  <aside class="notes">Pause and look back. Ask the room to name, for each tile, the one picture they remember (token chips, the pixel grid, the shared space, the retrieve-then-answer flow). The thread is the same in all four: find numbers that keep the meaning. Pretrained models are the shortcut that appeared in every section: someone else learned good numbers on huge data, and we reuse them.</aside>
+  <aside class="notes">Pause and look back. Ask the room to name, for each tile, the one picture they remember (token chips, the pixel grid, the shared space). The thread is the same in all three: find numbers that keep the meaning. Pretrained models are the shortcut that appeared in every section: someone else learned good numbers on huge data, and we reuse them.</aside>
 </section>
 
 <section class="slide" data-mod="Closing" style="--acc:#ffd43b" data-id="cl-further">
@@ -6360,14 +5701,10 @@ print(reply.message.content)</pre></div>
           <li><a href="https://www.sbert.net/" target="_blank" rel="noopener">Sentence-Transformers docs</a>: embeddings and semantic search</li>
           <li><a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener">CLIP paper</a> (Radford et al., 2021)</li>
         </ul></div>
-        <div class="cl-lk card" style="--tc:var(--green)"><h4>04 · RAG &amp; local LLMs</h4><ul>
-          <li><a href="https://github.com/ollama/ollama" target="_blank" rel="noopener">Ollama</a>: run open language models on your laptop</li>
-          <li><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">The original RAG paper</a> (Lewis et al., 2020)</li>
-        </ul></div>
       </div>
     </div>
   </div>
-  <aside class="notes">Pick one per interest: text → Hugging Face course and the Illustrated Transformer; vision → CS231n; search and multimodal → Sentence-Transformers docs; RAG → try Ollama with a small model and your own notes.</aside>
+  <aside class="notes">Pick one per interest: text → Hugging Face course and the Illustrated Transformer; vision → CS231n; search and multimodal → Sentence-Transformers docs and the CLIP paper.</aside>
 </section>
 
 <section class="slide" data-mod="Closing" style="--acc:#ffd43b" data-id="cl-thanks">
@@ -6378,7 +5715,7 @@ print(reply.message.content)</pre></div>
         <div class="kicker">The AI Learning Hub<span class="sep">·</span>Lesson 03</div>
         <h1>Thank <span class="hl op-l2">you!</span></h1>
         <p class="lead">Text and images are just numbers waiting for a good representation. Now you know how to <strong>build</strong> them, and when to <strong>borrow</strong> them.</p>
-        <div class="op-mods"><span><i style="background:var(--violet)"></i>text</span><span><i style="background:var(--teal)"></i>images</span><span><i style="background:var(--coral)"></i>text + images</span><span><i style="background:var(--green)"></i>your documents</span></div>
+        <div class="op-mods"><span><i style="background:var(--violet)"></i>text</span><span><i style="background:var(--teal)"></i>images</span><span><i style="background:var(--coral)"></i>text + images</span></div>
         <div class="nb" style="margin:0 0 22px"><a class="pill y" href="https://github.com/the-ai-learning-hub/03-applied-ai-projects" target="_blank" rel="noopener">GitHub repo</a></div>
         <div class="op-by">by Diogo Freitas &amp; João Francisco Botas · MIT License</div>
       </div>
@@ -6479,11 +5816,10 @@ document.querySelectorAll(".slide").forEach(function (sl) {
 
 /* ------------------------------------------------------------ falling words (dividers, cover) */
 var WORDS = {
-  0: ["model.fit()", "tokens", "pixels", "embedding", "TF-IDF", "Conv2d", "cosine", "CLIP", "RAG", "softmax", "[0.12, -0.4]", "RGB"],
+  0: ["model.fit()", "tokens", "pixels", "embedding", "TF-IDF", "Conv2d", "cosine", "CLIP", "zero-shot", "softmax", "[0.12, -0.4]", "RGB"],
   1: ["free", "prize", "lol", ":)", "#fail", "USER", "not", "good", "win", "call", "TF-IDF", "##ing", "vocab", "the"],
   2: ["0", "255", "128", "RGB", "3×3", "Conv2d", "ReLU", "pool", "224", "[0, 87, 255]", "edge", "tensor"],
-  3: ["0.12", "-0.53", "0.07", "512-d", "cos 0.91", "embed()", "CLIP", "🐱", "\"a dog\"", "[0.3, 0.8]", "image", "text"],
-  4: ["retrieve", "prompt", "top_k", "context", "Ollama", "LLM", "chunk", "embed()", "cite [2]", "answer", "query", "local"]
+  3: ["0.12", "-0.53", "0.07", "512-d", "cos 0.91", "embed()", "CLIP", "🐱", "\"a dog\"", "[0.3, 0.8]", "image", "text"]
 };
 function hexRgb(h) { h = (h || "#6aaef0").trim().replace("#", ""); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)].join(","); }
 function Rain(cv, words, acc) {
@@ -9045,43 +8381,10 @@ demo("mm-negrow", function () {
   }).join("");
 });
 
-/* RAG section */
-/* ---------- next-token machine (toy probabilities) */
-demo("rag-next-demo", function () {
-  var ctxEl = $("rag-nt-ctx"); if (!ctxEl) return;
-  var START = ["Pastéis", " de", " nata", " were", " first", " made", " in"];
-  var DIST = [
-    [[" Belém", .46], [" Lisbon", .31], [" Portugal", .09], [" a", .04], [" the", .03]],
-    [[",", .41], [".", .28], [" by", .13], [" (", .05], [" in", .04]],
-    [[" by", .37], [" Lisbon", .22], [" a", .12], [" near", .08], [" at", .06]],
-    [[" monks", .58], [" the", .21], [" Catholic", .05], [" nuns", .04], [" Portuguese", .03]]
-  ];
-  var step = 0, added = [];
-  function render(fresh) {
-    ctxEl.innerHTML = START.concat(added).map(function (t, k) {
-      var isNew = k >= START.length;
-      return '<span class="chip' + (isNew ? " in" : "") + (isNew && fresh && k === START.length + added.length - 1 ? " new" : "") + '">' + esc(t.replace(/^ /, "·")) + "</span>";
-    }).join("");
-    var bars = $("rag-nt-bars");
-    if (step < DIST.length) {
-      bars.innerHTML = DIST[step].map(function (p, k) {
-        return '<div class="r' + (k === 0 ? " top" : "") + '"><span>' + esc(p[0].replace(/^ /, "·")) + '</span><i style="width:' + (p[1] * 100).toFixed(0) + '%"></i><b>' + pct(p[1], 0) + "</b></div>";
-      }).join("") + '<div class="r"><span class="mut">… 150k more</span><i style="width:0"></i><b class="mut">' + pct(1 - DIST[step].reduce(function (a, p) { return a + p[1]; }, 0), 0) + "</b></div>";
-      $("rag-nt-msg").innerHTML = step === 0 ? "The model scores <b>every</b> token in its vocabulary." : "Added <b>“" + esc(added[added.length - 1].trim()) + "”</b>. Now it scores everything again, with the longer text.";
-      $("rag-nt-go").disabled = false;
-    } else {
-      $("rag-nt-msg").innerHTML = "…and so on, <b>one token at a time</b>, until it predicts an end token.";
-      $("rag-nt-go").disabled = true;
-    }
-  }
-  $("rag-nt-go").onclick = function () { if (step >= DIST.length) return; added.push(DIST[step][0][0]); step++; render(true); };
-  $("rag-nt-reset").onclick = function () { step = 0; added = []; render(false); };
-  render(false);
-});
-
+/* semantic search with text (multimodal section) */
 /* ---------- keyword vs semantic search (toy similarities) */
-demo("rag-search-demo", function () {
-  var qEl = $("rag-sq"); if (!qEl) return;
+demo("ss-search-demo", function () {
+  var qEl = $("ss-sq"); if (!qEl) return;
   var DOCS = ["Flight delayed 3 hours and nobody at the gate tells us anything", "They lost my luggage again. Third time this year!", "My flight got cancelled and the hotel voucher is a joke", "Rain all day in Lisbon, perfect excuse to stay in", "Sunny morning by the river, coffee and pastel de nata", "Just adopted a puppy and I can't stop smiling", "The puppy chewed my charger. Still worth it", "New phone battery dies before lunch, so annoying"];
   var QS = [
     ["my plane was late", [.71, .38, .55, .12, .05, .04, .10, .15]],
@@ -9099,16 +8402,16 @@ demo("rag-search-demo", function () {
     var kw = DOCS.map(function (d, i) { var hits = {}; words(d).forEach(function (w) { if (set[w]) hits[w] = 1; }); return [i, Object.keys(hits).length]; })
       .sort(function (a, b) { return b[1] - a[1] || a[0] - b[0]; });
     var anyHit = kw[0][1] > 0;
-    $("rag-kw").innerHTML = (anyHit ? "" : '<div class="rag-none">no document shares a word with the query</div>') + kw.slice(0, anyHit ? 8 : 7).map(function (p, r) {
+    $("ss-kw").innerHTML = (anyHit ? "" : '<div class="ss-none">no document shares a word with the query</div>') + kw.slice(0, anyHit ? 8 : 7).map(function (p, r) {
       var on = p[1] > 0 && r < 3;
       return '<div class="doc' + (on ? " top" : "") + (p[1] === 0 ? " fade" : "") + '"><span>' + hl(DOCS[p[0]], set) + "</span><b>" + p[1] + (p[1] === 1 ? " word" : " words") + "</b></div>";
     }).join("");
     var se = QS[q][1].map(function (s, i) { return [i, s]; }).sort(function (a, b) { return b[1] - a[1]; });
-    $("rag-se").innerHTML = se.map(function (p, r) {
+    $("ss-se").innerHTML = se.map(function (p, r) {
       return '<div class="doc' + (r < 3 && p[1] >= 0.3 ? " top" : " fade") + '"><span>' + esc(DOCS[p[0]]) + "</span><b>" + p[1].toFixed(2) + "</b></div>";
     }).join("");
   }
-  $("rag-search-demo").addEventListener("click", function (e) {
+  $("ss-search-demo").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-q]"); if (!b) return;
     q = +b.dataset.q; pressOnly(qEl, b, "data-q"); render();
   });
@@ -9116,8 +8419,8 @@ demo("rag-search-demo", function () {
 });
 
 /* ---------- semantic search: a toy 2-D map of meaning */
-demo("rag-sem-demo", function () {
-  var svg = $("rag-sem-svg"); if (!svg) return;
+demo("ss-sem-demo", function () {
+  var svg = $("ss-sem-svg"); if (!svg) return;
   var DOCS = [
     ["Flight delayed 3 hours…", 150, 80], ["They lost my luggage…", 100, 228], ["My flight got cancelled…", 232, 166],
     ["Rain all day in Lisbon…", 440, 56], ["Sunny morning by the river…", 482, 166],
@@ -9128,7 +8431,7 @@ demo("rag-sem-demo", function () {
   // query: text, x, y, label x, label y, label anchor
   var QS = [["my plane was late", 215, 58, 237, 50, "start"], ["rainy weather", 380, 112, 360, 117, "end"], ["my dog destroyed a cable", 524, 326, 544, 334, "start"]];
   var q = 0;
-  $("rag-sem-q").innerHTML = QS.map(function (x, k) { return '<button class="btn sm" data-q="' + k + '" aria-pressed="' + (k === 0) + '">"' + esc(x[0]) + '"</button>'; }).join("");
+  $("ss-sem-q").innerHTML = QS.map(function (x, k) { return '<button class="btn sm" data-q="' + k + '" aria-pressed="' + (k === 0) + '">"' + esc(x[0]) + '"</button>'; }).join("");
   function render() {
     var Q = QS[q], ord = DOCS.map(function (d, i) { return [i, Math.hypot(d[1] - Q[1], d[2] - Q[2])]; }).sort(function (a, b) { return a[1] - b[1]; });
     var near = [ord[0][0], ord[1][0]], h = "";
@@ -9138,11 +8441,11 @@ demo("rag-sem-demo", function () {
     });
     near.slice().reverse().forEach(function (i, r) {
       var d = DOCS[i];
-      h += '<line x1="' + Q[1] + '" y1="' + Q[2] + '" x2="' + d[1] + '" y2="' + d[2] + '" stroke="#9bd67e" stroke-width="' + (r === 1 ? 3.5 : 2) + '" stroke-dasharray="' + (r === 1 ? "none" : "6 5") + '" stroke-opacity="' + (r === 1 ? 1 : 0.7) + '"/>';
+      h += '<line x1="' + Q[1] + '" y1="' + Q[2] + '" x2="' + d[1] + '" y2="' + d[2] + '" stroke="#ff9f7a" stroke-width="' + (r === 1 ? 3.5 : 2) + '" stroke-dasharray="' + (r === 1 ? "none" : "6 5") + '" stroke-opacity="' + (r === 1 ? 1 : 0.7) + '"/>';
     });
     DOCS.forEach(function (d, i) {
       var k = near.indexOf(i), on = k > -1;
-      h += '<circle cx="' + d[1] + '" cy="' + d[2] + '" r="' + (k === 0 ? 10 : 8) + '" fill="' + (on ? "#9bd67e" : "#b4c2d8") + '"' + (k === 0 ? ' stroke="#ffffff" stroke-width="2.5"' : "") + "/>";
+      h += '<circle cx="' + d[1] + '" cy="' + d[2] + '" r="' + (k === 0 ? 10 : 8) + '" fill="' + (on ? "#ff9f7a" : "#b4c2d8") + '"' + (k === 0 ? ' stroke="#ffffff" stroke-width="2.5"' : "") + "/>";
       h += '<text x="' + d[1] + '" y="' + (d[2] + (d[3] || 26)) + '" text-anchor="middle" font-size="15" class="' + (on ? "ink b" : "mu") + '">' + esc(d[0]) + "</text>";
     });
     var sx = Q[1], sy = Q[2], pts = [];
@@ -9151,152 +8454,10 @@ demo("rag-sem-demo", function () {
     h += '<text x="' + Q[3] + '" y="' + Q[4] + '" text-anchor="' + Q[5] + '" class="m b" font-size="15" style="fill:#ffd43b">query</text>';
     svg.innerHTML = h;
   }
-  $("rag-sem-demo").addEventListener("click", function (e) {
+  $("ss-sem-demo").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-q]"); if (!b) return;
-    q = +b.dataset.q; pressOnly($("rag-sem-q"), b, "data-q"); render();
+    q = +b.dataset.q; pressOnly($("ss-sem-q"), b, "data-q"); render();
   });
-  render();
-});
-
-/* ---------- RAG phases: step-by-step reveal (shared helper) */
-function ragStepper(pre, hook, MSG) {
-  var svg = $(pre + "-svg"), N = MSG.length - 1, s = N, timer = null;
-  var parts = svg.querySelectorAll(".rag-st");
-  function paint() {
-    svg.classList.toggle("playing", s < N || !!timer);
-    parts.forEach(function (p) { p.classList.toggle("on", +p.dataset.s <= s); });
-    $(pre + "-msg").innerHTML = MSG[s];
-  }
-  function stop() { if (timer) clearInterval(timer); timer = null; }
-  function play() {
-    stop(); s = 1; paint();
-    if (REDUCED) { s = N; paint(); return; }
-    $(pre + "-play").textContent = "▶ playing";
-    timer = setInterval(function () { s++; if (s >= N) { s = N; stop(); $(pre + "-play").textContent = "↺ replay"; } paint(); }, 1100);
-  }
-  $(pre + "-play").onclick = play;
-  $(pre + "-step").onclick = function () { stop(); $(pre + "-play").textContent = "▶ play"; s = s >= N ? 1 : s + 1; paint(); };
-  HOOKS[hook] = { enter: function () { if (!REDUCED) play(); }, leave: function () { stop(); s = N; paint(); }, print: function () { stop(); s = N; paint(); } };
-  paint();
-}
-var RAG_COLS = ["#9bd67e", "#6aaef0", "#c4a2ff", "#ff9f7a"];
-function ragCells(g, x0, y, n, w, h, step, col, rnd) {
-  var out = "";
-  for (var k = 0; k < n; k++) out += '<rect x="' + (x0 + k * step) + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3" fill="' + col + '" fill-opacity="' + (0.3 + rnd() * 0.7).toFixed(2) + '"/>';
-  g.innerHTML += out;
-}
-demo("rag-p1-demo", function () {
-  if (!$("rag-p1-svg")) return;
-  var rnd = mulberry32(7), v = $("rag-p1-vecs"), db = $("rag-p1-db");
-  [44, 90, 136, 182].forEach(function (y, r) { ragCells(v, 714, y + 6, 7, 18, 22, 23, RAG_COLS[r], rnd); });
-  [80, 104, 128, 152, 176].forEach(function (y, r) {
-    db.innerHTML += '<rect x="950" y="' + y + '" width="52" height="14" rx="3" fill="#b4c2d8" fill-opacity=".28"/>';
-    ragCells(db, 1010, y, 4, 14, 14, 17, RAG_COLS[r % 4], rnd);
-  });
-  ragStepper("rag-p1", "ragp1", ["",
-    "<b>1</b> · Start from your documents: PDFs, web pages, emails, tweets…",
-    "<b>2</b> · Split them into small <b>chunks</b>, e.g. one paragraph each.",
-    "<b>3</b> · An <b>embedding model</b> turns each chunk into a vector.",
-    "<b>4</b> · One vector per chunk: similar meaning → similar numbers.",
-    "<b>5</b> · Store text + vector in a <b>vector database</b>. Ready for questions."]);
-});
-demo("rag-p2-demo", function () {
-  if (!$("rag-p2-svg")) return;
-  ragCells($("rag-p2-qv"), 432, 76, 6, 22, 30, 27, "#6aaef0", mulberry32(5));
-  ragStepper("rag-p2", "ragp2", ["",
-    "<b>1</b> · A question arrives.",
-    "<b>2</b> · Embed it with the <b>same</b> model as the chunks → a query vector.",
-    "<b>3</b> · <b>Retrieve</b>: cosine with every chunk, keep the k most similar.",
-    "<b>4</b> · <b>Augment</b>: rules + those chunks + the question = the prompt.",
-    "<b>5</b> · <b>Generate</b>: the LLM answers and cites the chunks it used."]);
-});
-
-/* ---------- RAG step by step on 10 tweets */
-demo("rag-demo", function () {
-  var docsEl = $("rag-docs"); if (!docsEl) return;
-  // 10 example tweets; cosine similarities computed with all-MiniLM-L6-v2.
-  var RAG = {"docs":["Flight delayed 3 hours and nobody at the gate tells us anything","They lost my luggage again. Third time this year!","Cabin crew were lovely, best flight in ages","My flight got cancelled and the hotel voucher is a joke","Rain all day in Lisbon, perfect excuse to stay in","Sunny morning by the river, coffee and pastel de nata","Just adopted a puppy and I can't stop smiling","The puppy chewed my charger. Still worth it","Queue at security took longer than the flight itself","New phone battery dies before lunch, so annoying"],
-    "qs":["How do people feel about their new puppy?","How is the weather in Lisbon?","What themes appear in people's complaints about travel?"],
-    "sims":[[0.08,0.12,0.15,0.04,0.02,-0.08,0.54,0.48,-0.04,0.16],
-    [0.09,0.12,0.11,0.09,0.69,0.34,0.03,0.02,0.03,0.01],
-    [0.18,0.15,0.32,0.21,0.25,0.22,0.04,0.07,0.15,0.07]]};
-  var ANSWERS = [   // illustrative answers (not a recording of a model)
-    "Very happy: \"can't stop smiling\" [1].\nA bit annoyed but still positive: the puppy chewed a charger, \"still worth it\" [2].\n[3] is about a phone, not a puppy, so I ignore it.",
-    "It is raining all day in Lisbon, so people stay in [1].\n[2] mentions a sunny morning by a river, but not which city.\nThe tweets give no forecast, so I don't know about tomorrow.",
-    "[1] is not a complaint: it praises the cabin crew.\n[2] and [3] are about the weather, not travel problems.\nThese tweets don't show complaint themes, so I don't know."
-  ];
-  var COLS = ["#9bd67e", "#6aaef0", "#c4a2ff", "#ffd43b", "#ff9f7a", "#7fd6c8"];
-  var q = 0, step = 0;
-  $("rag-qs").innerHTML = RAG.qs.map(function (s, k) { return '<button class="btn sm" data-q="' + k + '" aria-pressed="' + (k === 0) + '">' + esc(s) + "</button>"; }).join("");
-  function order() { return RAG.sims[q].map(function (s, i) { return [i, s]; }).sort(function (a, b) { return b[1] - a[1]; }); }
-  function vec(seed, n, cls) { var r = mulberry32(seed), out = ""; for (var i = 0; i < n; i++) out += '<i style="background:' + COLS[Math.floor(r() * 6)] + ";opacity:" + (0.3 + r() * 0.7).toFixed(2) + '"></i>'; return '<span class="' + cls + '">' + out + "</span>"; }
-  function cites(s) { return esc(s).replace(/\[(\d)\]/g, '<span class="cite">[$1]</span>'); }
-  function render() {
-    var ord = order(), top = ord.slice(0, 3).map(function (p) { return p[0]; });
-    docsEl.innerHTML = '<div class="label" style="margin:0 0 2px">our tweets' + (step === 1 ? " · already embedded" : step >= 2 ? " · cosine similarity (MiniLM)" : "") + "</div>" + RAG.docs.map(function (d, i) {
-      var k = top.indexOf(i), cls = "doc" + (step >= 2 && k > -1 ? " top" : "") + (step >= 3 && k < 0 ? " fade" : ""), s = RAG.sims[q][i];
-      var right = step === 1 ? vec(i + 40, 6, "rag-vecs") : step >= 2 ? '<span class="bar"><i style="width:' + Math.max(0, s / 0.7 * 100).toFixed(0) + '%"></i></span>' : "<span></span>";
-      return '<div class="' + cls + '"><span>' + (step >= 2 && k > -1 ? "<b style=\"color:var(--acc)\">[" + (k + 1) + "]</b> " : "") + esc(d) + "</span>" + right + "<b>" + (step >= 2 ? s.toFixed(2) : "") + "</b></div>";
-    }).join("");
-    var Q = RAG.qs[q], o;
-    if (step === 0) o = '<div class="rag-h">1 · the question</div><div class="qb">' + esc(Q) + '</div><div class="rag-mut">The LLM has never seen our tweets. Before asking it anything, we search them.</div>';
-    else if (step === 1) o = '<div class="rag-h">2 · embed the question</div><div class="mono">embed("' + esc(Q) + '")</div>' + vec(q + 3, 24, "qv") + '<div class="rag-mut">→ 384 numbers, with the <b>same</b> model (all-MiniLM-L6-v2) that embedded every tweet beforehand.</div>';
-    else if (step === 2) o = '<div class="rag-h">3 · retrieve the top 3</div><div class="rag-mut">Cosine similarity with every tweet, keep the 3 highest:</div>' + ord.slice(0, 3).map(function (p, k) { return '<div class="rk"><b>[' + (k + 1) + "]</b><span class=\"mono\">" + p[1].toFixed(2) + "</span><span>" + esc(RAG.docs[p[0]]) + "</span></div>"; }).join("");
-    else if (step === 3) o = '<div class="rag-h">4 · augment: the prompt we send</div><div class="seg i">Answer the question using ONLY the tweets below. If they don\'t contain the answer, say you don\'t know. Cite tweets like [2].</div><div class="seg c">' + top.map(function (i, k) { return "[" + (k + 1) + "] " + esc(RAG.docs[i]); }).join("\n") + '</div><div class="seg q">Question: ' + esc(Q) + "</div>";
-    else o = '<div class="rag-h">5 · generate</div><div class="rag-mut">local LLM via Ollama · illustrative answer</div><div class="ans">' + cites(ANSWERS[q]) + "</div>";
-    $("rag-out").innerHTML = o;
-    $("rag-stepbar").querySelectorAll("[data-s]").forEach(function (b) { if (+b.dataset.s === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
-    $("rag-next").textContent = step < 4 ? "next ▶" : "↺ restart";
-  }
-  $("rag-demo").addEventListener("click", function (e) {
-    var b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.q !== undefined) { q = +b.dataset.q; pressOnly($("rag-qs"), b, "data-q"); step = 0; }
-    else if (b.dataset.s !== undefined) step = +b.dataset.s;
-    else if (b.id === "rag-next") step = step < 4 ? step + 1 : 0;
-    render();
-  });
-  render();
-});
-
-/* ---------- grounding: retrieval decides */
-demo("rag-ground-demo", function () {
-  var docs = $("rag-g-docs"); if (!docs) return;
-  var GOOD = ["You can return any item within 30 days with the receipt.", "Refunds go to the original card in 5–7 days."];
-  var BAD = ["Shipping is free on orders over €50.", "Our stores open at 9:00."];
-  var S = [
-    [GOOD, "You have 30 days, and you need the receipt [1].", "ok", "GROUNDED", "The answer comes from [1], and you can check it."],
-    [BAD, "The documents don't say, so I don't know.", "mid", "HONEST", "Safe, but useless: retrieval failed. Rephrase the search or change k."],
-    [BAD, "You have 14 days to return a product [1].", "bad", "INVENTED", "[1] is about shipping: the citation doesn't support the answer. Always check citations!"]
-  ];
-  var g = 0;
-  function render() {
-    var s = S[g];
-    docs.innerHTML = s[0].map(function (d, k) { return '<div class="doc' + (g === 0 ? " top" : " bad") + '"><span><b style="color:var(--acc)">[' + (k + 1) + "]</b> " + esc(d) + "</span><b>" + (g === 0 ? "retrieved ✓" : "retrieved ✗") + "</b></div>"; }).join("");
-    $("rag-g-ans").innerHTML = esc(s[1]);
-    $("rag-g-v").className = "call " + s[2];
-    $("rag-g-tag").textContent = s[3];
-    $("rag-g-msg").innerHTML = esc(s[4]);
-  }
-  $("rag-g-btns").addEventListener("click", function (e) { var b = e.target.closest("button[data-g]"); if (!b) return; g = +b.dataset.g; pressOnly($("rag-g-btns"), b, "data-g"); render(); });
-  render();
-});
-
-/* ---------- model size rule of thumb */
-demo("rag-size-demo", function () {
-  var box = $("rag-sz"); if (!box) return;
-  var SIZES = [0.8, 2, 4, 9, 27], BITS = [16, 8, 4], p = 2;
-  $("rag-sz-btns").innerHTML = '<span class="label" style="margin:0">parameters</span>' + SIZES.map(function (s) { return '<button class="btn sm" data-p="' + s + '" aria-pressed="' + (s === p) + '">' + s + " B</button>"; }).join("");
-  function gb(v) { return v < 10 ? v.toFixed(1).replace(/\.0$/, "") : Math.round(v); }
-  function render() {
-    var max = Math.max(20, p * 2 * 1.1);
-    box.innerHTML = BITS.map(function (b, r) {
-      var v = p * b / 8, mk = [8, 16].map(function (m) { return m < max ? '<s class="mk' + (m === 16 ? " o" : "") + '" style="left:' + (m / max * 100).toFixed(1) + '%">' + (r === 0 ? "<span>" + m + " GB</span>" : "") + "</s>" : ""; }).join("");
-      return '<div class="r"><span>' + b + '-bit</span><span class="tr"><i style="width:' + Math.max(0.6, v / max * 100).toFixed(1) + '%"></i>' + mk + "</span><b>" + gb(v) + " GB</b></div>";
-    }).join("");
-    var need = p * 4 / 8 + 1.5, ram = need <= 8 ? 8 : need <= 16 ? 16 : need <= 32 ? 32 : 64;
-    $("rag-sz-msg").innerHTML = "<b>" + p + " B</b> parameters at 4-bit ≈ " + gb(p / 2) + " GB → needs a computer with <b>" + ram + " GB</b> of RAM or more." + (ram >= 32 ? " Not for a normal laptop." : "");
-  }
-  $("rag-sz-btns").addEventListener("click", function (e) { var b = e.target.closest("button[data-p]"); if (!b) return; p = +b.dataset.p; pressOnly($("rag-sz-btns"), b, "data-p"); render(); });
   render();
 });
 

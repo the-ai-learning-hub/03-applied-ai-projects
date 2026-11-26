@@ -1,12 +1,12 @@
-"""Helpers for notebook 05 · Everything is a vector (text, images and sound as vectors + local RAG).
+"""Helpers for notebook 05 · Everything is a vector (text, images and sound as vectors).
 
 Everything here runs on a CPU laptop with small models:
 
 * sentence embeddings: ``sentence-transformers/all-MiniLM-L6-v2`` (~90 MB, 384 numbers per text);
 * text <-> image: ``openai/clip-vit-base-patch32`` (~600 MB, 512 numbers per image or caption);
-* speech -> text: ``openai/whisper-tiny`` (~150 MB);
-* answers: a small local LLM served by `Ollama <https://ollama.com>`_ through its REST API
-  (``http://localhost:11434``). No API keys, nothing leaves your computer.
+* speech -> text: ``openai/whisper-tiny`` (~150 MB).
+
+No API keys, nothing leaves your computer.
 
 Models are loaded lazily (only when a function needs them) and cached in memory, so importing
 this module is instant and the tests never download anything.
@@ -24,38 +24,7 @@ import numpy as np
 TEXT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 CLIP_MODEL = "openai/clip-vit-base-patch32"
 WHISPER_MODEL = "openai/whisper-tiny"
-OLLAMA_URL = "http://localhost:11434"
-OLLAMA_MODEL = "qwen3.5:2b"  # alternatives: llama3.2:3b, gemma4:e2b, qwen3.5:4b
 SAMPLE_RATE = 16_000  # Whisper (and our WAV files) use 16 kHz
-
-OLLAMA_HELP = """\
-🦙 Ollama is not running on this computer, so there is no local LLM to answer.
-   The retrieval step above still worked - this is the prompt that *would* be sent.
-
-   To enable the last step (free, local, no API key):
-     1. Install Ollama:  Windows -> winget install Ollama.Ollama   (or download from https://ollama.com/download)
-                         macOS   -> brew install ollama            Linux -> curl -fsSL https://ollama.com/install.sh | sh
-     2. Download a small model (~2-3 GB):   ollama pull {model}
-     3. Make sure the Ollama app is running (tray icon) or run:   ollama serve
-     4. Re-run this cell.
-"""
-
-OLLAMA_COLAB_HELP = """\
-☁️ You are in Google Colab: "localhost" here is Google's remote machine, not your laptop,
-   so your own Ollama cannot be reached. Retrieval worked; generation is skipped.
-   To see real answers, run this notebook locally with Ollama installed (see the folder README).
-"""
-
-
-def in_colab() -> bool:
-    """True when running inside a hosted Google Colab runtime."""
-    import sys
-    return "google.colab" in sys.modules
-
-
-def _is_local(url: str) -> bool:
-    return any(host in url for host in ("localhost", "127.0.0.1", "0.0.0.0"))
-
 
 # --------------------------------------------------------------------------------------------
 # Vectors: normalising, cosine similarity, top-k search, keyword baseline, 2D maps
@@ -308,81 +277,6 @@ def transcribe(audio: str | Path | np.ndarray, sr: int = SAMPLE_RATE, language: 
     out = load_whisper()({"raw": np.asarray(audio, dtype=np.float32), "sampling_rate": sr},
                          generate_kwargs=generate_kwargs)
     return out["text"].strip()
-
-
-# --------------------------------------------------------------------------------------------
-# RAG with a local LLM (Ollama REST API, no keys)
-# --------------------------------------------------------------------------------------------
-def ollama_available(url: str = OLLAMA_URL, timeout: float = 2.0) -> bool:
-    """True if an Ollama server answers at ``url`` (never raises)."""
-    try:
-        import requests
-        return requests.get(f"{url}/api/tags", timeout=timeout).ok
-    except Exception:
-        return False
-
-
-def ollama_models(url: str = OLLAMA_URL, timeout: float = 2.0) -> list[str]:
-    """Names of the models already pulled into the local Ollama (empty list if not running)."""
-    try:
-        import requests
-        r = requests.get(f"{url}/api/tags", timeout=timeout)
-        return [m["name"] for m in r.json().get("models", [])] if r.ok else []
-    except Exception:
-        return []
-
-
-def build_rag_prompt(question: str, context_docs: Sequence[str]) -> str:
-    """Augment step: paste the retrieved documents above the question, with clear instructions."""
-    context = "\n".join(f"[{i}] {doc.strip()}" for i, doc in enumerate(context_docs, start=1))
-    return (
-        "You are a helpful analyst. Answer the question using ONLY the tweets below.\n"
-        "If the tweets do not contain the answer, say you don't know.\n"
-        "Be brief (3-5 bullet points) and cite tweet numbers like [2].\n\n"
-        f"Tweets:\n{context}\n\n"
-        f"Question: {question}\nAnswer:"
-    )
-
-
-def ask_ollama(question: str, context_docs: Sequence[str] = (), model: str = OLLAMA_MODEL,
-               url: str = OLLAMA_URL, timeout: float = 180.0, temperature: float = 0.2,
-               verbose: bool = True) -> str | None:
-    """Generate step: send the RAG prompt to a local Ollama model and return its answer.
-
-    Never raises: if Ollama is not running, or the model is missing, it prints friendly
-    instructions plus the prompt that *would* have been sent, and returns ``None``.
-    In hosted Colab (where ``localhost`` is Google's machine) it says that generation is skipped.
-    """
-    prompt = build_rag_prompt(question, context_docs) if context_docs else question
-    if not ollama_available(url):
-        if verbose:
-            colab = in_colab() and _is_local(url)
-            print(OLLAMA_COLAB_HELP if colab else OLLAMA_HELP.format(model=model))
-            print("─" * 30, "prompt that would be sent", "─" * 30)
-            print(prompt)
-        return None
-    try:
-        import requests
-        r = requests.post(
-            f"{url}/api/chat",
-            json={"model": model, "stream": False, "think": False,  # skip "thinking" mode: faster answers
-                  "messages": [{"role": "user", "content": prompt}],
-                  "options": {"temperature": temperature, "seed": 42}},
-            timeout=timeout,
-        )
-        if r.status_code == 404:
-            if verbose:
-                print(f"🦙 Ollama is running but the model '{model}' is not downloaded yet.\n"
-                      f"   Run in a terminal:  ollama pull {model}\n"
-                      f"   Models you already have: {ollama_models(url) or 'none'}")
-            return None
-        r.raise_for_status()
-        return r.json()["message"]["content"].strip()
-    except Exception as err:  # timeouts, connection drops, unexpected JSON...
-        if verbose:
-            print(f"🦙 Could not get an answer from Ollama ({type(err).__name__}: {err}).\n"
-                  "   Check that the Ollama app is running and try again.")
-        return None
 
 
 # --------------------------------------------------------------------------------------------

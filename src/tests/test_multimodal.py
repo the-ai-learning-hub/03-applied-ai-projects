@@ -1,8 +1,6 @@
-"""Fast tests for src.multimodal: no model downloads, no network (requests is mocked)."""
+"""Fast tests for src.multimodal: no model downloads, no network."""
 
 from __future__ import annotations
-
-from unittest import mock
 
 import numpy as np
 import pytest
@@ -83,52 +81,6 @@ def test_try_load_is_friendly(capsys):
     assert mm.try_load("a model", broken) is None
     assert "re-run this cell" in capsys.readouterr().out
     assert mm.try_load("ok", lambda x: x + 1, 1) == 2
-
-
-def test_ollama_colab_message(capsys):
-    with mock.patch("requests.get", side_effect=ConnectionError("refused")), \
-            mock.patch.object(mm, "in_colab", return_value=True):
-        assert mm.ask_ollama("Q?", ["doc"]) is None
-    out = capsys.readouterr().out
-    assert "Colab" in out and "generation is skipped" in out and "[1] doc" in out
-
-
-def test_build_rag_prompt_numbers_documents():
-    prompt = mm.build_rag_prompt("Why?", ["first tweet", "second tweet"])
-    assert "[1] first tweet" in prompt and "[2] second tweet" in prompt
-    assert prompt.rstrip().endswith("Answer:")
-
-
-def test_ollama_unavailable_is_friendly(capsys):
-    with mock.patch("requests.get", side_effect=ConnectionError("refused")):
-        assert mm.ollama_available() is False
-        assert mm.ollama_models() == []
-        answer = mm.ask_ollama("What do people complain about?", ["my flight is late"])
-    assert answer is None
-    out = capsys.readouterr().out
-    assert "ollama pull" in out and "[1] my flight is late" in out
-
-
-def test_ask_ollama_success():
-    ok = mock.Mock(ok=True, status_code=200)
-    ok.json.return_value = {"message": {"role": "assistant", "content": "  Delays [1]. "}}
-    with mock.patch("requests.get", return_value=mock.Mock(ok=True)), \
-            mock.patch("requests.post", return_value=ok) as post:
-        answer = mm.ask_ollama("Q?", ["doc"], model="tiny:1b")
-    assert answer == "Delays [1]."
-    payload = post.call_args.kwargs["json"]
-    assert payload["model"] == "tiny:1b" and payload["stream"] is False
-    assert "doc" in payload["messages"][0]["content"]
-
-
-def test_ask_ollama_missing_model(capsys):
-    missing = mock.Mock(ok=False, status_code=404)
-    tags = mock.Mock(ok=True)
-    tags.json.return_value = {"models": [{"name": "other:1b"}]}
-    with mock.patch("requests.get", return_value=tags), \
-            mock.patch("requests.post", return_value=missing):
-        assert mm.ask_ollama("Q?", ["doc"], model="absent:1b") is None
-    assert "ollama pull absent:1b" in capsys.readouterr().out
 
 
 def test_load_trained_pet_predictions(tmp_path):
