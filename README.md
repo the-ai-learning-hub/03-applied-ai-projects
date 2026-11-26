@@ -14,7 +14,7 @@ Most of the world's data doesn't fit in a table: messages, reviews, photos, voic
 
 ```mermaid
 flowchart LR
-    A["01 · SMS spam<br/>text → numbers"] --> B["02.0–02.5 · Tweets project<br/>lexicons, ML, transformers, LLMs"]
+    A["01 · SMS spam<br/>text → numbers"] --> B["02.0–02.4 · Tweets project<br/>lexicons, ML, transformers"]
     B --> C["03 · Fashion-MNIST<br/>pixels, MLP vs CNN"]
     C --> D["04 · Cats vs dogs<br/>transfer learning, our pets"]
     D --> E["05 · Everything is a vector<br/>embeddings, CLIP, Whisper"]
@@ -23,7 +23,7 @@ flowchart LR
 | # | Notebook | The question | Slides | Open | Time |
 |---|---|---|---|---|---|
 | 01 | [Text Mining basics: SMS spam](01_text_mining/01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb) | How does text become numbers? | [#sms-spam](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#sms-spam) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/01_mini_project_sms_spam/01_Text_Mining_Basics_SMS_Spam.ipynb) | 60 min |
-| 02 | [Tweet sentiment project (02.0–02.5)](01_text_mining/02_project_tweets/02.0_Tweets_EDA.ipynb): EDA, baseline tools, lexicons, ML, transformers, LLMs | Can we beat the 83% of "always say positive"? | [#tweets](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#tweets) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.0_Tweets_EDA.ipynb) | 120 min |
+| 02 | [Tweet sentiment project (02.0–02.4)](01_text_mining/02_project_tweets/02.0_Tweets_EDA.ipynb): EDA, baseline tools, lexicons, ML, transformers | Can we beat the 83% of "always say positive"? | [#tweets](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#tweets) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/02_project_tweets/02.0_Tweets_EDA.ipynb) | 120 min |
 | 🎮 1 | [🎚️ Flip It!](01_text_mining/03_challenge_flip_it/Challenge_1_Flip_It.ipynb) | How few words must you change to make a sentiment AI change its mind? | [#challenge-1](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#challenge-1) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/01_text_mining/03_challenge_flip_it/Challenge_1_Flip_It.ipynb) | 15 min |
 | 03 | [Computer Vision basics: Fashion-MNIST](02_computer_vision/01_mini_project_fashion_mnist/03_Computer_Vision_Basics_Fashion_MNIST.ipynb) | An image is a grid of numbers: how does a model read it? | [#fashion](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#fashion) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/01_mini_project_fashion_mnist/03_Computer_Vision_Basics_Fashion_MNIST.ipynb) | 60 min |
 | 04 | [Cats vs dogs, and our pets](02_computer_vision/02_project_cats_vs_dogs/04_Cats_vs_Dogs_And_Our_Pets.ipynb) | From scratch or borrowed knowledge? Does it work on *our* animals? | [#cats-dogs](https://the-ai-learning-hub.github.io/03-applied-ai-projects/#cats-dogs) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/the-ai-learning-hub/03-applied-ai-projects/blob/main/02_computer_vision/02_project_cats_vs_dogs/04_Cats_vs_Dogs_And_Our_Pets.ipynb) | 100 min |
@@ -38,7 +38,7 @@ Each area folder has its own README with details, runtimes and models: [Text Min
 | Block | Slides + notebook | Challenge |
 |---|---|---|
 | Opening: unstructured data, how a computer reads / sees / hears | 15 min | — |
-| Text Mining: tokens, bag of words, TF-IDF, word vectors, metrics → a tweet project: lexicons, classic ML, transformers, LLMs | 180 min (notebooks 01 + 02.x) | 🎮 1 · 15 min |
+| Text Mining: tokens, bag of words, TF-IDF, word vectors, metrics → a tweet project: lexicons, classic ML, transformers | 180 min (notebooks 01 + 02.x) | 🎮 1 · 15 min |
 | Computer Vision: pixels, convolutions, CNNs → transfer learning, CPU vs GPU, Grad-CAM | 160 min (notebooks 03 + 04) | 🎮 2 · 15 min |
 | Multimodal: embeddings, semantic search, CLIP, sound and Whisper | 60 min (notebook 05) | 🎮 3 · 15 min |
 | Recap, responsible AI and what's next | 15 min | — |

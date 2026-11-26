@@ -16,10 +16,10 @@ ROOT = Path(__file__).resolve().parent.parent
 FORBIDDEN = ["ISCTE logo", "Grupo", "Group 7", "Group 27", "C:/Users", "C:" + "\\" + "Users", "!pip install",
              "Vullkano", "notebooks-challenge", "<!DOCTYPE", "<style", "api_key", "API_KEY"]
 MAX_MB = 3.5
-# The tweet project (02.x) keeps the outputs of the original university runs (GPU, API keys): some cells were never
-# run there, and the Gemini notebook reads its key from the environment, so these checks are relaxed for it.
+# The tweet project (02.x) keeps the outputs of the original university runs (GPU): some cells were never run there,
+# so the "executed" check and the commented-out pip installs are allowed for it.
 SAVED_RUN = "02_project_tweets"
-SAVED_RUN_ALLOWED = {"!pip install", "notebooks-challenge", "api_key", "API_KEY"}
+SAVED_RUN_ALLOWED = {"!pip install"}
 # Real secrets are never allowed: Hugging Face tokens and Google API keys.
 SECRET = re.compile(r"hf_[A-Za-z0-9]{30,}|AIza[0-9A-Za-z_-]{35}")
 

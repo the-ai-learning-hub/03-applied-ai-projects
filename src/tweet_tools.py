@@ -1,4 +1,4 @@
-"""Shared helpers for the tweet sentiment project (notebooks 02.0 to 02.5).
+"""Shared helpers for the tweet sentiment project (notebooks 02.0 to 02.4).
 
 Basic cleaning, tokenization and the evaluation helpers (confusion matrix + report) used by
 every notebook of the project.
