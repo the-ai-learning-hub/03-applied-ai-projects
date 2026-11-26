@@ -68,19 +68,6 @@ def test_load_audio_and_spectrogram(tmp_path):
     assert S.shape[0] == 80 and S.max() == pytest.approx(0.0)
 
 
-SHIPPED_CLIPS = ["flight_cancelled", "lisbon_weather", "lost_luggage", "new_puppy", "question_travel"]
-
-
-def test_shipped_audio_clips_are_16k_mono():
-    """Only the clips we ship: learners may drop their own recordings (any format) in data/audio/."""
-    import soundfile as sf
-
-    for name in SHIPPED_CLIPS:
-        info = sf.info(data_dir() / "audio" / f"{name}.wav")
-        assert info.samplerate == 16_000 and info.channels == 1
-        assert 1 < info.duration < 15
-
-
 def test_word_error_rate():
     assert mm.word_error_rate("My flight got cancelled.", "my flight got cancelled") == 0
     assert mm.word_error_rate("a b c d", "a x c d") == pytest.approx(0.25)    # 1 substitution

@@ -2,6 +2,7 @@
 
 The datasets are not stored in git: they live as zip files in a GitHub release
 (``DATA_RELEASE``) and are downloaded into ``data/`` the first time they are needed.
+Only the test pets (``data/pets/``) are committed.
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ PAGES_URL = f"https://the-ai-learning-hub.github.io/{REPO_NAME}/"
 
 DATA_RELEASE = "data-v1"
 DATA_URL = f"{REPO_URL}/releases/download/{DATA_RELEASE}"
-DATASETS = ("sms_spam", "tweets", "lexicons", "cats_and_dogs", "pets", "audio")
+DATASETS = ("sms_spam", "tweets", "lexicons", "cats_and_dogs")  # data/pets/ (test pets) is kept in git
 
 
 def find_root(start: Path | None = None) -> Path:

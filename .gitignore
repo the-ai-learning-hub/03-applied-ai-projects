@@ -227,5 +227,6 @@ models/
 # datasets are downloaded from the GitHub release (see src/paths.py)
 data/*
 !data/DATA_DICTIONARY.md
+!data/pets/
 .ipynb_checkpoints/
 runs/

@@ -1,16 +1,15 @@
 # 📖 Data dictionary · Lesson 03
 
 Every dataset used in Lesson 03: what it is, where it comes from, its licence, its columns and its known issues.
-The datasets are not stored in git: each one is a zip file in the GitHub release [`data-v1`](https://github.com/the-ai-learning-hub/03-applied-ai-projects/releases/tag/data-v1), downloaded and unzipped into this folder the first time a notebook needs it (`src/paths.py`). Other downloads go to `data/_cache/`. Everything except this file is git-ignored.
+The datasets are not stored in git: each one is a zip file in the GitHub release [`data-v1`](https://github.com/the-ai-learning-hub/03-applied-ai-projects/releases/tag/data-v1), downloaded and unzipped into this folder the first time a notebook needs it (`src/paths.py`). Other downloads go to `data/_cache/`. Everything except this file and `pets/` (the test pets, committed) is git-ignored.
 
 **Contents**
 
 - [SMS Spam Collection (`sms_spam/`)](#sms-spam-collection-sms_spam)
 - [English tweets with sentiment (`tweets/`)](#english-tweets-with-sentiment-tweets)
 - [Sentiment lexicons (`lexicons/`)](#sentiment-lexicons-lexicons)
-- [Voice clips (`audio/`)](#voice-clips-audio)
 - [Cats and dogs photos (`cats_and_dogs/`)](#cats-and-dogs-photos-cats_and_dogs)
-- [Our pets (`pets/`)](#our-pets-pets)
+- [Test pets (`pets/`)](#test-pets-pets)
 - [Fashion-MNIST (downloaded at runtime)](#fashion-mnist-downloaded-at-runtime--_cachefashionmnist)
 
 ---
@@ -74,30 +73,6 @@ Word lists where each word has a sentiment score. Used in notebook 02 to score t
 
 ---
 
-## Voice clips (`audio/`)
-
-| | |
-|---|---|
-| **What** | 4 short English sentences in the style of a tweet, read aloud, each with a clear sentiment, plus 1 spoken question and 1 spoken photo description |
-| **Source** | Created for this lesson, offline, with the Windows built-in text-to-speech (`System.Speech.Synthesis.SpeechSynthesizer`, standard voices *Microsoft David* / *Microsoft Zira*). Synthetic voices: no real person was recorded |
-| **Licence** | Same as the repository (MIT) |
-| **Format** | WAV, 16 kHz, mono, 16-bit PCM (the format Whisper expects) |
-| **One file =** | one spoken sentence |
-| **Used in** | `03_multimodal/01_project_everything_is_a_vector/05_Everything_Is_A_Vector.ipynb` (waveform, spectrogram, Whisper speech-to-text, sentiment, voice question for RAG) and `03_multimodal/02_challenge_clip_pictionary/Challenge_3_CLIP_Pictionary.ipynb` (voice bonus) |
-
-| File | Duration | Voice | Spoken text (ground truth) | Sentiment |
-|---|---|---|---|---|
-| `audio/flight_cancelled.wav` | 5.2 s | David | "My flight got cancelled again. This is the worst day ever." | `neg` |
-| `audio/lisbon_weather.wav` | 3.5 s | Zira | "Just landed in Lisbon and the weather is amazing!" | `pos` |
-| `audio/lost_luggage.wav` | 4.5 s | Zira | "The airline lost my luggage and nobody at the desk will help me." | `neg` |
-| `audio/new_puppy.wav` | 4.5 s | David | "We adopted a puppy today and I am so happy I could cry." | `pos` |
-| `audio/question_travel.wav` | 3.9 s | Zira | "What themes appear in people's complaints about travel?" | — (a question, used for the voice → RAG demo) |
-| `audio/pictionary_purple_blanket.wav` | 4.3 s | Zira | "A dog wrapped in a purple blanket, looking up at the camera." | — (a photo description of `pets/cropped/dogs/dog9007.jpg`, used for the voice bonus of Challenge 3) |
-
-**Known issues:** computer voices are much cleaner than real speech (no background noise, accents or hesitations), so speech-to-text looks easier than it is. Add your own recordings (any WAV; phone or *Windows Voice Recorder* exports may need converting to WAV) to this folder to try harder cases.
-
----
-
 ## Cats and dogs photos (`cats_and_dogs/`)
 
 | | |
@@ -113,7 +88,7 @@ Word lists where each word has a sentiment score. Used in notebook 02 to score t
 
 ---
 
-## Our pets (`pets/`)
+## Test pets (`pets/`)
 
 | | |
 |---|---|
