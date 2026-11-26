@@ -1305,30 +1305,39 @@ def encode_clip(frames_rgb: Sequence[np.ndarray], fps: float, folder, crf: int =
     return []
 
 
-def clip_html(frames_rgb: Sequence[np.ndarray], fps: float, folder, width: int = 720, webp_fps: float = 8) -> str:
-    """HTML that plays the frames inline: a ``<video>`` embedded as base64 (see :func:`encode_clip`).
+def clip_html(frames_rgb: Sequence[np.ndarray], fps: float, folder, width: int = 720,
+              webp_fps: float = 8, max_width: int = 520, quality: int = 48) -> str:
+    """HTML that plays the frames inline as an animated WebP ``<img>``.
 
-    Without any video encoder it falls back to an animated WebP image (no controls, but it plays everywhere).
+    Animated WebP plays natively inside VS Code notebooks, GitHub previews, Google Colab and every modern
+    browser (unlike base64 ``<video>`` tags, which VS Code's webview CSP and GitHub often block or strip).
+    Also writes ``clip.webp`` into ``folder`` when ``folder`` is given.
     """
     import base64
     import io
+    from pathlib import Path
 
-    clips = encode_clip(frames_rgb, fps, folder)
-    if clips:
-        sources = "".join(
-            f'<source src="data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}" type="{mime}">'
-            for path, mime in clips)
-        return (f'<video width="{width}" controls autoplay loop muted playsinline '
-                f'style="max-width:100%;border-radius:10px">{sources}</video>')
     from PIL import Image
 
+    if not len(frames_rgb):
+        return ""
     step = max(1, round(fps / webp_fps))
-    imgs = [Image.fromarray(f) for f in frames_rgb[::step]]
+    imgs = []
+    for f in frames_rgb[::step]:
+        im = Image.fromarray(f)
+        if max_width and im.width > max_width:
+            im = im.resize((max_width, round(im.height * max_width / im.width)), Image.Resampling.BILINEAR)
+        imgs.append(im)
     buf = io.BytesIO()
     imgs[0].save(buf, format="WEBP", save_all=True, append_images=imgs[1:], duration=int(1000 * step / fps),
-                 loop=0, quality=55, method=4)
+                 loop=0, quality=quality, method=4)
+    raw = buf.getvalue()
+    if folder is not None:
+        out_dir = Path(folder)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "clip.webp").write_bytes(raw)
     return (f'<img width="{width}" style="max-width:100%;border-radius:10px" '
-            f'src="data:image/webp;base64,{base64.b64encode(buf.getvalue()).decode()}">')
+            f'src="data:image/webp;base64,{base64.b64encode(raw).decode()}">')
 
 
 # ---- figures ----
